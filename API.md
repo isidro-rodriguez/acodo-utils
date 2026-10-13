@@ -40,6 +40,7 @@ from irg_utils import to_bool, valid_email
 **Parsers**
 
 - [`parse_amount`](#parse_amount): Parsea un tipo numérico a string numérico de legibilidad cómoda.
+- [`parse_bool`](#parse_bool): Parsea un booleano a string legible (`"Sí"`/`"No"`).
 - [`parse_datetime`](#parse_datetime): Parsea una fecha o fecha-hora a string legible.
 - [`parse_duration`](#parse_duration): Parsea un texto de duración (`"1h 30m"`) a timedelta.
 - [`parse_percent`](#parse_percent): Parsea un número o fracción (`0.256`, `Fraction(1, 4)`) a porcentaje.
@@ -426,6 +427,39 @@ Con `lang` `en`/`eng` se usa `1,234.50`; en cualquier otro caso
 '1,234.50'
 >>> parse_amount(1234)
 '1.234'
+```
+
+### `parse_bool`
+
+```python
+parse_bool(raw: bool, lang: str | None = None) -> str
+```
+
+Parsea un booleano a string legible (`"Sí"`/`"No"`).
+
+Es el camino inverso a `to_bool`. Con `lang` `en`/`eng` se usa
+`"Yes"`/`"No"`; en cualquier otro caso (incluido `None`), `"Sí"`/`"No"`.
+
+**Parámetros**
+
+- `raw`: Booleano a parsear.
+- `lang`: Código del lenguaje al que se va a formatear el booleano.
+
+**Devuelve:** String legible del booleano.
+
+**Lanza**
+
+- `ValueError`: Si se ha indicado código de lenguaje inválido.
+
+**Ejemplos**
+
+```pycon
+>>> parse_bool(True)
+'Sí'
+>>> parse_bool(False)
+'No'
+>>> parse_bool(True, "en")
+'Yes'
 ```
 
 ### `parse_datetime`

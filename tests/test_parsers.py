@@ -27,6 +27,20 @@ def test_parse_amount(
     assert iu.parse_amount(raw, lang, decimals) == expected
 
 
+@pytest.mark.parametrize(
+    ("raw", "lang", "expected"),
+    [
+        (True, None, "Sí"),
+        (False, None, "No"),
+        (True, "en", "Yes"),
+        (False, "ENG", "No"),
+        (True, "es", "Sí"),
+    ],
+)
+def test_parse_bool(raw: bool, lang: str | None, expected: str) -> None:
+    assert iu.parse_bool(raw, lang) == expected
+
+
 @pytest.mark.parametrize("lang", ["e", "english", "e1", ""])
 def test_invalid_lang(lang: str) -> None:
     with pytest.raises(ValueError, match="lenguaje"):

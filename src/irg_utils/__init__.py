@@ -25,6 +25,7 @@ from .converters import (
 )
 from .parsers import (
     parse_amount,
+    parse_bool,
     parse_datetime,
     parse_duration,
     parse_percent,
@@ -56,6 +57,7 @@ __all__ = [
     "has_required_fields",
     "has_required_keys",
     "parse_amount",
+    "parse_bool",
     "parse_datetime",
     "parse_duration",
     "parse_percent",

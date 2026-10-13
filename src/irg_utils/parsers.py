@@ -91,6 +91,37 @@ def parse_amount(
     return text if lang in _ENGLISH_CODES else text.translate(_SWAP_SEPARATORS)
 
 
+def parse_bool(raw: bool, lang: str | None = None) -> str:
+    """Parsea un booleano a string legible (`"Sí"`/`"No"`).
+
+    Es el camino inverso a `to_bool`. Con `lang` `en`/`eng` se usa
+    `"Yes"`/`"No"`; en cualquier otro caso (incluido `None`), `"Sí"`/`"No"`.
+
+    Args:
+        raw: Booleano a parsear.
+        lang: Código del lenguaje al que se va a formatear el booleano.
+
+    Returns:
+        String legible del booleano.
+
+    Raises:
+        ValueError: Si se ha indicado código de lenguaje inválido.
+
+    Examples:
+        >>> parse_bool(True)
+        'Sí'
+        >>> parse_bool(False)
+        'No'
+        >>> parse_bool(True, "en")
+        'Yes'
+    """
+    lang = _check_lang(lang)
+
+    if lang in _ENGLISH_CODES:
+        return "Yes" if raw else "No"
+    return "Sí" if raw else "No"
+
+
 def parse_datetime(raw: date | datetime, lang: str | None = None) -> str:
     """Parsea una fecha o fecha-hora a string legible.
 
