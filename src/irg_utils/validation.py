@@ -117,6 +117,26 @@ def valid_dni(raw: str) -> bool:
     return text[8] == _dni_letter(int(text[:8]))
 
 
+def valid_duration(raw: str) -> bool:
+    """Comprueba si el string es aceptado por `parse_duration`.
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si el string representa una duración (`"1h 30m"`, `"2d"`...).
+
+    Examples:
+        >>> valid_duration("1h 30m")
+        True
+        >>> valid_duration("abc")
+        False
+    """
+    from .parsers import parse_duration
+
+    return parse_duration(raw) is not None
+
+
 def valid_email(raw: str) -> bool:
     """Comprueba si el string presenta un formato de email válido.
 

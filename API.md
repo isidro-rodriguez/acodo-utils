@@ -52,6 +52,7 @@ from irg_utils import to_bool, valid_email
 - [`valid_date`](#valid_date): Comprueba si el string lo aceptaría `to_date`.
 - [`valid_datetime`](#valid_datetime): Comprueba si el string lo aceptaría `to_datetime`.
 - [`valid_dni`](#valid_dni): Comprueba si el string es un DNI español válido (8 dígitos y letra).
+- [`valid_duration`](#valid_duration): Comprueba si el string es aceptado por `parse_duration`.
 - [`valid_email`](#valid_email): Comprueba si el string presenta un formato de email válido.
 - [`valid_filename`](#valid_filename): Comprueba si el string es un nombre de fichero válido en cualquier SO.
 - [`valid_hex_color`](#valid_hex_color): Comprueba si el string es un color hexadecimal (`#rgb`, `#rrggbb`...).
@@ -674,6 +675,29 @@ Comprueba si el string es un DNI español válido (8 dígitos y letra).
 >>> valid_dni("12345678Z")
 True
 >>> valid_dni("12345678A")
+False
+```
+
+### `valid_duration`
+
+```python
+valid_duration(raw: str) -> bool
+```
+
+Comprueba si el string es aceptado por `parse_duration`.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el string representa una duración (`"1h 30m"`, `"2d"`...).
+
+**Ejemplos**
+
+```pycon
+>>> valid_duration("1h 30m")
+True
+>>> valid_duration("abc")
 False
 ```
 

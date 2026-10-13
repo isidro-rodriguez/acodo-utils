@@ -55,6 +55,21 @@ def test_valid_dni(raw: str, expected: bool) -> None:
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
+        ("1h 30m", True),
+        ("2d", True),
+        ("1,5h", True),
+        ("1h30x", False),
+        ("basura", False),
+        ("", False),
+    ],
+)
+def test_valid_duration(raw: str, expected: bool) -> None:
+    assert iu.valid_duration(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
         ("a@b.com", True),
         ("user.name+tag@example.co.uk", True),
         ("hola", False),
