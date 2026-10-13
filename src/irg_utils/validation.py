@@ -56,6 +56,28 @@ def _dni_letter(number: int) -> str:
     return _DNI_LETTERS[number % 23]
 
 
+def valid_bool(raw: str) -> bool:
+    """Comprueba si el string lo aceptaría `to_bool`.
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si el string representa un booleano reconocible.
+
+    Examples:
+        >>> valid_bool("Sí")
+        True
+        >>> valid_bool("off")
+        True
+        >>> valid_bool("basura")
+        False
+    """
+    from .converters import to_bool
+
+    return to_bool(raw) is not None
+
+
 def valid_date(raw: str) -> bool:
     """Comprueba si el string lo aceptaría `to_date`.
 

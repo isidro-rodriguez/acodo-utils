@@ -8,6 +8,22 @@ import irg_utils as iu
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
+        ("Sí", True),
+        (" OFF ", True),
+        ("1", True),
+        ("verdadero", True),
+        ("quizás", False),
+        ("2", False),
+        ("", False),
+    ],
+)
+def test_valid_bool(raw: str, expected: bool) -> None:
+    assert iu.valid_bool(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
         ("31/01/2024", True),
         ("2024-01-31", True),
         (" 2024-01-31 ", True),

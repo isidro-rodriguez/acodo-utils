@@ -50,6 +50,7 @@ from irg_utils import to_bool, valid_email
 
 **Validaciones**
 
+- [`valid_bool`](#valid_bool): Comprueba si el string lo aceptaría `to_bool`.
 - [`valid_date`](#valid_date): Comprueba si el string lo aceptaría `to_date`.
 - [`valid_datetime`](#valid_datetime): Comprueba si el string lo aceptaría `to_datetime`.
 - [`valid_dni`](#valid_dni): Comprueba si el string es un DNI español válido (8 dígitos y letra).
@@ -642,6 +643,31 @@ Formatea un timedelta a una cadena con formato `H:MM:SS` o `M:SS`.
 ## Validaciones
 
 Verifican que un string tenga el formato requerido.
+
+### `valid_bool`
+
+```python
+valid_bool(raw: str) -> bool
+```
+
+Comprueba si el string lo aceptaría `to_bool`.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el string representa un booleano reconocible.
+
+**Ejemplos**
+
+```pycon
+>>> valid_bool("Sí")
+True
+>>> valid_bool("off")
+True
+>>> valid_bool("basura")
+False
+```
 
 ### `valid_date`
 

@@ -34,6 +34,7 @@ from .parsers import (
     parse_timedelta,
 )
 from .validation import (
+    valid_bool,
     valid_date,
     valid_datetime,
     valid_dni,
@@ -74,6 +75,7 @@ __all__ = [
     "to_path",
     "to_str",
     "to_timedelta",
+    "valid_bool",
     "valid_date",
     "valid_datetime",
     "valid_dni",
