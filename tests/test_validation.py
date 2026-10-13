@@ -1,0 +1,280 @@
+"""Tests de las validaciones (`valid_*`)."""
+
+import pytest
+
+import irg_utils as iu
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("12345678Z", True),
+        ("12345678z", True),
+        ("00000000T", True),
+        ("12345678A", False),
+        ("1234567Z", False),
+        ("ABCDEFGHZ", False),
+        ("", False),
+    ],
+)
+def test_valid_dni(raw: str, expected: bool) -> None:
+    assert iu.valid_dni(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("a@b.com", True),
+        ("user.name+tag@example.co.uk", True),
+        ("hola", False),
+        ("a@b", False),
+        ("@b.com", False),
+        ("a b@c.com", False),
+        ("a@b.com basura", False),
+        ("a@b.com\n", False),
+        ("x" * 250 + "@b.com", False),
+        ("", False),
+    ],
+)
+def test_valid_email(raw: str, expected: bool) -> None:
+    assert iu.valid_email(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("informe.pdf", True),
+        ("a b.txt", True),
+        (".gitignore", True),
+        ("console.txt", True),
+        ("a" * 255, True),
+        ("", False),
+        ("a" * 256, False),
+        ("a/b", False),
+        ("a\\b", False),
+        ("a:b", False),
+        ("a\x00b", False),
+        ("a\tb", False),
+        ("archivo.", False),
+        ("archivo ", False),
+        ("..", False),
+        ("CON", False),
+        ("con.txt", False),
+        ("COM1.tar.gz", False),
+        ("lpt9", False),
+        ("con .txt", False),
+    ],
+)
+def test_valid_filename(raw: str, expected: bool) -> None:
+    assert iu.valid_filename(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "allow_alpha", "expected"),
+    [
+        ("#fff", True, True),
+        ("#FFFF", True, True),
+        ("#ff00cc", True, True),
+        ("#ff00cc80", True, True),
+        ("#fff", False, True),
+        ("#ff00cc", False, True),
+        ("#ffff", False, False),
+        ("#ff00cc80", False, False),
+        ("fff", True, False),
+        ("#ggg", True, False),
+        ("#12345", True, False),
+        ("", True, False),
+    ],
+)
+def test_valid_hex_color(raw: str, allow_alpha: bool, expected: bool) -> None:
+    assert iu.valid_hex_color(raw, allow_alpha) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("ES91 2100 0418 4502 0005 1332", True),
+        ("es9121000418450200051332", True),
+        ("GB82 WEST 1234 5698 7654 32", True),
+        ("DE89 3704 0044 0532 0130 00", True),
+        ("ES91 2100 0418 4502 0005 1333", False),
+        ("ES9", False),
+        ("1234 5678 9012 3456", False),
+        ("ES91-2100", False),
+        ("", False),
+    ],
+)
+def test_valid_iban(raw: str, expected: bool) -> None:
+    assert iu.valid_iban(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "version", "expected"),
+    [
+        ("192.168.1.1", None, True),
+        ("::1", None, True),
+        ("1.2.3.4", 4, True),
+        ("::1", 6, True),
+        ("::1", 4, False),
+        ("1.2.3.4", 6, False),
+        ("999.1.1.1", None, False),
+        ("1.2.3.4 ", None, False),
+        ("", None, False),
+    ],
+)
+def test_valid_ip(raw: str, version: int | None, expected: bool) -> None:
+    assert iu.valid_ip(raw, version) is expected
+
+
+def test_valid_ip_invalid_version() -> None:
+    with pytest.raises(ValueError, match="version"):
+        iu.valid_ip("1.2.3.4", 5)
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ('{"a": [1, 2]}', True),
+        ("123", True),
+        ("null", True),
+        ("{'a': 1}", False),
+        ("NaN", False),
+        ("Infinity", False),
+        ("-Infinity", False),
+        ("[1,", False),
+        ("", False),
+        ("[" * 100_000, False),
+    ],
+    ids=[
+        "object",
+        "number",
+        "null",
+        "single-quotes",
+        "nan",
+        "infinity",
+        "neg-infinity",
+        "truncated-array",
+        "empty",
+        "deep-nesting-100k",
+    ],
+)
+def test_valid_json(raw: str, expected: bool) -> None:
+    assert iu.valid_json(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("X1234567L", True),
+        ("x1234567l", True),
+        ("Y1234567X", True),
+        ("Z1234567R", True),
+        ("X1234567A", False),
+        ("A1234567L", False),
+        ("12345678Z", False),
+        ("", False),
+    ],
+)
+def test_valid_nie(raw: str, expected: bool) -> None:
+    assert iu.valid_nie(raw) is expected
+
+
+class TestValidPassword:
+    @pytest.mark.parametrize(
+        ("raw", "kwargs", "expected"),
+        [
+            ("abc123", {}, True),
+            ("Abc123", {}, True),
+            ("Abc123", {"allow_uppercase": False}, False),
+            ("abc#1", {"special_characters": "#"}, True),
+            ("abc#1", {}, False),
+            ("añb1", {}, True),
+            ("abc", {}, False),
+            ("a" * 11, {}, False),
+            ("1234", {"only_digits": True}, True),
+            ("12a4", {"only_digits": True}, False),
+        ],
+    )
+    def test_validation(
+        self, raw: str, kwargs: dict[str, object], expected: bool
+    ) -> None:
+        assert iu.valid_password(raw, (4, 10), **kwargs) is expected  # type: ignore[arg-type]
+
+    def test_ambiguous_arguments(self) -> None:
+        with pytest.raises(ValueError, match="ambiguos"):
+            iu.valid_password("1234", (4, 10), special_characters="#", only_digits=True)
+
+    def test_inconsistent_length(self) -> None:
+        with pytest.raises(ValueError, match="incoherente"):
+            iu.valid_password("abcd", (10, 4))
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("+34 612 345 678", True),
+        (" +34612345678 ", True),
+        ("(91) 123-4567", True),
+        ("612.345.678", True),
+        ("12345", False),
+        ("+34 612 345 678 901 234", False),
+        ("+(34", False),
+        ("612 345 67a", False),
+        ("abc", False),
+        ("", False),
+    ],
+)
+def test_valid_phone(raw: str, expected: bool) -> None:
+    assert iu.valid_phone(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("hola-mundo", True),
+        ("a", True),
+        ("a1-b2", True),
+        ("Hola Mundo", False),
+        ("hola--mundo", False),
+        ("-hola", False),
+        ("hola-", False),
+        ("", False),
+    ],
+)
+def test_valid_slug(raw: str, expected: bool) -> None:
+    assert iu.valid_slug(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("https://example.com/x", True),
+        ("http://localhost:8000", True),
+        ("HTTP://EXAMPLE.COM", True),
+        ("ftp://example.com", False),
+        ("example.com", False),
+        ("http://", False),
+        ("http://@", False),
+        ("http://exa mple.com", False),
+        ("http://[::1", False),
+        ("http://a:99999999", False),
+        ("", False),
+    ],
+)
+def test_valid_url(raw: str, expected: bool) -> None:
+    assert iu.valid_url(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("123e4567-e89b-12d3-a456-426614174000", True),
+        ("123E4567-E89B-12D3-A456-426614174000", True),
+        ("123e4567", False),
+        ("123e4567e89b12d3a456426614174000", False),
+        ("123e4567-e89b-12d3-a456-42661417400g", False),
+        ("", False),
+    ],
+)
+def test_valid_uuid(raw: str, expected: bool) -> None:
+    assert iu.valid_uuid(raw) is expected

@@ -1,0 +1,208 @@
+"""Tests de los conversores (`to_*`)."""
+
+import pathlib
+from datetime import date, datetime, timedelta
+from decimal import Decimal
+
+import pytest
+
+import irg_utils as iu
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        (True, True),
+        (False, False),
+        (1, True),
+        (0, False),
+        (2, None),
+        (-1, None),
+        ("Sí", True),
+        ("1", True),
+        (" OFF ", False),
+        ("no", False),
+        ("quizá", None),
+        ("", None),
+        (None, None),
+    ],
+)
+def test_to_bool(raw: object, expected: bool | None) -> None:
+    assert iu.to_bool(raw) is expected  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("1,5 GiB", 1610612736),
+        ("1.5 MiB", 1572864),
+        ("2 kB", 2000),
+        ("2 KB", 2000),
+        ("512", 512),
+        ("512 bytes", 512),
+        ("1.234,5 KB", 1234500),
+        ("1,234.5 kB", 1234500),
+        (" 1 PiB ", 1024**5),
+        ("1 furlong", None),
+        ("abc", None),
+        ("", None),
+        ("-1 KiB", None),
+        ("1.2.3 KiB", None),
+        ("9" * 400, None),
+        (None, None),
+    ],
+)
+def test_to_bytes(raw: str | None, expected: int | None) -> None:
+    assert iu.to_bytes(raw) == expected
+
+
+def test_to_date() -> None:
+    assert iu.to_date("31/01/2024") == date(2024, 1, 31)
+    assert iu.to_date("basura") is None
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        # ISO 8601
+        ("2024-01-31", datetime(2024, 1, 31)),
+        ("2024-01-31T10:30:00", datetime(2024, 1, 31)),
+        ("2024-01-31T10:30:00Z", datetime(2024, 1, 31)),
+        ("2024-01-31T10:30:00z", datetime(2024, 1, 31)),
+        ("2024-01-31T10:30:00+02:00", datetime(2024, 1, 31)),
+        (" 2024-01-31 ", datetime(2024, 1, 31)),
+        # Unix timestamp
+        ("1700000000", datetime(2023, 11, 14)),
+        ("100000000", datetime(1973, 3, 3)),
+        ("99999999999", None),
+        # Nombres de mes
+        ("Wed Jan 31 10:30:00 2024", datetime(2024, 1, 31)),
+        ("Jan 31 10:30:00 2024", datetime(2024, 1, 31)),
+        ("Jan 31 2024", datetime(2024, 1, 31)),
+        ("31 Jan 2024", datetime(2024, 1, 31)),
+        ("31 January 2024", datetime(2024, 1, 31)),
+        ("January 31 2024", datetime(2024, 1, 31)),
+        # Numéricos no ISO (día primero)
+        ("2024/01/31", datetime(2024, 1, 31)),
+        ("2024.01.31", datetime(2024, 1, 31)),
+        ("31-01-2024", datetime(2024, 1, 31)),
+        ("31/01/2024", datetime(2024, 1, 31)),
+        ("31.01.2024", datetime(2024, 1, 31)),
+        # RFC 2822
+        ("Wed, 31 Jan 2024 10:30:00 +0000", datetime(2024, 1, 31)),
+        # Inválidos
+        ("basura", None),
+        ("", None),
+        ("32/01/2024", None),
+    ],
+)
+def test_to_datetime(raw: str, expected: datetime | None) -> None:
+    assert iu.to_datetime(raw) == expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("0.10", Decimal("0.10")),
+        (0.1, Decimal("0.1")),
+        (1, Decimal(1)),
+        (" 1.5 ", Decimal("1.5")),
+        ("nan", None),
+        ("inf", None),
+        (float("nan"), None),
+        ("1_0", None),
+        ("", None),
+        ("abc", None),
+        (True, None),
+        (None, None),
+    ],
+)
+def test_to_decimal(raw: object, expected: Decimal | None) -> None:
+    assert iu.to_decimal(raw) == expected  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("1.5", 1.5),
+        (" 2 ", 2.0),
+        (2, 2.0),
+        ("nan", None),
+        ("inf", None),
+        ("1_000", None),
+        ("abc", None),
+        (10**400, None),
+        ([], None),
+        (True, None),
+        (None, None),
+    ],
+)
+def test_to_float(raw: object, expected: float | None) -> None:
+    assert iu.to_float(raw) == expected  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("42", 42),
+        (42, 42),
+        (3.0, 3),
+        (3.7, None),
+        (float("inf"), None),
+        (float("nan"), None),
+        ("1_000", None),
+        ("3.0", None),
+        ("abc", None),
+        ([], None),
+        (True, None),
+        (None, None),
+    ],
+)
+def test_to_int(raw: object, expected: int | None) -> None:
+    assert iu.to_int(raw) == expected  # type: ignore[arg-type]
+
+
+class TestToPath:
+    def test_valid(self) -> None:
+        expected = pathlib.Path("carpeta/fichero.txt")
+        assert iu.to_path("carpeta/fichero.txt") == expected
+        assert iu.to_path(expected) == expected
+
+    def test_expands_user(self) -> None:
+        assert iu.to_path("~") == pathlib.Path.home()
+
+    @pytest.mark.parametrize("raw", [None, "", "   ", "a\0b", 123, b"abc"])
+    def test_invalid(self, raw: object) -> None:
+        assert iu.to_path(raw) is None  # type: ignore[arg-type]
+
+    def test_expanduser_failure(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        def boom(self: pathlib.Path) -> pathlib.Path:
+            raise RuntimeError("sin home")
+
+        monkeypatch.setattr(pathlib.Path, "expanduser", boom)
+        assert iu.to_path("~") is None
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [("a", "a"), (" a ", " a "), ("", None), ("   ", None), (1, None), (None, None)],
+)
+def test_to_str(raw: object, expected: str | None) -> None:
+    assert iu.to_str(raw) == expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        (90, timedelta(seconds=90)),
+        (-5, timedelta(seconds=-5)),
+        (1.5, timedelta(seconds=1.5)),
+        (None, None),
+        (float("nan"), None),
+        (float("inf"), None),
+        (1e13, None),
+        (-1e13, None),
+    ],
+)
+def test_to_timedelta(raw: float | None, expected: timedelta | None) -> None:
+    assert iu.to_timedelta(raw) == expected

@@ -12,7 +12,12 @@ import textwrap
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SOURCE = ROOT / "src" / "irg_utils" / "__init__.py"
+SOURCES = (
+    ROOT / "src" / "irg_utils" / "converters.py",
+    ROOT / "src" / "irg_utils" / "checkers.py",
+    ROOT / "src" / "irg_utils" / "parsers.py",
+    ROOT / "src" / "irg_utils" / "validation.py",
+)
 TARGET = ROOT / "API.md"
 
 CATEGORIES = (
@@ -117,10 +122,10 @@ def render_function(node: ast.FunctionDef, doc: str) -> str:
 
 def build() -> str:
     """Construye el contenido completo de API.md."""
-    tree = ast.parse(SOURCE.read_text(encoding="utf-8"))
     functions = [
         node
-        for node in tree.body
+        for source in SOURCES
+        for node in ast.parse(source.read_text(encoding="utf-8")).body
         if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
     ]
 
