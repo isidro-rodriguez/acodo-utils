@@ -25,8 +25,10 @@ from irg_utils import to_bool, valid_email
 - [`to_date`](#to_date): Convierte un string con fechas habituales a date.
 - [`to_datetime`](#to_datetime): Convierte un string con fechas habituales a datetime.
 - [`to_decimal`](#to_decimal): Convierte strings numéricos a Decimal (apto para importes).
+- [`to_dict`](#to_dict): Convierte un valor a dict, convirtiendo también los anidados.
 - [`to_float`](#to_float): Convierte strings numéricos a float.
 - [`to_int`](#to_int): Convierte strings numéricos a int.
+- [`to_list`](#to_list): Convierte un valor a lista, aplanando las anidadas.
 - [`to_path`](#to_path): Convierte un texto o ruta a Path, expandiendo `~`.
 - [`to_str`](#to_str): Devuelve el valor si es un texto con contenido.
 - [`to_timedelta`](#to_timedelta): Convierte una cantidad numérica de segundos a timedelta.
@@ -212,6 +214,35 @@ Decimal('0.1')
 True
 ```
 
+### `to_dict`
+
+```python
+to_dict(raw: object) -> dict[Any, Any]
+```
+
+Convierte un valor a dict, convirtiendo también los anidados.
+
+`None` produce `{}`. Se aceptan mappings, dataclasses y pares
+`("k", v)`; los valores anidados que sean mappings o dataclasses se
+convierten recursivamente. Cualquier otro valor produce `{}`.
+
+**Parámetros**
+
+- `raw`: Valor a convertir.
+
+**Devuelve:** El dict resultante; `{}` si el valor no es convertible.
+
+**Ejemplos**
+
+```pycon
+>>> to_dict({"a": 1})
+{'a': 1}
+>>> to_dict([("a", 1), ("b", 2)])
+{'a': 1, 'b': 2}
+>>> to_dict(None)
+{}
+```
+
 ### `to_float`
 
 ```python
@@ -263,6 +294,34 @@ Se rechazan `bool` y los guiones bajos (`"1_000"`).
 True
 >>> to_int(float("inf")) is None
 True
+```
+
+### `to_list`
+
+```python
+to_list(raw: object) -> list[Any]
+```
+
+Convierte un valor a lista, aplanando las anidadas.
+
+`None` produce `[]`; un escalar (o un `str`/`bytes`) produce una lista
+de un elemento; un iterable se aplanan recursivamente.
+
+**Parámetros**
+
+- `raw`: Valor a convertir.
+
+**Devuelve:** La lista aplanada.
+
+**Ejemplos**
+
+```pycon
+>>> to_list([1, [2, 3]])
+[1, 2, 3]
+>>> to_list("abc")
+['abc']
+>>> to_list(None)
+[]
 ```
 
 ### `to_path`

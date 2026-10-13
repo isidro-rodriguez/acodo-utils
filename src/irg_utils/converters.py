@@ -1,13 +1,15 @@
 """Conversores: transforman valores en otros tipos.
 
-Las funciones `to_*` nunca lanzan excepciones por valores inválidos;
-devuelven `None`.
+Las funciones `to_*` nunca lanzan excepciones por valores inválidos y
+casi todas devuelven `None` en ese caso. Las excepciones son `to_list` y
+`to_dict`, que devuelven `[]` y `{}` respectivamente.
 """
 
 from __future__ import annotations
 
 import math
 import re
+from collections.abc import Iterable, Mapping
 from datetime import UTC, date, datetime, timedelta
 from os import fspath
 from typing import TYPE_CHECKING
@@ -16,6 +18,7 @@ if TYPE_CHECKING:
     from decimal import Decimal
     from os import PathLike
     from pathlib import Path
+    from typing import Any
 
 
 # =============================================================================
@@ -265,6 +268,50 @@ def to_decimal(raw: str | float | None) -> Decimal | None:
     return value if value.is_finite() else None
 
 
+def to_dict(raw: object) -> dict[Any, Any]:
+    """Convierte un valor a dict, convirtiendo también los anidados.
+
+    `None` produce `{}`. Se aceptan mappings, dataclasses y pares
+    `("k", v)`; los valores anidados que sean mappings o dataclasses se
+    convierten recursivamente. Cualquier otro valor produce `{}`.
+
+    Args:
+        raw: Valor a convertir.
+
+    Returns:
+        El dict resultante; `{}` si el valor no es convertible.
+
+    Examples:
+        >>> to_dict({"a": 1})
+        {'a': 1}
+        >>> to_dict([("a", 1), ("b", 2)])
+        {'a': 1, 'b': 2}
+        >>> to_dict(None)
+        {}
+    """
+    from dataclasses import asdict, is_dataclass
+
+    def _convert(value: object) -> object:
+        if is_dataclass(value) and not isinstance(value, type):
+            return asdict(value)
+        if isinstance(value, Mapping):
+            return {key: _convert(item) for key, item in value.items()}
+        return value
+
+    if raw is None:
+        return {}
+    if is_dataclass(raw) and not isinstance(raw, type):
+        return asdict(raw)
+    if isinstance(raw, Mapping):
+        return {key: _convert(value) for key, value in raw.items()}
+    if isinstance(raw, Iterable):
+        try:
+            return {key: _convert(value) for key, value in raw}
+        except (TypeError, ValueError):
+            return {}
+    return {}
+
+
 def to_float(raw: str | float | None) -> float | None:
     """Convierte strings numéricos a float.
 
@@ -325,6 +372,33 @@ def to_int(raw: str | float | int | None) -> int | None:
         return int(raw)
     except (ValueError, TypeError):
         return None
+
+
+def to_list(raw: object) -> list[Any]:
+    """Convierte un valor a lista, aplanando las anidadas.
+
+    `None` produce `[]`; un escalar (o un `str`/`bytes`) produce una lista
+    de un elemento; un iterable se aplanan recursivamente.
+
+    Args:
+        raw: Valor a convertir.
+
+    Returns:
+        La lista aplanada.
+
+    Examples:
+        >>> to_list([1, [2, 3]])
+        [1, 2, 3]
+        >>> to_list("abc")
+        ['abc']
+        >>> to_list(None)
+        []
+    """
+    if raw is None:
+        return []
+    if isinstance(raw, (str, bytes)) or not isinstance(raw, Iterable):
+        return [raw]
+    return [item for value in raw for item in to_list(value)]
 
 
 def to_path(raw: str | PathLike[str] | None) -> Path | None:

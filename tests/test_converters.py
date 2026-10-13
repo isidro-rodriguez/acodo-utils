@@ -1,6 +1,7 @@
 """Tests de los conversores (`to_*`)."""
 
 import pathlib
+from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 
@@ -121,6 +122,41 @@ def test_to_decimal(raw: object, expected: Decimal | None) -> None:
     assert iu.to_decimal(raw) == expected  # type: ignore[arg-type]
 
 
+@dataclass
+class _Child:
+    city: str
+
+
+@dataclass
+class _Parent:
+    name: str
+    child: _Child
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ({"a": 1}, {"a": 1}),
+        ([("a", 1), ("b", 2)], {"a": 1, "b": 2}),
+        ({"a": {"b": 1}}, {"a": {"b": 1}}),
+        (
+            {"p": _Parent("ana", _Child("Madrid"))},
+            {"p": {"name": "ana", "child": {"city": "Madrid"}}},
+        ),
+        (
+            _Parent("ana", _Child("Madrid")),
+            {"name": "ana", "child": {"city": "Madrid"}},
+        ),
+        (None, {}),
+        (42, {}),
+        ([1, 2], {}),
+        ([("a", 1, 2)], {}),
+    ],
+)
+def test_to_dict(raw: object, expected: dict) -> None:
+    assert iu.to_dict(raw) == expected  # type: ignore[arg-type]
+
+
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
@@ -160,6 +196,22 @@ def test_to_float(raw: object, expected: float | None) -> None:
 )
 def test_to_int(raw: object, expected: int | None) -> None:
     assert iu.to_int(raw) == expected  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ([1, [2, 3]], [1, 2, 3]),
+        ((1, (2, (3, 4))), [1, 2, 3, 4]),
+        ([], []),
+        ("abc", ["abc"]),
+        (b"xy", [b"xy"]),
+        (5, [5]),
+        (None, []),
+    ],
+)
+def test_to_list(raw: object, expected: list) -> None:
+    assert iu.to_list(raw) == expected  # type: ignore[arg-type]
 
 
 class TestToPath:
