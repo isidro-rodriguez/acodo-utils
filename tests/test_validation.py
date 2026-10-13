@@ -8,6 +8,21 @@ import irg_utils as iu
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
+        ("31/01/2024", True),
+        ("2024-01-31", True),
+        (" 2024-01-31 ", True),
+        ("basura", False),
+        ("31/02/2024", False),
+        ("", False),
+    ],
+)
+def test_valid_date(raw: str, expected: bool) -> None:
+    assert iu.valid_date(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
         ("12345678Z", True),
         ("12345678z", True),
         ("00000000T", True),

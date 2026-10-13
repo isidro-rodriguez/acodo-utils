@@ -33,6 +33,7 @@ from .parsers import (
     parse_timedelta,
 )
 from .validation import (
+    valid_date,
     valid_dni,
     valid_email,
     valid_filename,
@@ -69,6 +70,7 @@ __all__ = [
     "to_path",
     "to_str",
     "to_timedelta",
+    "valid_date",
     "valid_dni",
     "valid_email",
     "valid_filename",

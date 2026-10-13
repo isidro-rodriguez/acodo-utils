@@ -56,6 +56,26 @@ def _dni_letter(number: int) -> str:
     return _DNI_LETTERS[number % 23]
 
 
+def valid_date(raw: str) -> bool:
+    """Comprueba si el string lo aceptaría `to_date`.
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si el string representa una fecha habitual.
+
+    Examples:
+        >>> valid_date("31/01/2024")
+        True
+        >>> valid_date("basura")
+        False
+    """
+    from .converters import to_date
+
+    return to_date(raw) is not None
+
+
 def valid_dni(raw: str) -> bool:
     """Comprueba si el string es un DNI español válido (8 dígitos y letra).
 
