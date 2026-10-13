@@ -50,6 +50,7 @@ from irg_utils import to_bool, valid_email
 **Validaciones**
 
 - [`valid_date`](#valid_date): Comprueba si el string lo aceptaría `to_date`.
+- [`valid_datetime`](#valid_datetime): Comprueba si el string lo aceptaría `to_datetime`.
 - [`valid_dni`](#valid_dni): Comprueba si el string es un DNI español válido (8 dígitos y letra).
 - [`valid_email`](#valid_email): Comprueba si el string presenta un formato de email válido.
 - [`valid_filename`](#valid_filename): Comprueba si el string es un nombre de fichero válido en cualquier SO.
@@ -627,6 +628,29 @@ Comprueba si el string lo aceptaría `to_date`.
 >>> valid_date("31/01/2024")
 True
 >>> valid_date("basura")
+False
+```
+
+### `valid_datetime`
+
+```python
+valid_datetime(raw: str) -> bool
+```
+
+Comprueba si el string lo aceptaría `to_datetime`.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el string representa una fecha habitual.
+
+**Ejemplos**
+
+```pycon
+>>> valid_datetime("2024-01-31")
+True
+>>> valid_datetime("basura")
 False
 ```
 

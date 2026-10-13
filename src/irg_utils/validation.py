@@ -76,6 +76,26 @@ def valid_date(raw: str) -> bool:
     return to_date(raw) is not None
 
 
+def valid_datetime(raw: str) -> bool:
+    """Comprueba si el string lo aceptaría `to_datetime`.
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si el string representa una fecha habitual.
+
+    Examples:
+        >>> valid_datetime("2024-01-31")
+        True
+        >>> valid_datetime("basura")
+        False
+    """
+    from .converters import to_datetime
+
+    return to_datetime(raw) is not None
+
+
 def valid_dni(raw: str) -> bool:
     """Comprueba si el string es un DNI español válido (8 dígitos y letra).
 

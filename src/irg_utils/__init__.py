@@ -34,6 +34,7 @@ from .parsers import (
 )
 from .validation import (
     valid_date,
+    valid_datetime,
     valid_dni,
     valid_email,
     valid_filename,
@@ -71,6 +72,7 @@ __all__ = [
     "to_str",
     "to_timedelta",
     "valid_date",
+    "valid_datetime",
     "valid_dni",
     "valid_email",
     "valid_filename",
