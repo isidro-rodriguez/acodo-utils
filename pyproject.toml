@@ -1,6 +1,6 @@
 [project]
 name = "irg-utils"
-version = "0.2.0"
+version = "0.3.0"
 description = "Utilidades de uso compartido entre proyectos."
 readme = "README.md"
 license = "MIT"
