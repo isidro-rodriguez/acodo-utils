@@ -542,6 +542,18 @@ def test_valid_ip_invalid_version() -> None:
         ("", False),
         ("[" * 100_000, False),
     ],
+    ids=[
+        "object",
+        "number",
+        "null",
+        "single-quotes",
+        "nan",
+        "infinity",
+        "neg-infinity",
+        "truncated-array",
+        "empty",
+        "deep-nesting-100k",
+    ],
 )
 def test_valid_json(raw: str, expected: bool) -> None:
     assert iu.valid_json(raw) is expected

@@ -921,7 +921,7 @@ Comprueba si el string presenta formato de URL http/https.
 ```pycon
 >>> valid_url("https://example.com/x")
 True
->>> valid_url("http://[::1")
+>>> valid_url("https://[::1")
 False
 ```
 

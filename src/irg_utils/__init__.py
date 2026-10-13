@@ -4,46 +4,6 @@ Requiere Python >= 3.11 (`datetime.UTC`).
 
 Convenio: prefijos `to_*`, `has_*`, `parse_*` y `valid_*`. Dentro de cada
 categoría, las funciones públicas van en orden alfabético.
-
-# Tabla de contenidos:
-# -----------------------------------------------------------------------------
-- Conversores: Transforman tipos de datos.
-  - to_bool: Texto/entero -> bool (`"sí"`, `"off"`, `1`...).
-  - to_bytes: Texto de tamaño (`"1,5 GiB"`) -> bytes.
-  - to_date: String con fecha habitual -> date.
-  - to_datetime: String con fecha habitual -> datetime (a medianoche, sin zona).
-  - to_decimal: Valor numérico -> Decimal finito.
-  - to_float: Valor numérico -> float finito.
-  - to_int: Valor numérico -> int (solo si es entero exacto).
-  - to_path: Texto/ruta -> Path (expande `~`).
-  - to_str: Valor -> str con contenido.
-  - to_timedelta: Segundos -> timedelta.
-- Comprobaciones: Verifican que los objetos cumplan los requisitos.
-  - has_required_attrs: Un objeto tiene todos los atributos requeridos.
-  - has_required_fields: Una colección contiene todos los campos requeridos.
-  - has_required_keys: Un diccionario contiene todas las llaves requeridas.
-- Parsers: Transforman tipos de datos a strings legibles.
-  - parse_amount: Número -> string con separadores de miles y decimales.
-  - parse_datetime: date/datetime -> string legible.
-  - parse_duration: Texto de duración (`"1h 30m"`) -> timedelta (camino inverso).
-  - parse_percent: Fracción/número -> porcentaje legible.
-  - parse_size: Bytes -> string con unidad ISO/IEC 80000-13.
-  - parse_slug: Texto -> slug (`"hola-mundo"`).
-  - parse_timedelta: timedelta -> `H:MM:SS` o `M:SS`.
-- Validaciones: Verifican que un string tenga el formato requerido.
-  - valid_dni: DNI español con letra de control.
-  - valid_email: Formato de email.
-  - valid_filename: Nombre de fichero válido en los sistemas habituales.
-  - valid_hex_color: Color hexadecimal (`#rgb`, `#rrggbb`, con alfa opcional).
-  - valid_iban: IBAN con dígitos de control (mod 97).
-  - valid_ip: Dirección IPv4/IPv6.
-  - valid_json: Texto JSON bien formado.
-  - valid_nie: NIE español con letra de control.
-  - valid_password: Formato de contraseña.
-  - valid_phone: Teléfono en formato internacional básico.
-  - valid_slug: Slug en minúsculas separado por guiones.
-  - valid_url: Formato de URL http/https.
-  - valid_uuid: UUID en forma canónica.
 """
 
 from __future__ import annotations
@@ -1137,7 +1097,7 @@ def valid_url(raw: str) -> bool:
     Examples:
         >>> valid_url("https://example.com/x")
         True
-        >>> valid_url("http://[::1")
+        >>> valid_url("https://[::1")
         False
     """
     if any(map(str.isspace, raw)):

@@ -1,0 +1,30 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Sincronizado con ruff>=0.17.0 del grupo dev de pyproject.toml.
+    rev: v0.17.0
+    hooks:
+      # Con --fix va antes del formateo: sus correcciones pueden requerir reformateo.
+      - id: ruff-check
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty check
+        entry: uv run ty check
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: gen-api
+        name: gen_api check
+        entry: uv run python scripts/gen_api.py --check
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: pytest
+        name: pytest
+        entry: uv run pytest
+        language: system
+        pass_filenames: false
+        always_run: true
