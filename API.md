@@ -1,0 +1,949 @@
+# API de irg_utils
+
+Referencia de uso del paquete. Se genera a partir de los docstrings con
+`scripts/gen_api.py`: no editar a mano.
+
+```python
+from irg_utils import to_bool, valid_email
+```
+
+## Convenciones
+
+- `to_*`: nunca lanzan excepciones por valores inválidos; devuelven `None`.
+- `has_*` y `valid_*`: devuelven `bool`.
+- `parse_*`: devuelven `str`, salvo `parse_duration`, que devuelve `timedelta | None`.
+- `ValueError` solo se lanza ante argumentos de configuración incorrectos
+  (código de lenguaje, rango de longitud...), nunca por el dato evaluado.
+- Dentro de cada categoría, las funciones están en orden alfabético.
+
+## Índice
+
+**Conversores**
+
+- [`to_bool`](#to_bool): Convierte textos habituales (`"sí"`, `"off"`, `"1"`...) a bool.
+- [`to_bytes`](#to_bytes): Convierte un texto de tamaño (`"1,5 GiB"`) a bytes.
+- [`to_date`](#to_date): Convierte un string con fechas habituales a date.
+- [`to_datetime`](#to_datetime): Convierte un string con fechas habituales a datetime.
+- [`to_decimal`](#to_decimal): Convierte strings numéricos a Decimal (apto para importes).
+- [`to_float`](#to_float): Convierte strings numéricos a float.
+- [`to_int`](#to_int): Convierte strings numéricos a int.
+- [`to_path`](#to_path): Convierte un texto o ruta a Path, expandiendo `~`.
+- [`to_str`](#to_str): Devuelve el valor si es un texto con contenido.
+- [`to_timedelta`](#to_timedelta): Convierte una cantidad numérica de segundos a timedelta.
+
+**Comprobaciones**
+
+- [`has_required_attrs`](#has_required_attrs): Comprueba que el objeto tiene todos los atributos requeridos.
+- [`has_required_fields`](#has_required_fields): Comprueba que la colección tiene todos los campos requeridos.
+- [`has_required_keys`](#has_required_keys): Comprueba que el diccionario tiene todas las llaves requeridas.
+
+**Parsers**
+
+- [`parse_amount`](#parse_amount): Parsea un tipo numérico a string numérico de legibilidad cómoda.
+- [`parse_datetime`](#parse_datetime): Parsea una fecha o fecha-hora a string legible.
+- [`parse_duration`](#parse_duration): Parsea un texto de duración (`"1h 30m"`) a timedelta.
+- [`parse_percent`](#parse_percent): Parsea un número o fracción (`0.256`, `Fraction(1, 4)`) a porcentaje.
+- [`parse_size`](#parse_size): Parsea el tamaño de fichero a su unidad ISO/IEC 80000-13 correspondiente.
+- [`parse_slug`](#parse_slug): Parsea un texto a slug: minúsculas, sin acentos y separado por guiones.
+- [`parse_timedelta`](#parse_timedelta): Formatea un timedelta a una cadena con formato `H:MM:SS` o `M:SS`.
+
+**Validaciones**
+
+- [`valid_dni`](#valid_dni): Comprueba si el string es un DNI español válido (8 dígitos y letra).
+- [`valid_email`](#valid_email): Comprueba si el string presenta un formato de email válido.
+- [`valid_filename`](#valid_filename): Comprueba si el string es un nombre de fichero válido en cualquier SO.
+- [`valid_hex_color`](#valid_hex_color): Comprueba si el string es un color hexadecimal (`#rgb`, `#rrggbb`...).
+- [`valid_iban`](#valid_iban): Comprueba si el string es un IBAN con dígitos de control correctos.
+- [`valid_ip`](#valid_ip): Comprueba si el string es una dirección IPv4 o IPv6 válida.
+- [`valid_json`](#valid_json): Comprueba si el string es JSON bien formado (RFC 8259).
+- [`valid_nie`](#valid_nie): Comprueba si el string es un NIE español válido (X/Y/Z, 7 dígitos, letra).
+- [`valid_password`](#valid_password): Comprueba si el string presenta el formato de contraseña requerido.
+- [`valid_phone`](#valid_phone): Comprueba si el string es un teléfono en formato internacional básico.
+- [`valid_slug`](#valid_slug): Comprueba si el string es un slug: minúsculas, dígitos y guiones simples.
+- [`valid_url`](#valid_url): Comprueba si el string presenta formato de URL http/https.
+- [`valid_uuid`](#valid_uuid): Comprueba si el string es un UUID en forma canónica (8-4-4-4-12).
+
+## Conversores
+
+Transforman tipos de datos.
+
+### `to_bool`
+
+```python
+to_bool(raw: str | int | None) -> bool | None
+```
+
+Convierte textos habituales (`"sí"`, `"off"`, `"1"`...) a bool.
+
+**Parámetros**
+
+- `raw`: Valor a convertir. Los enteros solo pueden ser 0 o 1.
+
+**Devuelve:** El booleano, o `None` si el valor no es reconocible.
+
+**Ejemplos**
+
+```pycon
+>>> to_bool("Sí")
+True
+>>> to_bool(" OFF ")
+False
+>>> to_bool("quizá") is None
+True
+>>> to_bool(2) is None
+True
+```
+
+### `to_bytes`
+
+```python
+to_bytes(raw: str | None) -> int | None
+```
+
+Convierte un texto de tamaño (`"1,5 GiB"`) a bytes.
+
+Unidades binarias (KiB, MiB...) en base 1024 y decimales (kB, MB...) en
+base 1000. Admite coma o punto decimal. Sin unidad se asumen bytes. Es el
+camino inverso, aproximado, de `parse_size`.
+
+**Parámetros**
+
+- `raw`: Texto a convertir.
+
+**Devuelve:** Cantidad de bytes, o `None` si el texto no es válido.
+
+**Ejemplos**
+
+```pycon
+>>> to_bytes("1,5 GiB")
+1610612736
+>>> to_bytes("2 kB")
+2000
+>>> to_bytes("512")
+512
+>>> to_bytes("1 furlong") is None
+True
+```
+
+### `to_date`
+
+```python
+to_date(raw: str) -> date | None
+```
+
+Convierte un string con fechas habituales a date.
+
+Acepta los mismos formatos que `to_datetime`.
+
+**Parámetros**
+
+- `raw`: String a ser parseado como fecha.
+
+**Devuelve:** La fecha, o `None` si la conversión falla.
+
+**Ejemplos**
+
+```pycon
+>>> to_date("31/01/2024")
+datetime.date(2024, 1, 31)
+```
+
+### `to_datetime`
+
+```python
+to_datetime(raw: str) -> datetime | None
+```
+
+Convierte un string con fechas habituales a datetime.
+
+Solo se conserva la fecha: el resultado es siempre medianoche y sin zona
+horaria. En los formatos con día y mes numéricos se asume día primero.
+
+**Parámetros**
+
+- `raw`: String a ser parseado como fecha.
+
+**Devuelve:** El datetime a medianoche, o `None` si la conversión falla.
+
+**Ejemplos**
+
+```pycon
+>>> to_datetime("2024-01-31")
+datetime.datetime(2024, 1, 31, 0, 0)
+>>> to_datetime("31/01/2024")
+datetime.datetime(2024, 1, 31, 0, 0)
+>>> to_datetime("1700000000")
+datetime.datetime(2023, 11, 14, 0, 0)
+>>> to_datetime("basura") is None
+True
+```
+
+### `to_decimal`
+
+```python
+to_decimal(raw: str | float | None) -> Decimal | None
+```
+
+Convierte strings numéricos a Decimal (apto para importes).
+
+Los `float` se convierten a través de su representación en texto
+(`0.1` -> `Decimal("0.1")`). Se rechazan `bool`, `nan`, `inf` y los
+guiones bajos (`"1_000"`).
+
+**Parámetros**
+
+- `raw`: Valor a convertir (texto numérico, entero o flotante).
+
+**Devuelve:** El número convertido, o `None` si la conversión falla.
+
+**Ejemplos**
+
+```pycon
+>>> to_decimal("0.10")
+Decimal('0.10')
+>>> to_decimal(0.1)
+Decimal('0.1')
+>>> to_decimal("nan") is None
+True
+```
+
+### `to_float`
+
+```python
+to_float(raw: str | float | None) -> float | None
+```
+
+Convierte strings numéricos a float.
+
+Se rechazan `bool`, `nan`, `inf` y los guiones bajos (`"1_000"`).
+
+**Parámetros**
+
+- `raw`: Valor a convertir (texto numérico o flotante).
+
+**Devuelve:** El número convertido, o `None` si la conversión falla.
+
+**Ejemplos**
+
+```pycon
+>>> to_float("1.5")
+1.5
+>>> to_float("nan") is None
+True
+```
+
+### `to_int`
+
+```python
+to_int(raw: str | float | int | None) -> int | None
+```
+
+Convierte strings numéricos a int.
+
+Un `float` solo se convierte si es entero exacto (`3.0` sí, `3.7` no).
+Se rechazan `bool` y los guiones bajos (`"1_000"`).
+
+**Parámetros**
+
+- `raw`: Valor a convertir (texto numérico o entero).
+
+**Devuelve:** El número convertido, o `None` si la conversión falla.
+
+**Ejemplos**
+
+```pycon
+>>> to_int("42")
+42
+>>> to_int(3.7) is None
+True
+>>> to_int(float("inf")) is None
+True
+```
+
+### `to_path`
+
+```python
+to_path(raw: str | PathLike[str] | None) -> Path | None
+```
+
+Convierte un texto o ruta a Path, expandiendo `~`.
+
+**Parámetros**
+
+- `raw`: Texto o ruta a convertir.
+
+**Devuelve:** La ruta, o `None` si el valor falta, está en blanco o no es válido.
+
+**Ejemplos**
+
+```pycon
+>>> to_path("carpeta/fichero.txt").name
+'fichero.txt'
+>>> to_path("   ") is None
+True
+```
+
+### `to_str`
+
+```python
+to_str(raw: object) -> str | None
+```
+
+Devuelve el valor si es un texto con contenido.
+
+**Parámetros**
+
+- `raw`: Valor a comprobar.
+
+**Devuelve:** El propio `raw` si es un `str` que no está vacío ni es solo espacios; `None` en otro caso.
+
+### `to_timedelta`
+
+```python
+to_timedelta(raw: float | None) -> timedelta | None
+```
+
+Convierte una cantidad numérica de segundos a timedelta.
+
+**Parámetros**
+
+- `raw`: Cantidad de segundos a convertir.
+
+**Devuelve:** La duración, o `None` si el valor falta, no es finito o es desmesurado.
+
+**Ejemplos**
+
+```pycon
+>>> to_timedelta(90)
+datetime.timedelta(seconds=90)
+```
+
+## Comprobaciones
+
+Verifican que los objetos cumplan los requisitos.
+
+### `has_required_attrs`
+
+```python
+has_required_attrs(raw: object, required_attrs: Iterable[str]) -> bool
+```
+
+Comprueba que el objeto tiene todos los atributos requeridos.
+
+**Parámetros**
+
+- `raw`: Objeto a verificar.
+- `required_attrs`: Nombres de los atributos requeridos.
+
+**Devuelve:** `True` si el objeto tiene todos los atributos requeridos.
+
+**Ejemplos**
+
+```pycon
+>>> has_required_attrs("texto", ["upper", "lower"])
+True
+>>> has_required_attrs("texto", ["append"])
+False
+```
+
+### `has_required_fields`
+
+```python
+has_required_fields(
+    raw: Collection[Any],
+    required_fields: Iterable[Any],
+) -> bool
+```
+
+Comprueba que la colección tiene todos los campos requeridos.
+
+**Parámetros**
+
+- `raw`: Colección a verificar.
+- `required_fields`: Campos requeridos.
+
+**Devuelve:** `True` si la colección tiene todos los campos requeridos.
+
+### `has_required_keys`
+
+```python
+has_required_keys(
+    raw: Mapping[Hashable, Any],
+    required_keys: Iterable[Hashable],
+) -> bool
+```
+
+Comprueba que el diccionario tiene todas las llaves requeridas.
+
+**Parámetros**
+
+- `raw`: Diccionario a verificar.
+- `required_keys`: Llaves requeridas.
+
+**Devuelve:** `True` si el diccionario tiene todas las llaves requeridas.
+
+## Parsers
+
+Transforman tipos de datos a strings legibles.
+
+### `parse_amount`
+
+```python
+parse_amount(
+    raw: int | float | Fraction,
+    lang: str | None = None,
+    decimals: int = 2,
+) -> str
+```
+
+Parsea un tipo numérico a string numérico de legibilidad cómoda.
+
+Los enteros (y las fracciones de denominador 1) se muestran sin decimales.
+Con `lang` `en`/`eng` se usa `1,234.50`; en cualquier otro caso
+(incluido `None`), `1.234,50`.
+
+**Parámetros**
+
+- `raw`: Número a parsear.
+- `lang`: Código del lenguaje al que se va a formatear el número.
+- `decimals`: Cantidad de dígitos decimales a mostrar.
+
+**Devuelve:** String numérico de legibilidad cómoda.
+
+**Lanza**
+
+- `ValueError`: Si se ha indicado código de lenguaje inválido.
+
+**Ejemplos**
+
+```pycon
+>>> parse_amount(1234.5)
+'1.234,50'
+>>> parse_amount(1234.5, "en")
+'1,234.50'
+>>> parse_amount(1234)
+'1.234'
+```
+
+### `parse_datetime`
+
+```python
+parse_datetime(raw: date | datetime, lang: str | None = None) -> str
+```
+
+Parsea una fecha o fecha-hora a string legible.
+
+La hora solo se muestra si no es medianoche, y los segundos solo si no
+son cero. La zona horaria se ignora. Con `lang` `en`/`eng` se usa
+`2024-01-31`; en cualquier otro caso (incluido `None`), `31/01/2024`.
+
+**Parámetros**
+
+- `raw`: Fecha o fecha-hora a parsear.
+- `lang`: Código del lenguaje al que se va a formatear la fecha.
+
+**Devuelve:** String de fecha de legibilidad cómoda.
+
+**Lanza**
+
+- `ValueError`: Si se ha indicado código de lenguaje inválido.
+
+**Ejemplos**
+
+```pycon
+>>> parse_datetime(datetime(2024, 1, 31))
+'31/01/2024'
+>>> parse_datetime(datetime(2024, 1, 31, 10, 30))
+'31/01/2024 10:30'
+>>> parse_datetime(datetime(2024, 1, 31, 10, 30), "en")
+'2024-01-31 10:30'
+```
+
+### `parse_duration`
+
+```python
+parse_duration(raw: str) -> timedelta | None
+```
+
+Parsea un texto de duración (`"1h 30m"`) a timedelta.
+
+Es el camino inverso a `parse_timedelta`, y la única función de esta
+sección que devuelve un valor en lugar de un texto. Unidades admitidas:
+`d`, `h`, `min`/`m` y `s`; admite decimales (`"1,5h"`).
+
+**Parámetros**
+
+- `raw`: Texto a parsear.
+
+**Devuelve:** La duración, o `None` si el texto no es válido.
+
+**Ejemplos**
+
+```pycon
+>>> parse_duration("1h 30m")
+datetime.timedelta(seconds=5400)
+>>> parse_duration("2d")
+datetime.timedelta(days=2)
+>>> parse_duration("1h30x") is None
+True
+```
+
+### `parse_percent`
+
+```python
+parse_percent(
+    raw: int | float | Fraction,
+    lang: str | None = None,
+    decimals: int = 1,
+) -> str
+```
+
+Parsea un número o fracción (`0.256`, `Fraction(1, 4)`) a porcentaje.
+
+Se eliminan los ceros decimales sobrantes. Con `lang` `en`/`eng` se usa
+`25.6%`; en cualquier otro caso (incluido `None`), `25,6 %`.
+
+**Parámetros**
+
+- `raw`: Proporción a parsear (`1` equivale a 100 %).
+- `lang`: Código del lenguaje al que se va a formatear el número.
+- `decimals`: Máximo de dígitos decimales a mostrar.
+
+**Devuelve:** String de porcentaje de legibilidad cómoda.
+
+**Lanza**
+
+- `ValueError`: Si se ha indicado código de lenguaje inválido.
+
+**Ejemplos**
+
+```pycon
+>>> from fractions import Fraction
+>>> parse_percent(0.256)
+'25,6 %'
+>>> parse_percent(Fraction(1, 4))
+'25 %'
+>>> parse_percent(0.5, "en")
+'50%'
+>>> parse_percent(1 / 3, decimals=2)
+'33,33 %'
+```
+
+### `parse_size`
+
+```python
+parse_size(raw: int) -> str
+```
+
+Parsea el tamaño de fichero a su unidad ISO/IEC 80000-13 correspondiente.
+
+**Parámetros**
+
+- `raw`: Tamaño de fichero, en bytes, a parsear.
+
+**Devuelve:** String de tamaño de fichero con legibilidad cómoda.
+
+**Ejemplos**
+
+```pycon
+>>> parse_size(1)
+'1 byte'
+>>> parse_size(1536)
+'1,500 KiB'
+>>> parse_size(1048575)
+'1023,999 KiB'
+```
+
+### `parse_slug`
+
+```python
+parse_slug(raw: str) -> str
+```
+
+Parsea un texto a slug: minúsculas, sin acentos y separado por guiones.
+
+Los caracteres sin equivalente ASCII (`ß`, `€`, emojis...) se descartan.
+
+**Parámetros**
+
+- `raw`: Texto a parsear.
+
+**Devuelve:** El slug; cadena vacía si no queda ningún carácter válido.
+
+**Ejemplos**
+
+```pycon
+>>> parse_slug("¡Hola, Mundo! Ñandú")
+'hola-mundo-nandu'
+```
+
+### `parse_timedelta`
+
+```python
+parse_timedelta(duration: timedelta) -> str
+```
+
+Formatea un timedelta a una cadena con formato `H:MM:SS` o `M:SS`.
+
+**Parámetros**
+
+- `duration`: Duración a formatear.
+
+**Devuelve:** Texto en formato `H:MM:SS` o `M:SS` (con `-` delante si es negativa).
+
+**Ejemplos**
+
+```pycon
+>>> parse_timedelta(timedelta(seconds=3725))
+'1:02:05'
+>>> parse_timedelta(timedelta(seconds=65))
+'1:05'
+>>> parse_timedelta(timedelta(seconds=-65))
+'-1:05'
+```
+
+## Validaciones
+
+Verifican que un string tenga el formato requerido.
+
+### `valid_dni`
+
+```python
+valid_dni(raw: str) -> bool
+```
+
+Comprueba si el string es un DNI español válido (8 dígitos y letra).
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el formato y la letra de control son correctos.
+
+**Ejemplos**
+
+```pycon
+>>> valid_dni("12345678Z")
+True
+>>> valid_dni("12345678A")
+False
+```
+
+### `valid_email`
+
+```python
+valid_email(raw: str) -> bool
+```
+
+Comprueba si el string presenta un formato de email válido.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el string presenta formato de email válido.
+
+**Ejemplos**
+
+```pycon
+>>> valid_email("a@b.com")
+True
+>>> valid_email("hola")
+False
+```
+
+### `valid_filename`
+
+```python
+valid_filename(raw: str) -> bool
+```
+
+Comprueba si el string es un nombre de fichero válido en cualquier SO.
+
+Rechaza nombres vacíos o de más de 255 caracteres, caracteres
+`<>:"/\|?*` y de control, nombres que terminan en punto o espacio, y los
+nombres reservados de Windows (`CON`, `NUL`, `COM1`...) con cualquier
+extensión.
+
+**Parámetros**
+
+- `raw`: Nombre de fichero (sin ruta) a validar.
+
+**Devuelve:** `True` si el nombre es válido.
+
+**Ejemplos**
+
+```pycon
+>>> valid_filename("informe.pdf")
+True
+>>> valid_filename("a/b.txt")
+False
+>>> valid_filename("CON.txt")
+False
+>>> valid_filename("archivo.")
+False
+```
+
+### `valid_hex_color`
+
+```python
+valid_hex_color(raw: str, allow_alpha: bool = True) -> bool
+```
+
+Comprueba si el string es un color hexadecimal (`#rgb`, `#rrggbb`...).
+
+**Parámetros**
+
+- `raw`: String a validar.
+- `allow_alpha`: Si se admiten las formas con canal alfa (`#rgba`, `#rrggbbaa`).
+
+**Devuelve:** `True` si el string es un color hexadecimal válido.
+
+**Ejemplos**
+
+```pycon
+>>> valid_hex_color("#fff")
+True
+>>> valid_hex_color("#ff00cc80")
+True
+>>> valid_hex_color("#ff00cc80", allow_alpha=False)
+False
+>>> valid_hex_color("fff")
+False
+```
+
+### `valid_iban`
+
+```python
+valid_iban(raw: str) -> bool
+```
+
+Comprueba si el string es un IBAN con dígitos de control correctos.
+
+Admite espacios y minúsculas. Valida el formato general y el módulo 97,
+pero no la longitud específica de cada país.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el IBAN es válido.
+
+**Ejemplos**
+
+```pycon
+>>> valid_iban("ES91 2100 0418 4502 0005 1332")
+True
+>>> valid_iban("ES91 2100 0418 4502 0005 1333")
+False
+```
+
+### `valid_ip`
+
+```python
+valid_ip(raw: str, version: int | None = None) -> bool
+```
+
+Comprueba si el string es una dirección IPv4 o IPv6 válida.
+
+**Parámetros**
+
+- `raw`: String a validar.
+- `version`: `4` o `6` para exigir esa versión; `None` admite ambas.
+
+**Devuelve:** `True` si es una dirección IP válida (de la versión indicada).
+
+**Lanza**
+
+- `ValueError`: Si `version` no es `None`, `4` ni `6`.
+
+**Ejemplos**
+
+```pycon
+>>> valid_ip("192.168.1.1")
+True
+>>> valid_ip("::1", version=4)
+False
+>>> valid_ip("999.1.1.1")
+False
+```
+
+### `valid_json`
+
+```python
+valid_json(raw: str) -> bool
+```
+
+Comprueba si el string es JSON bien formado (RFC 8259).
+
+Se rechazan `NaN`, `Infinity` y `-Infinity`.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el string es JSON válido.
+
+**Ejemplos**
+
+```pycon
+>>> valid_json('{"a": [1, 2]}')
+True
+>>> valid_json("{'a': 1}")
+False
+>>> valid_json("NaN")
+False
+```
+
+### `valid_nie`
+
+```python
+valid_nie(raw: str) -> bool
+```
+
+Comprueba si el string es un NIE español válido (X/Y/Z, 7 dígitos, letra).
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el formato y la letra de control son correctos.
+
+**Ejemplos**
+
+```pycon
+>>> valid_nie("X1234567L")
+True
+>>> valid_nie("X1234567A")
+False
+```
+
+### `valid_password`
+
+```python
+valid_password(
+    raw: str,
+    length: tuple[int, int],
+    special_characters: str = '',
+    allow_uppercase: bool = True,
+    only_digits: bool = False,
+) -> bool
+```
+
+Comprueba si el string presenta el formato de contraseña requerido.
+
+Solo valida longitud y caracteres permitidos; no exige mínimos de cada
+tipo de carácter. Con `only_digits`, `allow_uppercase` carece de efecto.
+
+**Parámetros**
+
+- `raw`: Contraseña a validar.
+- `length`: Rango (mínimo, máximo) de longitud permitida, ambos inclusive.
+- `special_characters`: Caracteres especiales permitidos.
+- `allow_uppercase`: Mayúsculas permitidas.
+- `only_digits`: Si solo se permiten dígitos.
+
+**Devuelve:** `True` si la contraseña cumple las condiciones.
+
+**Lanza**
+
+- `ValueError`: Si se han indicado argumentos ambiguos o incoherentes.
+
+### `valid_phone`
+
+```python
+valid_phone(raw: str) -> bool
+```
+
+Comprueba si el string es un teléfono en formato internacional básico.
+
+Admite un `+` inicial y los separadores espacio, punto, guion y
+paréntesis; exige entre 7 y 15 dígitos (E.164). No valida por país.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el formato es válido.
+
+**Ejemplos**
+
+```pycon
+>>> valid_phone("+34 612 345 678")
+True
+>>> valid_phone("(91) 123-4567")
+True
+>>> valid_phone("12345")
+False
+```
+
+### `valid_slug`
+
+```python
+valid_slug(raw: str) -> bool
+```
+
+Comprueba si el string es un slug: minúsculas, dígitos y guiones simples.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el string es un slug válido (el que produce `parse_slug`).
+
+**Ejemplos**
+
+```pycon
+>>> valid_slug("hola-mundo")
+True
+>>> valid_slug("Hola Mundo")
+False
+>>> valid_slug("hola--mundo")
+False
+```
+
+### `valid_url`
+
+```python
+valid_url(raw: str) -> bool
+```
+
+Comprueba si el string presenta formato de URL http/https.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si es una URL http/https con host y sin espacios.
+
+**Ejemplos**
+
+```pycon
+>>> valid_url("https://example.com/x")
+True
+>>> valid_url("http://[::1")
+False
+```
+
+### `valid_uuid`
+
+```python
+valid_uuid(raw: str) -> bool
+```
+
+Comprueba si el string es un UUID en forma canónica (8-4-4-4-12).
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el string es un UUID válido.
+
+**Ejemplos**
+
+```pycon
+>>> valid_uuid("123e4567-e89b-12d3-a456-426614174000")
+True
+>>> valid_uuid("123e4567")
+False
+```

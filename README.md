@@ -1,0 +1,37 @@
+# irg_utils
+
+Utilidades de uso compartido entre proyectos. Python >= 3.11, sin dependencias.
+
+## Instalación
+
+```bash
+uv add git+https://github.com/<usuario>/irg_utils --tag v0.1.0
+```
+
+Para actualizar a una versión nueva:
+
+```bash
+uv add git+https://github.com/<usuario>/irg_utils --tag vX.Y.Z
+```
+
+## Uso
+
+```python
+from irg_utils import to_bool, valid_email
+
+to_bool("sí")  # True
+valid_email("hola")  # False
+```
+
+Referencia completa en [API.md](API.md).
+
+## Desarrollo
+
+```bash
+uv sync
+uv run ruff format
+uv run ruff check
+uv run ty check
+uv run pytest                         # cobertura exigida: 100 %
+uv run python scripts/gen_api.py      # regenera API.md tras cambiar docstrings
+```
