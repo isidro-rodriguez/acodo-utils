@@ -11,6 +11,8 @@ wheels/
 
 # Herramientas
 .idea/
+.local/
 .pytest_cache/
 .ruff_cache/
 .coverage
+*.pem
