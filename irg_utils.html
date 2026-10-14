@@ -1029,26 +1029,35 @@ integridad y autenticidad de un mensaje, no solo su huella.</p>
 </span><span id="get_password_hash-226"><a href="#get_password_hash-226"><span class="linenos">226</span></a>
 </span><span id="get_password_hash-227"><a href="#get_password_hash-227"><span class="linenos">227</span></a><span class="sd">    Raises:</span>
 </span><span id="get_password_hash-228"><a href="#get_password_hash-228"><span class="linenos">228</span></a><span class="sd">        ValueError: Si el algoritmo no está soportado o `iterations` &lt; 1.</span>
-</span><span id="get_password_hash-229"><a href="#get_password_hash-229"><span class="linenos">229</span></a><span class="sd">    """</span>
-</span><span id="get_password_hash-230"><a href="#get_password_hash-230"><span class="linenos">230</span></a>    <span class="k">if</span> <span class="p">(</span>
-</span><span id="get_password_hash-231"><a href="#get_password_hash-231"><span class="linenos">231</span></a>        <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iterations</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
-</span><span id="get_password_hash-232"><a href="#get_password_hash-232"><span class="linenos">232</span></a>        <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iterations</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
-</span><span id="get_password_hash-233"><a href="#get_password_hash-233"><span class="linenos">233</span></a>        <span class="ow">or</span> <span class="n">iterations</span> <span class="o">&lt;</span> <span class="mi">1</span>
-</span><span id="get_password_hash-234"><a href="#get_password_hash-234"><span class="linenos">234</span></a>    <span class="p">):</span>
-</span><span id="get_password_hash-235"><a href="#get_password_hash-235"><span class="linenos">235</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"`iterations` debe ser un entero positivo."</span><span class="p">)</span>
-</span><span id="get_password_hash-236"><a href="#get_password_hash-236"><span class="linenos">236</span></a>
-</span><span id="get_password_hash-237"><a href="#get_password_hash-237"><span class="linenos">237</span></a>    <span class="n">password_bytes</span> <span class="o">=</span> <span class="n">password</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">password</span>
-</span><span id="get_password_hash-238"><a href="#get_password_hash-238"><span class="linenos">238</span></a>    <span class="n">salt_bytes</span> <span class="o">=</span> <span class="n">salt</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">salt</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">salt</span>
-</span><span id="get_password_hash-239"><a href="#get_password_hash-239"><span class="linenos">239</span></a>
-</span><span id="get_password_hash-240"><a href="#get_password_hash-240"><span class="linenos">240</span></a>    <span class="k">try</span><span class="p">:</span>
-</span><span id="get_password_hash-241"><a href="#get_password_hash-241"><span class="linenos">241</span></a>        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">pbkdf2_hmac</span><span class="p">(</span>
-</span><span id="get_password_hash-242"><a href="#get_password_hash-242"><span class="linenos">242</span></a>            <span class="n">algorithm</span><span class="p">,</span>
-</span><span id="get_password_hash-243"><a href="#get_password_hash-243"><span class="linenos">243</span></a>            <span class="n">password_bytes</span><span class="p">,</span>
-</span><span id="get_password_hash-244"><a href="#get_password_hash-244"><span class="linenos">244</span></a>            <span class="n">salt_bytes</span><span class="p">,</span>
-</span><span id="get_password_hash-245"><a href="#get_password_hash-245"><span class="linenos">245</span></a>            <span class="n">iterations</span><span class="p">,</span>
-</span><span id="get_password_hash-246"><a href="#get_password_hash-246"><span class="linenos">246</span></a>        <span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
-</span><span id="get_password_hash-247"><a href="#get_password_hash-247"><span class="linenos">247</span></a>    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-</span><span id="get_password_hash-248"><a href="#get_password_hash-248"><span class="linenos">248</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Algoritmo de hash no soportado: </span><span class="si">{</span><span class="n">algorithm</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+</span><span id="get_password_hash-229"><a href="#get_password_hash-229"><span class="linenos">229</span></a>
+</span><span id="get_password_hash-230"><a href="#get_password_hash-230"><span class="linenos">230</span></a><span class="sd">    Examples:</span>
+</span><span id="get_password_hash-231"><a href="#get_password_hash-231"><span class="linenos">231</span></a><span class="sd">        &gt;&gt;&gt; hashed = get_password_hash("secreto", "sal", iterations=1000)</span>
+</span><span id="get_password_hash-232"><a href="#get_password_hash-232"><span class="linenos">232</span></a><span class="sd">        &gt;&gt;&gt; hashed</span>
+</span><span id="get_password_hash-233"><a href="#get_password_hash-233"><span class="linenos">233</span></a><span class="sd">        '85a0d61dca9df1effa45c6540efa5f00f9511e7dfd53d8d2f1d72447ceadbfa9'</span>
+</span><span id="get_password_hash-234"><a href="#get_password_hash-234"><span class="linenos">234</span></a><span class="sd">        &gt;&gt;&gt; get_password_hash("secreto", "sal", iterations=1000) == hashed</span>
+</span><span id="get_password_hash-235"><a href="#get_password_hash-235"><span class="linenos">235</span></a><span class="sd">        True</span>
+</span><span id="get_password_hash-236"><a href="#get_password_hash-236"><span class="linenos">236</span></a><span class="sd">        &gt;&gt;&gt; get_password_hash("secreto", "otra-sal", iterations=1000) == hashed</span>
+</span><span id="get_password_hash-237"><a href="#get_password_hash-237"><span class="linenos">237</span></a><span class="sd">        False</span>
+</span><span id="get_password_hash-238"><a href="#get_password_hash-238"><span class="linenos">238</span></a><span class="sd">    """</span>
+</span><span id="get_password_hash-239"><a href="#get_password_hash-239"><span class="linenos">239</span></a>    <span class="k">if</span> <span class="p">(</span>
+</span><span id="get_password_hash-240"><a href="#get_password_hash-240"><span class="linenos">240</span></a>        <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iterations</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+</span><span id="get_password_hash-241"><a href="#get_password_hash-241"><span class="linenos">241</span></a>        <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">iterations</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+</span><span id="get_password_hash-242"><a href="#get_password_hash-242"><span class="linenos">242</span></a>        <span class="ow">or</span> <span class="n">iterations</span> <span class="o">&lt;</span> <span class="mi">1</span>
+</span><span id="get_password_hash-243"><a href="#get_password_hash-243"><span class="linenos">243</span></a>    <span class="p">):</span>
+</span><span id="get_password_hash-244"><a href="#get_password_hash-244"><span class="linenos">244</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"`iterations` debe ser un entero positivo."</span><span class="p">)</span>
+</span><span id="get_password_hash-245"><a href="#get_password_hash-245"><span class="linenos">245</span></a>
+</span><span id="get_password_hash-246"><a href="#get_password_hash-246"><span class="linenos">246</span></a>    <span class="n">password_bytes</span> <span class="o">=</span> <span class="n">password</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">password</span>
+</span><span id="get_password_hash-247"><a href="#get_password_hash-247"><span class="linenos">247</span></a>    <span class="n">salt_bytes</span> <span class="o">=</span> <span class="n">salt</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">salt</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">salt</span>
+</span><span id="get_password_hash-248"><a href="#get_password_hash-248"><span class="linenos">248</span></a>
+</span><span id="get_password_hash-249"><a href="#get_password_hash-249"><span class="linenos">249</span></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="get_password_hash-250"><a href="#get_password_hash-250"><span class="linenos">250</span></a>        <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">pbkdf2_hmac</span><span class="p">(</span>
+</span><span id="get_password_hash-251"><a href="#get_password_hash-251"><span class="linenos">251</span></a>            <span class="n">algorithm</span><span class="p">,</span>
+</span><span id="get_password_hash-252"><a href="#get_password_hash-252"><span class="linenos">252</span></a>            <span class="n">password_bytes</span><span class="p">,</span>
+</span><span id="get_password_hash-253"><a href="#get_password_hash-253"><span class="linenos">253</span></a>            <span class="n">salt_bytes</span><span class="p">,</span>
+</span><span id="get_password_hash-254"><a href="#get_password_hash-254"><span class="linenos">254</span></a>            <span class="n">iterations</span><span class="p">,</span>
+</span><span id="get_password_hash-255"><a href="#get_password_hash-255"><span class="linenos">255</span></a>        <span class="p">)</span><span class="o">.</span><span class="n">hex</span><span class="p">()</span>
+</span><span id="get_password_hash-256"><a href="#get_password_hash-256"><span class="linenos">256</span></a>    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+</span><span id="get_password_hash-257"><a href="#get_password_hash-257"><span class="linenos">257</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Algoritmo de hash no soportado: </span><span class="si">{</span><span class="n">algorithm</span><span class="si">!r}</span><span class="s2">."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 </span></pre></div>
 
 
@@ -1079,6 +1088,21 @@ verificar.</p>
 <ul>
 <li><strong>ValueError:</strong>  Si el algoritmo no está soportado o <code>iterations</code> &lt; 1.</li>
 </ul>
+
+<h6 id="examples">Examples:</h6>
+
+<blockquote>
+  <div class="pdoc-code codehilite">
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">hashed</span> <span class="o">=</span> <span class="n">get_password_hash</span><span class="p">(</span><span class="s2">"secreto"</span><span class="p">,</span> <span class="s2">"sal"</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">hashed</span>
+<span class="go">'85a0d61dca9df1effa45c6540efa5f00f9511e7dfd53d8d2f1d72447ceadbfa9'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_password_hash</span><span class="p">(</span><span class="s2">"secreto"</span><span class="p">,</span> <span class="s2">"sal"</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span> <span class="o">==</span> <span class="n">hashed</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_password_hash</span><span class="p">(</span><span class="s2">"secreto"</span><span class="p">,</span> <span class="s2">"otra-sal"</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span> <span class="o">==</span> <span class="n">hashed</span>
+<span class="go">False</span>
+</code></pre>
+  </div>
+</blockquote>
 </div>
 
 
@@ -1094,28 +1118,28 @@ verificar.</p>
 
     </div>
     <a class="headerlink" href="#get_random_choice"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="get_random_choice-251"><a href="#get_random_choice-251"><span class="linenos">251</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_random_choice</span><span class="p">(</span><span class="n">seq</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
-</span><span id="get_random_choice-252"><a href="#get_random_choice-252"><span class="linenos">252</span></a><span class="w">    </span><span class="sd">"""Elige un elemento al azar de una secuencia usando `secrets` (CSPRNG).</span>
-</span><span id="get_random_choice-253"><a href="#get_random_choice-253"><span class="linenos">253</span></a>
-</span><span id="get_random_choice-254"><a href="#get_random_choice-254"><span class="linenos">254</span></a><span class="sd">    Args:</span>
-</span><span id="get_random_choice-255"><a href="#get_random_choice-255"><span class="linenos">255</span></a><span class="sd">        seq: Secuencia no vacía de la que elegir.</span>
-</span><span id="get_random_choice-256"><a href="#get_random_choice-256"><span class="linenos">256</span></a>
-</span><span id="get_random_choice-257"><a href="#get_random_choice-257"><span class="linenos">257</span></a><span class="sd">    Returns:</span>
-</span><span id="get_random_choice-258"><a href="#get_random_choice-258"><span class="linenos">258</span></a><span class="sd">        Un elemento de `seq`, elegido de forma segura.</span>
-</span><span id="get_random_choice-259"><a href="#get_random_choice-259"><span class="linenos">259</span></a>
-</span><span id="get_random_choice-260"><a href="#get_random_choice-260"><span class="linenos">260</span></a><span class="sd">    Raises:</span>
-</span><span id="get_random_choice-261"><a href="#get_random_choice-261"><span class="linenos">261</span></a><span class="sd">        ValueError: Si la secuencia está vacía.</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_random_choice-260"><a href="#get_random_choice-260"><span class="linenos">260</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_random_choice</span><span class="p">(</span><span class="n">seq</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+</span><span id="get_random_choice-261"><a href="#get_random_choice-261"><span class="linenos">261</span></a><span class="w">    </span><span class="sd">"""Elige un elemento al azar de una secuencia usando `secrets` (CSPRNG).</span>
 </span><span id="get_random_choice-262"><a href="#get_random_choice-262"><span class="linenos">262</span></a>
-</span><span id="get_random_choice-263"><a href="#get_random_choice-263"><span class="linenos">263</span></a><span class="sd">    Examples:</span>
-</span><span id="get_random_choice-264"><a href="#get_random_choice-264"><span class="linenos">264</span></a><span class="sd">        &gt;&gt;&gt; fruta = get_random_choice(["manzana", "pera", "uva"])</span>
-</span><span id="get_random_choice-265"><a href="#get_random_choice-265"><span class="linenos">265</span></a><span class="sd">        &gt;&gt;&gt; fruta in ("manzana", "pera", "uva")</span>
-</span><span id="get_random_choice-266"><a href="#get_random_choice-266"><span class="linenos">266</span></a><span class="sd">        True</span>
-</span><span id="get_random_choice-267"><a href="#get_random_choice-267"><span class="linenos">267</span></a><span class="sd">        &gt;&gt;&gt; get_random_choice([42])</span>
-</span><span id="get_random_choice-268"><a href="#get_random_choice-268"><span class="linenos">268</span></a><span class="sd">        42</span>
-</span><span id="get_random_choice-269"><a href="#get_random_choice-269"><span class="linenos">269</span></a><span class="sd">    """</span>
-</span><span id="get_random_choice-270"><a href="#get_random_choice-270"><span class="linenos">270</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">seq</span><span class="p">:</span>
-</span><span id="get_random_choice-271"><a href="#get_random_choice-271"><span class="linenos">271</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"La secuencia no puede estar vacía."</span><span class="p">)</span>
-</span><span id="get_random_choice-272"><a href="#get_random_choice-272"><span class="linenos">272</span></a>    <span class="k">return</span> <span class="n">secrets</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
+</span><span id="get_random_choice-263"><a href="#get_random_choice-263"><span class="linenos">263</span></a><span class="sd">    Args:</span>
+</span><span id="get_random_choice-264"><a href="#get_random_choice-264"><span class="linenos">264</span></a><span class="sd">        seq: Secuencia no vacía de la que elegir.</span>
+</span><span id="get_random_choice-265"><a href="#get_random_choice-265"><span class="linenos">265</span></a>
+</span><span id="get_random_choice-266"><a href="#get_random_choice-266"><span class="linenos">266</span></a><span class="sd">    Returns:</span>
+</span><span id="get_random_choice-267"><a href="#get_random_choice-267"><span class="linenos">267</span></a><span class="sd">        Un elemento de `seq`, elegido de forma segura.</span>
+</span><span id="get_random_choice-268"><a href="#get_random_choice-268"><span class="linenos">268</span></a>
+</span><span id="get_random_choice-269"><a href="#get_random_choice-269"><span class="linenos">269</span></a><span class="sd">    Raises:</span>
+</span><span id="get_random_choice-270"><a href="#get_random_choice-270"><span class="linenos">270</span></a><span class="sd">        ValueError: Si la secuencia está vacía.</span>
+</span><span id="get_random_choice-271"><a href="#get_random_choice-271"><span class="linenos">271</span></a>
+</span><span id="get_random_choice-272"><a href="#get_random_choice-272"><span class="linenos">272</span></a><span class="sd">    Examples:</span>
+</span><span id="get_random_choice-273"><a href="#get_random_choice-273"><span class="linenos">273</span></a><span class="sd">        &gt;&gt;&gt; fruta = get_random_choice(["manzana", "pera", "uva"])</span>
+</span><span id="get_random_choice-274"><a href="#get_random_choice-274"><span class="linenos">274</span></a><span class="sd">        &gt;&gt;&gt; fruta in ("manzana", "pera", "uva")</span>
+</span><span id="get_random_choice-275"><a href="#get_random_choice-275"><span class="linenos">275</span></a><span class="sd">        True</span>
+</span><span id="get_random_choice-276"><a href="#get_random_choice-276"><span class="linenos">276</span></a><span class="sd">        &gt;&gt;&gt; get_random_choice([42])</span>
+</span><span id="get_random_choice-277"><a href="#get_random_choice-277"><span class="linenos">277</span></a><span class="sd">        42</span>
+</span><span id="get_random_choice-278"><a href="#get_random_choice-278"><span class="linenos">278</span></a><span class="sd">    """</span>
+</span><span id="get_random_choice-279"><a href="#get_random_choice-279"><span class="linenos">279</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">seq</span><span class="p">:</span>
+</span><span id="get_random_choice-280"><a href="#get_random_choice-280"><span class="linenos">280</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"La secuencia no puede estar vacía."</span><span class="p">)</span>
+</span><span id="get_random_choice-281"><a href="#get_random_choice-281"><span class="linenos">281</span></a>    <span class="k">return</span> <span class="n">secrets</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">seq</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1166,29 +1190,29 @@ verificar.</p>
 
     </div>
     <a class="headerlink" href="#get_random_int"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="get_random_int-275"><a href="#get_random_int-275"><span class="linenos">275</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_random_int</span><span class="p">(</span><span class="n">minimum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">maximum</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="get_random_int-276"><a href="#get_random_int-276"><span class="linenos">276</span></a><span class="w">    </span><span class="sd">"""Genera un entero aleatorio en el rango inclusivo con `secrets`.</span>
-</span><span id="get_random_int-277"><a href="#get_random_int-277"><span class="linenos">277</span></a>
-</span><span id="get_random_int-278"><a href="#get_random_int-278"><span class="linenos">278</span></a><span class="sd">    Args:</span>
-</span><span id="get_random_int-279"><a href="#get_random_int-279"><span class="linenos">279</span></a><span class="sd">        minimum: Extremo inferior del rango (incluido).</span>
-</span><span id="get_random_int-280"><a href="#get_random_int-280"><span class="linenos">280</span></a><span class="sd">        maximum: Extremo superior del rango (incluido).</span>
-</span><span id="get_random_int-281"><a href="#get_random_int-281"><span class="linenos">281</span></a>
-</span><span id="get_random_int-282"><a href="#get_random_int-282"><span class="linenos">282</span></a><span class="sd">    Returns:</span>
-</span><span id="get_random_int-283"><a href="#get_random_int-283"><span class="linenos">283</span></a><span class="sd">        Un entero entre `minimum` y `maximum`, ambos inclusive.</span>
-</span><span id="get_random_int-284"><a href="#get_random_int-284"><span class="linenos">284</span></a>
-</span><span id="get_random_int-285"><a href="#get_random_int-285"><span class="linenos">285</span></a><span class="sd">    Raises:</span>
-</span><span id="get_random_int-286"><a href="#get_random_int-286"><span class="linenos">286</span></a><span class="sd">        ValueError: Si `minimum` es mayor que `maximum`.</span>
-</span><span id="get_random_int-287"><a href="#get_random_int-287"><span class="linenos">287</span></a>
-</span><span id="get_random_int-288"><a href="#get_random_int-288"><span class="linenos">288</span></a><span class="sd">    Examples:</span>
-</span><span id="get_random_int-289"><a href="#get_random_int-289"><span class="linenos">289</span></a><span class="sd">        &gt;&gt;&gt; valor = get_random_int(1, 6)</span>
-</span><span id="get_random_int-290"><a href="#get_random_int-290"><span class="linenos">290</span></a><span class="sd">        &gt;&gt;&gt; 1 &lt;= valor &lt;= 6</span>
-</span><span id="get_random_int-291"><a href="#get_random_int-291"><span class="linenos">291</span></a><span class="sd">        True</span>
-</span><span id="get_random_int-292"><a href="#get_random_int-292"><span class="linenos">292</span></a><span class="sd">        &gt;&gt;&gt; get_random_int(5, 5)</span>
-</span><span id="get_random_int-293"><a href="#get_random_int-293"><span class="linenos">293</span></a><span class="sd">        5</span>
-</span><span id="get_random_int-294"><a href="#get_random_int-294"><span class="linenos">294</span></a><span class="sd">    """</span>
-</span><span id="get_random_int-295"><a href="#get_random_int-295"><span class="linenos">295</span></a>    <span class="k">if</span> <span class="n">minimum</span> <span class="o">&gt;</span> <span class="n">maximum</span><span class="p">:</span>
-</span><span id="get_random_int-296"><a href="#get_random_int-296"><span class="linenos">296</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"El mínimo no puede ser mayor que el máximo."</span><span class="p">)</span>
-</span><span id="get_random_int-297"><a href="#get_random_int-297"><span class="linenos">297</span></a>    <span class="k">return</span> <span class="n">secrets</span><span class="o">.</span><span class="n">randbelow</span><span class="p">(</span><span class="n">maximum</span> <span class="o">-</span> <span class="n">minimum</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">minimum</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_random_int-284"><a href="#get_random_int-284"><span class="linenos">284</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_random_int</span><span class="p">(</span><span class="n">minimum</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">maximum</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="get_random_int-285"><a href="#get_random_int-285"><span class="linenos">285</span></a><span class="w">    </span><span class="sd">"""Genera un entero aleatorio en el rango inclusivo con `secrets`.</span>
+</span><span id="get_random_int-286"><a href="#get_random_int-286"><span class="linenos">286</span></a>
+</span><span id="get_random_int-287"><a href="#get_random_int-287"><span class="linenos">287</span></a><span class="sd">    Args:</span>
+</span><span id="get_random_int-288"><a href="#get_random_int-288"><span class="linenos">288</span></a><span class="sd">        minimum: Extremo inferior del rango (incluido).</span>
+</span><span id="get_random_int-289"><a href="#get_random_int-289"><span class="linenos">289</span></a><span class="sd">        maximum: Extremo superior del rango (incluido).</span>
+</span><span id="get_random_int-290"><a href="#get_random_int-290"><span class="linenos">290</span></a>
+</span><span id="get_random_int-291"><a href="#get_random_int-291"><span class="linenos">291</span></a><span class="sd">    Returns:</span>
+</span><span id="get_random_int-292"><a href="#get_random_int-292"><span class="linenos">292</span></a><span class="sd">        Un entero entre `minimum` y `maximum`, ambos inclusive.</span>
+</span><span id="get_random_int-293"><a href="#get_random_int-293"><span class="linenos">293</span></a>
+</span><span id="get_random_int-294"><a href="#get_random_int-294"><span class="linenos">294</span></a><span class="sd">    Raises:</span>
+</span><span id="get_random_int-295"><a href="#get_random_int-295"><span class="linenos">295</span></a><span class="sd">        ValueError: Si `minimum` es mayor que `maximum`.</span>
+</span><span id="get_random_int-296"><a href="#get_random_int-296"><span class="linenos">296</span></a>
+</span><span id="get_random_int-297"><a href="#get_random_int-297"><span class="linenos">297</span></a><span class="sd">    Examples:</span>
+</span><span id="get_random_int-298"><a href="#get_random_int-298"><span class="linenos">298</span></a><span class="sd">        &gt;&gt;&gt; valor = get_random_int(1, 6)</span>
+</span><span id="get_random_int-299"><a href="#get_random_int-299"><span class="linenos">299</span></a><span class="sd">        &gt;&gt;&gt; 1 &lt;= valor &lt;= 6</span>
+</span><span id="get_random_int-300"><a href="#get_random_int-300"><span class="linenos">300</span></a><span class="sd">        True</span>
+</span><span id="get_random_int-301"><a href="#get_random_int-301"><span class="linenos">301</span></a><span class="sd">        &gt;&gt;&gt; get_random_int(5, 5)</span>
+</span><span id="get_random_int-302"><a href="#get_random_int-302"><span class="linenos">302</span></a><span class="sd">        5</span>
+</span><span id="get_random_int-303"><a href="#get_random_int-303"><span class="linenos">303</span></a><span class="sd">    """</span>
+</span><span id="get_random_int-304"><a href="#get_random_int-304"><span class="linenos">304</span></a>    <span class="k">if</span> <span class="n">minimum</span> <span class="o">&gt;</span> <span class="n">maximum</span><span class="p">:</span>
+</span><span id="get_random_int-305"><a href="#get_random_int-305"><span class="linenos">305</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"El mínimo no puede ser mayor que el máximo."</span><span class="p">)</span>
+</span><span id="get_random_int-306"><a href="#get_random_int-306"><span class="linenos">306</span></a>    <span class="k">return</span> <span class="n">secrets</span><span class="o">.</span><span class="n">randbelow</span><span class="p">(</span><span class="n">maximum</span> <span class="o">-</span> <span class="n">minimum</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">minimum</span>
 </span></pre></div>
 
 
@@ -1240,36 +1264,46 @@ verificar.</p>
 
     </div>
     <a class="headerlink" href="#get_random_password"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="get_random_password-300"><a href="#get_random_password-300"><span class="linenos">300</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_random_password</span><span class="p">(</span>
-</span><span id="get_random_password-301"><a href="#get_random_password-301"><span class="linenos">301</span></a>    <span class="n">length</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span>
-</span><span id="get_random_password-302"><a href="#get_random_password-302"><span class="linenos">302</span></a>    <span class="n">special_characters</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
-</span><span id="get_random_password-303"><a href="#get_random_password-303"><span class="linenos">303</span></a>    <span class="n">allow_uppercase</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-</span><span id="get_random_password-304"><a href="#get_random_password-304"><span class="linenos">304</span></a>    <span class="n">only_digits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-</span><span id="get_random_password-305"><a href="#get_random_password-305"><span class="linenos">305</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="get_random_password-306"><a href="#get_random_password-306"><span class="linenos">306</span></a><span class="w">    </span><span class="sd">"""Genera una contraseña aleatoria que cumple los criterios de `valid_password`.</span>
-</span><span id="get_random_password-307"><a href="#get_random_password-307"><span class="linenos">307</span></a>
-</span><span id="get_random_password-308"><a href="#get_random_password-308"><span class="linenos">308</span></a><span class="sd">    Usa `secrets` (CSPRNG), nunca `random`. La longitud se elige al azar</span>
-</span><span id="get_random_password-309"><a href="#get_random_password-309"><span class="linenos">309</span></a><span class="sd">    dentro del rango indicado y cada carácter se toma del mismo conjunto que</span>
-</span><span id="get_random_password-310"><a href="#get_random_password-310"><span class="linenos">310</span></a><span class="sd">    admitiría `valid_password` con esos argumentos.</span>
-</span><span id="get_random_password-311"><a href="#get_random_password-311"><span class="linenos">311</span></a>
-</span><span id="get_random_password-312"><a href="#get_random_password-312"><span class="linenos">312</span></a><span class="sd">    Args:</span>
-</span><span id="get_random_password-313"><a href="#get_random_password-313"><span class="linenos">313</span></a><span class="sd">        length: Rango (mínimo, máximo) de longitud, ambos inclusive.</span>
-</span><span id="get_random_password-314"><a href="#get_random_password-314"><span class="linenos">314</span></a><span class="sd">        special_characters: Caracteres especiales permitidos.</span>
-</span><span id="get_random_password-315"><a href="#get_random_password-315"><span class="linenos">315</span></a><span class="sd">        allow_uppercase: Mayúsculas permitidas.</span>
-</span><span id="get_random_password-316"><a href="#get_random_password-316"><span class="linenos">316</span></a><span class="sd">        only_digits: Si solo se generan dígitos.</span>
-</span><span id="get_random_password-317"><a href="#get_random_password-317"><span class="linenos">317</span></a>
-</span><span id="get_random_password-318"><a href="#get_random_password-318"><span class="linenos">318</span></a><span class="sd">    Returns:</span>
-</span><span id="get_random_password-319"><a href="#get_random_password-319"><span class="linenos">319</span></a><span class="sd">        La contraseña generada.</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_random_password-309"><a href="#get_random_password-309"><span class="linenos">309</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_random_password</span><span class="p">(</span>
+</span><span id="get_random_password-310"><a href="#get_random_password-310"><span class="linenos">310</span></a>    <span class="n">length</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span>
+</span><span id="get_random_password-311"><a href="#get_random_password-311"><span class="linenos">311</span></a>    <span class="n">special_characters</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span><span class="p">,</span>
+</span><span id="get_random_password-312"><a href="#get_random_password-312"><span class="linenos">312</span></a>    <span class="n">allow_uppercase</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+</span><span id="get_random_password-313"><a href="#get_random_password-313"><span class="linenos">313</span></a>    <span class="n">only_digits</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+</span><span id="get_random_password-314"><a href="#get_random_password-314"><span class="linenos">314</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="get_random_password-315"><a href="#get_random_password-315"><span class="linenos">315</span></a><span class="w">    </span><span class="sd">"""Genera una contraseña aleatoria que cumple los criterios de `valid_password`.</span>
+</span><span id="get_random_password-316"><a href="#get_random_password-316"><span class="linenos">316</span></a>
+</span><span id="get_random_password-317"><a href="#get_random_password-317"><span class="linenos">317</span></a><span class="sd">    Usa `secrets` (CSPRNG), nunca `random`. La longitud se elige al azar</span>
+</span><span id="get_random_password-318"><a href="#get_random_password-318"><span class="linenos">318</span></a><span class="sd">    dentro del rango indicado y cada carácter se toma del mismo conjunto que</span>
+</span><span id="get_random_password-319"><a href="#get_random_password-319"><span class="linenos">319</span></a><span class="sd">    admitiría `valid_password` con esos argumentos.</span>
 </span><span id="get_random_password-320"><a href="#get_random_password-320"><span class="linenos">320</span></a>
-</span><span id="get_random_password-321"><a href="#get_random_password-321"><span class="linenos">321</span></a><span class="sd">    Raises:</span>
-</span><span id="get_random_password-322"><a href="#get_random_password-322"><span class="linenos">322</span></a><span class="sd">        ValueError: Si se han indicado argumentos ambiguos o incoherentes.</span>
-</span><span id="get_random_password-323"><a href="#get_random_password-323"><span class="linenos">323</span></a><span class="sd">    """</span>
-</span><span id="get_random_password-324"><a href="#get_random_password-324"><span class="linenos">324</span></a>    <span class="n">_check_password_args</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">special_characters</span><span class="p">,</span> <span class="n">only_digits</span><span class="p">)</span>
-</span><span id="get_random_password-325"><a href="#get_random_password-325"><span class="linenos">325</span></a>    <span class="n">alphabet</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_allowed_chars</span><span class="p">(</span><span class="n">special_characters</span><span class="p">,</span> <span class="n">allow_uppercase</span><span class="p">,</span> <span class="n">only_digits</span><span class="p">))</span>
+</span><span id="get_random_password-321"><a href="#get_random_password-321"><span class="linenos">321</span></a><span class="sd">    Args:</span>
+</span><span id="get_random_password-322"><a href="#get_random_password-322"><span class="linenos">322</span></a><span class="sd">        length: Rango (mínimo, máximo) de longitud, ambos inclusive.</span>
+</span><span id="get_random_password-323"><a href="#get_random_password-323"><span class="linenos">323</span></a><span class="sd">        special_characters: Caracteres especiales permitidos.</span>
+</span><span id="get_random_password-324"><a href="#get_random_password-324"><span class="linenos">324</span></a><span class="sd">        allow_uppercase: Mayúsculas permitidas.</span>
+</span><span id="get_random_password-325"><a href="#get_random_password-325"><span class="linenos">325</span></a><span class="sd">        only_digits: Si solo se generan dígitos.</span>
 </span><span id="get_random_password-326"><a href="#get_random_password-326"><span class="linenos">326</span></a>
-</span><span id="get_random_password-327"><a href="#get_random_password-327"><span class="linenos">327</span></a>    <span class="n">min_length</span><span class="p">,</span> <span class="n">max_length</span> <span class="o">=</span> <span class="n">length</span>
-</span><span id="get_random_password-328"><a href="#get_random_password-328"><span class="linenos">328</span></a>    <span class="n">size</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">randbelow</span><span class="p">(</span><span class="n">max_length</span> <span class="o">-</span> <span class="n">min_length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">min_length</span>
-</span><span id="get_random_password-329"><a href="#get_random_password-329"><span class="linenos">329</span></a>    <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">secrets</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">alphabet</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
+</span><span id="get_random_password-327"><a href="#get_random_password-327"><span class="linenos">327</span></a><span class="sd">    Returns:</span>
+</span><span id="get_random_password-328"><a href="#get_random_password-328"><span class="linenos">328</span></a><span class="sd">        La contraseña generada.</span>
+</span><span id="get_random_password-329"><a href="#get_random_password-329"><span class="linenos">329</span></a>
+</span><span id="get_random_password-330"><a href="#get_random_password-330"><span class="linenos">330</span></a><span class="sd">    Raises:</span>
+</span><span id="get_random_password-331"><a href="#get_random_password-331"><span class="linenos">331</span></a><span class="sd">        ValueError: Si se han indicado argumentos ambiguos o incoherentes.</span>
+</span><span id="get_random_password-332"><a href="#get_random_password-332"><span class="linenos">332</span></a>
+</span><span id="get_random_password-333"><a href="#get_random_password-333"><span class="linenos">333</span></a><span class="sd">    Examples:</span>
+</span><span id="get_random_password-334"><a href="#get_random_password-334"><span class="linenos">334</span></a><span class="sd">        &gt;&gt;&gt; len(get_random_password(length=(12, 12)))</span>
+</span><span id="get_random_password-335"><a href="#get_random_password-335"><span class="linenos">335</span></a><span class="sd">        12</span>
+</span><span id="get_random_password-336"><a href="#get_random_password-336"><span class="linenos">336</span></a><span class="sd">        &gt;&gt;&gt; get_random_password(length=(6, 6), only_digits=True).isdigit()</span>
+</span><span id="get_random_password-337"><a href="#get_random_password-337"><span class="linenos">337</span></a><span class="sd">        True</span>
+</span><span id="get_random_password-338"><a href="#get_random_password-338"><span class="linenos">338</span></a><span class="sd">        &gt;&gt;&gt; from irg_utils import valid_password</span>
+</span><span id="get_random_password-339"><a href="#get_random_password-339"><span class="linenos">339</span></a><span class="sd">        &gt;&gt;&gt; password = get_random_password(special_characters="!?")</span>
+</span><span id="get_random_password-340"><a href="#get_random_password-340"><span class="linenos">340</span></a><span class="sd">        &gt;&gt;&gt; valid_password(password, length=(8, 16), special_characters="!?")</span>
+</span><span id="get_random_password-341"><a href="#get_random_password-341"><span class="linenos">341</span></a><span class="sd">        True</span>
+</span><span id="get_random_password-342"><a href="#get_random_password-342"><span class="linenos">342</span></a><span class="sd">    """</span>
+</span><span id="get_random_password-343"><a href="#get_random_password-343"><span class="linenos">343</span></a>    <span class="n">_check_password_args</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">special_characters</span><span class="p">,</span> <span class="n">only_digits</span><span class="p">)</span>
+</span><span id="get_random_password-344"><a href="#get_random_password-344"><span class="linenos">344</span></a>    <span class="n">alphabet</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_allowed_chars</span><span class="p">(</span><span class="n">special_characters</span><span class="p">,</span> <span class="n">allow_uppercase</span><span class="p">,</span> <span class="n">only_digits</span><span class="p">))</span>
+</span><span id="get_random_password-345"><a href="#get_random_password-345"><span class="linenos">345</span></a>
+</span><span id="get_random_password-346"><a href="#get_random_password-346"><span class="linenos">346</span></a>    <span class="n">min_length</span><span class="p">,</span> <span class="n">max_length</span> <span class="o">=</span> <span class="n">length</span>
+</span><span id="get_random_password-347"><a href="#get_random_password-347"><span class="linenos">347</span></a>    <span class="n">size</span> <span class="o">=</span> <span class="n">secrets</span><span class="o">.</span><span class="n">randbelow</span><span class="p">(</span><span class="n">max_length</span> <span class="o">-</span> <span class="n">min_length</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">min_length</span>
+</span><span id="get_random_password-348"><a href="#get_random_password-348"><span class="linenos">348</span></a>    <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">secrets</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">alphabet</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">size</span><span class="p">))</span>
 </span></pre></div>
 
 
@@ -1299,6 +1333,22 @@ admitiría <code><a href="#valid_password">valid_password</a></code> con esos ar
 <ul>
 <li><strong>ValueError:</strong>  Si se han indicado argumentos ambiguos o incoherentes.</li>
 </ul>
+
+<h6 id="examples">Examples:</h6>
+
+<blockquote>
+  <div class="pdoc-code codehilite">
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="nb">len</span><span class="p">(</span><span class="n">get_random_password</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">)))</span>
+<span class="go">12</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_random_password</span><span class="p">(</span><span class="n">length</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">only_digits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">irg_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">valid_password</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">password</span> <span class="o">=</span> <span class="n">get_random_password</span><span class="p">(</span><span class="n">special_characters</span><span class="o">=</span><span class="s2">"!?"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">valid_password</span><span class="p">(</span><span class="n">password</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">special_characters</span><span class="o">=</span><span class="s2">"!?"</span><span class="p">)</span>
+<span class="go">True</span>
+</code></pre>
+  </div>
+</blockquote>
 </div>
 
 
@@ -1314,33 +1364,33 @@ admitiría <code><a href="#valid_password">valid_password</a></code> con esos ar
 
     </div>
     <a class="headerlink" href="#get_random_token"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="get_random_token-332"><a href="#get_random_token-332"><span class="linenos">332</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_random_token</span><span class="p">(</span><span class="n">nbytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span> <span class="n">url_safe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="get_random_token-333"><a href="#get_random_token-333"><span class="linenos">333</span></a><span class="w">    </span><span class="sd">"""Genera un token aleatorio criptográficamente seguro con `secrets`.</span>
-</span><span id="get_random_token-334"><a href="#get_random_token-334"><span class="linenos">334</span></a>
-</span><span id="get_random_token-335"><a href="#get_random_token-335"><span class="linenos">335</span></a><span class="sd">    Args:</span>
-</span><span id="get_random_token-336"><a href="#get_random_token-336"><span class="linenos">336</span></a><span class="sd">        nbytes: Cantidad de bytes de entropía (por defecto 32).</span>
-</span><span id="get_random_token-337"><a href="#get_random_token-337"><span class="linenos">337</span></a><span class="sd">        url_safe: Si es `True`, usa codificación URL-segura (`token_urlsafe`);</span>
-</span><span id="get_random_token-338"><a href="#get_random_token-338"><span class="linenos">338</span></a><span class="sd">            si es `False`, genera hexadecimal (`token_hex`).</span>
-</span><span id="get_random_token-339"><a href="#get_random_token-339"><span class="linenos">339</span></a>
-</span><span id="get_random_token-340"><a href="#get_random_token-340"><span class="linenos">340</span></a><span class="sd">    Returns:</span>
-</span><span id="get_random_token-341"><a href="#get_random_token-341"><span class="linenos">341</span></a><span class="sd">        El token generado.</span>
-</span><span id="get_random_token-342"><a href="#get_random_token-342"><span class="linenos">342</span></a>
-</span><span id="get_random_token-343"><a href="#get_random_token-343"><span class="linenos">343</span></a><span class="sd">    Raises:</span>
-</span><span id="get_random_token-344"><a href="#get_random_token-344"><span class="linenos">344</span></a><span class="sd">        ValueError: Si `nbytes` no es un entero positivo.</span>
-</span><span id="get_random_token-345"><a href="#get_random_token-345"><span class="linenos">345</span></a>
-</span><span id="get_random_token-346"><a href="#get_random_token-346"><span class="linenos">346</span></a><span class="sd">    Examples:</span>
-</span><span id="get_random_token-347"><a href="#get_random_token-347"><span class="linenos">347</span></a><span class="sd">        &gt;&gt;&gt; token = get_random_token()</span>
-</span><span id="get_random_token-348"><a href="#get_random_token-348"><span class="linenos">348</span></a><span class="sd">        &gt;&gt;&gt; len(token) &gt;= 40</span>
-</span><span id="get_random_token-349"><a href="#get_random_token-349"><span class="linenos">349</span></a><span class="sd">        True</span>
-</span><span id="get_random_token-350"><a href="#get_random_token-350"><span class="linenos">350</span></a><span class="sd">        &gt;&gt;&gt; len(get_random_token(16, url_safe=False))</span>
-</span><span id="get_random_token-351"><a href="#get_random_token-351"><span class="linenos">351</span></a><span class="sd">        32</span>
-</span><span id="get_random_token-352"><a href="#get_random_token-352"><span class="linenos">352</span></a><span class="sd">    """</span>
-</span><span id="get_random_token-353"><a href="#get_random_token-353"><span class="linenos">353</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nbytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nbytes</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">or</span> <span class="n">nbytes</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="get_random_token-354"><a href="#get_random_token-354"><span class="linenos">354</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"`nbytes` debe ser un entero positivo."</span><span class="p">)</span>
-</span><span id="get_random_token-355"><a href="#get_random_token-355"><span class="linenos">355</span></a>
-</span><span id="get_random_token-356"><a href="#get_random_token-356"><span class="linenos">356</span></a>    <span class="k">if</span> <span class="n">url_safe</span><span class="p">:</span>
-</span><span id="get_random_token-357"><a href="#get_random_token-357"><span class="linenos">357</span></a>        <span class="k">return</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">(</span><span class="n">nbytes</span><span class="p">)</span>
-</span><span id="get_random_token-358"><a href="#get_random_token-358"><span class="linenos">358</span></a>    <span class="k">return</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_hex</span><span class="p">(</span><span class="n">nbytes</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_random_token-351"><a href="#get_random_token-351"><span class="linenos">351</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_random_token</span><span class="p">(</span><span class="n">nbytes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span> <span class="n">url_safe</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="get_random_token-352"><a href="#get_random_token-352"><span class="linenos">352</span></a><span class="w">    </span><span class="sd">"""Genera un token aleatorio criptográficamente seguro con `secrets`.</span>
+</span><span id="get_random_token-353"><a href="#get_random_token-353"><span class="linenos">353</span></a>
+</span><span id="get_random_token-354"><a href="#get_random_token-354"><span class="linenos">354</span></a><span class="sd">    Args:</span>
+</span><span id="get_random_token-355"><a href="#get_random_token-355"><span class="linenos">355</span></a><span class="sd">        nbytes: Cantidad de bytes de entropía (por defecto 32).</span>
+</span><span id="get_random_token-356"><a href="#get_random_token-356"><span class="linenos">356</span></a><span class="sd">        url_safe: Si es `True`, usa codificación URL-segura (`token_urlsafe`);</span>
+</span><span id="get_random_token-357"><a href="#get_random_token-357"><span class="linenos">357</span></a><span class="sd">            si es `False`, genera hexadecimal (`token_hex`).</span>
+</span><span id="get_random_token-358"><a href="#get_random_token-358"><span class="linenos">358</span></a>
+</span><span id="get_random_token-359"><a href="#get_random_token-359"><span class="linenos">359</span></a><span class="sd">    Returns:</span>
+</span><span id="get_random_token-360"><a href="#get_random_token-360"><span class="linenos">360</span></a><span class="sd">        El token generado.</span>
+</span><span id="get_random_token-361"><a href="#get_random_token-361"><span class="linenos">361</span></a>
+</span><span id="get_random_token-362"><a href="#get_random_token-362"><span class="linenos">362</span></a><span class="sd">    Raises:</span>
+</span><span id="get_random_token-363"><a href="#get_random_token-363"><span class="linenos">363</span></a><span class="sd">        ValueError: Si `nbytes` no es un entero positivo.</span>
+</span><span id="get_random_token-364"><a href="#get_random_token-364"><span class="linenos">364</span></a>
+</span><span id="get_random_token-365"><a href="#get_random_token-365"><span class="linenos">365</span></a><span class="sd">    Examples:</span>
+</span><span id="get_random_token-366"><a href="#get_random_token-366"><span class="linenos">366</span></a><span class="sd">        &gt;&gt;&gt; token = get_random_token()</span>
+</span><span id="get_random_token-367"><a href="#get_random_token-367"><span class="linenos">367</span></a><span class="sd">        &gt;&gt;&gt; len(token) &gt;= 40</span>
+</span><span id="get_random_token-368"><a href="#get_random_token-368"><span class="linenos">368</span></a><span class="sd">        True</span>
+</span><span id="get_random_token-369"><a href="#get_random_token-369"><span class="linenos">369</span></a><span class="sd">        &gt;&gt;&gt; len(get_random_token(16, url_safe=False))</span>
+</span><span id="get_random_token-370"><a href="#get_random_token-370"><span class="linenos">370</span></a><span class="sd">        32</span>
+</span><span id="get_random_token-371"><a href="#get_random_token-371"><span class="linenos">371</span></a><span class="sd">    """</span>
+</span><span id="get_random_token-372"><a href="#get_random_token-372"><span class="linenos">372</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nbytes</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">nbytes</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span> <span class="ow">or</span> <span class="n">nbytes</span> <span class="o">&lt;</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="get_random_token-373"><a href="#get_random_token-373"><span class="linenos">373</span></a>        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"`nbytes` debe ser un entero positivo."</span><span class="p">)</span>
+</span><span id="get_random_token-374"><a href="#get_random_token-374"><span class="linenos">374</span></a>
+</span><span id="get_random_token-375"><a href="#get_random_token-375"><span class="linenos">375</span></a>    <span class="k">if</span> <span class="n">url_safe</span><span class="p">:</span>
+</span><span id="get_random_token-376"><a href="#get_random_token-376"><span class="linenos">376</span></a>        <span class="k">return</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_urlsafe</span><span class="p">(</span><span class="n">nbytes</span><span class="p">)</span>
+</span><span id="get_random_token-377"><a href="#get_random_token-377"><span class="linenos">377</span></a>    <span class="k">return</span> <span class="n">secrets</span><span class="o">.</span><span class="n">token_hex</span><span class="p">(</span><span class="n">nbytes</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1393,18 +1443,18 @@ si es <code>False</code>, genera hexadecimal (<code>token_hex</code>).</li>
 
     </div>
     <a class="headerlink" href="#get_uuid"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="get_uuid-361"><a href="#get_uuid-361"><span class="linenos">361</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_uuid</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UUID</span><span class="p">:</span>
-</span><span id="get_uuid-362"><a href="#get_uuid-362"><span class="linenos">362</span></a><span class="w">    </span><span class="sd">"""Genera un UUID versión 4 (aleatorio) con el módulo `uuid`.</span>
-</span><span id="get_uuid-363"><a href="#get_uuid-363"><span class="linenos">363</span></a>
-</span><span id="get_uuid-364"><a href="#get_uuid-364"><span class="linenos">364</span></a><span class="sd">    Returns:</span>
-</span><span id="get_uuid-365"><a href="#get_uuid-365"><span class="linenos">365</span></a><span class="sd">        Un objeto `UUID` v4.</span>
-</span><span id="get_uuid-366"><a href="#get_uuid-366"><span class="linenos">366</span></a>
-</span><span id="get_uuid-367"><a href="#get_uuid-367"><span class="linenos">367</span></a><span class="sd">    Examples:</span>
-</span><span id="get_uuid-368"><a href="#get_uuid-368"><span class="linenos">368</span></a><span class="sd">        &gt;&gt;&gt; from irg_utils import valid_uuid</span>
-</span><span id="get_uuid-369"><a href="#get_uuid-369"><span class="linenos">369</span></a><span class="sd">        &gt;&gt;&gt; valid_uuid(str(get_uuid()))</span>
-</span><span id="get_uuid-370"><a href="#get_uuid-370"><span class="linenos">370</span></a><span class="sd">        True</span>
-</span><span id="get_uuid-371"><a href="#get_uuid-371"><span class="linenos">371</span></a><span class="sd">    """</span>
-</span><span id="get_uuid-372"><a href="#get_uuid-372"><span class="linenos">372</span></a>    <span class="k">return</span> <span class="n">uuid4</span><span class="p">()</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="get_uuid-380"><a href="#get_uuid-380"><span class="linenos">380</span></a><span class="k">def</span><span class="w"> </span><span class="nf">get_uuid</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UUID</span><span class="p">:</span>
+</span><span id="get_uuid-381"><a href="#get_uuid-381"><span class="linenos">381</span></a><span class="w">    </span><span class="sd">"""Genera un UUID versión 4 (aleatorio) con el módulo `uuid`.</span>
+</span><span id="get_uuid-382"><a href="#get_uuid-382"><span class="linenos">382</span></a>
+</span><span id="get_uuid-383"><a href="#get_uuid-383"><span class="linenos">383</span></a><span class="sd">    Returns:</span>
+</span><span id="get_uuid-384"><a href="#get_uuid-384"><span class="linenos">384</span></a><span class="sd">        Un objeto `UUID` v4.</span>
+</span><span id="get_uuid-385"><a href="#get_uuid-385"><span class="linenos">385</span></a>
+</span><span id="get_uuid-386"><a href="#get_uuid-386"><span class="linenos">386</span></a><span class="sd">    Examples:</span>
+</span><span id="get_uuid-387"><a href="#get_uuid-387"><span class="linenos">387</span></a><span class="sd">        &gt;&gt;&gt; from irg_utils import valid_uuid</span>
+</span><span id="get_uuid-388"><a href="#get_uuid-388"><span class="linenos">388</span></a><span class="sd">        &gt;&gt;&gt; valid_uuid(str(get_uuid()))</span>
+</span><span id="get_uuid-389"><a href="#get_uuid-389"><span class="linenos">389</span></a><span class="sd">        True</span>
+</span><span id="get_uuid-390"><a href="#get_uuid-390"><span class="linenos">390</span></a><span class="sd">    """</span>
+</span><span id="get_uuid-391"><a href="#get_uuid-391"><span class="linenos">391</span></a>    <span class="k">return</span> <span class="n">uuid4</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -1514,8 +1564,14 @@ si es <code>False</code>, genera hexadecimal (<code>token_hex</code>).</li>
 </span><span id="has_required_fields-49"><a href="#has_required_fields-49"><span class="linenos">49</span></a>
 </span><span id="has_required_fields-50"><a href="#has_required_fields-50"><span class="linenos">50</span></a><span class="sd">    Returns:</span>
 </span><span id="has_required_fields-51"><a href="#has_required_fields-51"><span class="linenos">51</span></a><span class="sd">        `True` si la colección tiene todos los campos requeridos.</span>
-</span><span id="has_required_fields-52"><a href="#has_required_fields-52"><span class="linenos">52</span></a><span class="sd">    """</span>
-</span><span id="has_required_fields-53"><a href="#has_required_fields-53"><span class="linenos">53</span></a>    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">field</span> <span class="ow">in</span> <span class="n">raw</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">required_fields</span><span class="p">)</span>
+</span><span id="has_required_fields-52"><a href="#has_required_fields-52"><span class="linenos">52</span></a>
+</span><span id="has_required_fields-53"><a href="#has_required_fields-53"><span class="linenos">53</span></a><span class="sd">    Examples:</span>
+</span><span id="has_required_fields-54"><a href="#has_required_fields-54"><span class="linenos">54</span></a><span class="sd">        &gt;&gt;&gt; has_required_fields(["a", "b", "c"], ["a", "c"])</span>
+</span><span id="has_required_fields-55"><a href="#has_required_fields-55"><span class="linenos">55</span></a><span class="sd">        True</span>
+</span><span id="has_required_fields-56"><a href="#has_required_fields-56"><span class="linenos">56</span></a><span class="sd">        &gt;&gt;&gt; has_required_fields({"a", "b"}, ["a", "z"])</span>
+</span><span id="has_required_fields-57"><a href="#has_required_fields-57"><span class="linenos">57</span></a><span class="sd">        False</span>
+</span><span id="has_required_fields-58"><a href="#has_required_fields-58"><span class="linenos">58</span></a><span class="sd">    """</span>
+</span><span id="has_required_fields-59"><a href="#has_required_fields-59"><span class="linenos">59</span></a>    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">field</span> <span class="ow">in</span> <span class="n">raw</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">required_fields</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1533,6 +1589,18 @@ si es <code>False</code>, genera hexadecimal (<code>token_hex</code>).</li>
 <blockquote>
   <p><code>True</code> si la colección tiene todos los campos requeridos.</p>
 </blockquote>
+
+<h6 id="examples">Examples:</h6>
+
+<blockquote>
+  <div class="pdoc-code codehilite">
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">has_required_fields</span><span class="p">([</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"c"</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">has_required_fields</span><span class="p">({</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"b"</span><span class="p">},</span> <span class="p">[</span><span class="s2">"a"</span><span class="p">,</span> <span class="s2">"z"</span><span class="p">])</span>
+<span class="go">False</span>
+</code></pre>
+  </div>
+</blockquote>
 </div>
 
 
@@ -1548,20 +1616,26 @@ si es <code>False</code>, genera hexadecimal (<code>token_hex</code>).</li>
 
     </div>
     <a class="headerlink" href="#has_required_keys"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="has_required_keys-56"><a href="#has_required_keys-56"><span class="linenos">56</span></a><span class="k">def</span><span class="w"> </span><span class="nf">has_required_keys</span><span class="p">(</span>
-</span><span id="has_required_keys-57"><a href="#has_required_keys-57"><span class="linenos">57</span></a>    <span class="n">raw</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Hashable</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
-</span><span id="has_required_keys-58"><a href="#has_required_keys-58"><span class="linenos">58</span></a>    <span class="n">required_keys</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Hashable</span><span class="p">],</span>
-</span><span id="has_required_keys-59"><a href="#has_required_keys-59"><span class="linenos">59</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="has_required_keys-60"><a href="#has_required_keys-60"><span class="linenos">60</span></a><span class="w">    </span><span class="sd">"""Comprueba que el diccionario tiene todas las llaves requeridas.</span>
-</span><span id="has_required_keys-61"><a href="#has_required_keys-61"><span class="linenos">61</span></a>
-</span><span id="has_required_keys-62"><a href="#has_required_keys-62"><span class="linenos">62</span></a><span class="sd">    Args:</span>
-</span><span id="has_required_keys-63"><a href="#has_required_keys-63"><span class="linenos">63</span></a><span class="sd">        raw: Diccionario a verificar.</span>
-</span><span id="has_required_keys-64"><a href="#has_required_keys-64"><span class="linenos">64</span></a><span class="sd">        required_keys: Llaves requeridas.</span>
-</span><span id="has_required_keys-65"><a href="#has_required_keys-65"><span class="linenos">65</span></a>
-</span><span id="has_required_keys-66"><a href="#has_required_keys-66"><span class="linenos">66</span></a><span class="sd">    Returns:</span>
-</span><span id="has_required_keys-67"><a href="#has_required_keys-67"><span class="linenos">67</span></a><span class="sd">        `True` si el diccionario tiene todas las llaves requeridas.</span>
-</span><span id="has_required_keys-68"><a href="#has_required_keys-68"><span class="linenos">68</span></a><span class="sd">    """</span>
-</span><span id="has_required_keys-69"><a href="#has_required_keys-69"><span class="linenos">69</span></a>    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">raw</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required_keys</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="has_required_keys-62"><a href="#has_required_keys-62"><span class="linenos">62</span></a><span class="k">def</span><span class="w"> </span><span class="nf">has_required_keys</span><span class="p">(</span>
+</span><span id="has_required_keys-63"><a href="#has_required_keys-63"><span class="linenos">63</span></a>    <span class="n">raw</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="n">Hashable</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+</span><span id="has_required_keys-64"><a href="#has_required_keys-64"><span class="linenos">64</span></a>    <span class="n">required_keys</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Hashable</span><span class="p">],</span>
+</span><span id="has_required_keys-65"><a href="#has_required_keys-65"><span class="linenos">65</span></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="has_required_keys-66"><a href="#has_required_keys-66"><span class="linenos">66</span></a><span class="w">    </span><span class="sd">"""Comprueba que el diccionario tiene todas las llaves requeridas.</span>
+</span><span id="has_required_keys-67"><a href="#has_required_keys-67"><span class="linenos">67</span></a>
+</span><span id="has_required_keys-68"><a href="#has_required_keys-68"><span class="linenos">68</span></a><span class="sd">    Args:</span>
+</span><span id="has_required_keys-69"><a href="#has_required_keys-69"><span class="linenos">69</span></a><span class="sd">        raw: Diccionario a verificar.</span>
+</span><span id="has_required_keys-70"><a href="#has_required_keys-70"><span class="linenos">70</span></a><span class="sd">        required_keys: Llaves requeridas.</span>
+</span><span id="has_required_keys-71"><a href="#has_required_keys-71"><span class="linenos">71</span></a>
+</span><span id="has_required_keys-72"><a href="#has_required_keys-72"><span class="linenos">72</span></a><span class="sd">    Returns:</span>
+</span><span id="has_required_keys-73"><a href="#has_required_keys-73"><span class="linenos">73</span></a><span class="sd">        `True` si el diccionario tiene todas las llaves requeridas.</span>
+</span><span id="has_required_keys-74"><a href="#has_required_keys-74"><span class="linenos">74</span></a>
+</span><span id="has_required_keys-75"><a href="#has_required_keys-75"><span class="linenos">75</span></a><span class="sd">    Examples:</span>
+</span><span id="has_required_keys-76"><a href="#has_required_keys-76"><span class="linenos">76</span></a><span class="sd">        &gt;&gt;&gt; has_required_keys({"name": "Ana", "age": 30}, ["name"])</span>
+</span><span id="has_required_keys-77"><a href="#has_required_keys-77"><span class="linenos">77</span></a><span class="sd">        True</span>
+</span><span id="has_required_keys-78"><a href="#has_required_keys-78"><span class="linenos">78</span></a><span class="sd">        &gt;&gt;&gt; has_required_keys({"name": "Ana"}, ["name", "age"])</span>
+</span><span id="has_required_keys-79"><a href="#has_required_keys-79"><span class="linenos">79</span></a><span class="sd">        False</span>
+</span><span id="has_required_keys-80"><a href="#has_required_keys-80"><span class="linenos">80</span></a><span class="sd">    """</span>
+</span><span id="has_required_keys-81"><a href="#has_required_keys-81"><span class="linenos">81</span></a>    <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="n">raw</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required_keys</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1578,6 +1652,18 @@ si es <code>False</code>, genera hexadecimal (<code>token_hex</code>).</li>
 
 <blockquote>
   <p><code>True</code> si el diccionario tiene todas las llaves requeridas.</p>
+</blockquote>
+
+<h6 id="examples">Examples:</h6>
+
+<blockquote>
+  <div class="pdoc-code codehilite">
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">has_required_keys</span><span class="p">({</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Ana"</span><span class="p">,</span> <span class="s2">"age"</span><span class="p">:</span> <span class="mi">30</span><span class="p">},</span> <span class="p">[</span><span class="s2">"name"</span><span class="p">])</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">has_required_keys</span><span class="p">({</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"Ana"</span><span class="p">},</span> <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"age"</span><span class="p">])</span>
+<span class="go">False</span>
+</code></pre>
+  </div>
 </blockquote>
 </div>
 
@@ -3127,8 +3213,16 @@ iterable se aplana recursivamente y se ignoran los <code>None</code>.</p>
 </span><span id="to_str-513"><a href="#to_str-513"><span class="linenos">513</span></a><span class="sd">    Returns:</span>
 </span><span id="to_str-514"><a href="#to_str-514"><span class="linenos">514</span></a><span class="sd">        El propio `raw` si es un `str` que no está vacío ni es solo espacios;</span>
 </span><span id="to_str-515"><a href="#to_str-515"><span class="linenos">515</span></a><span class="sd">        `None` en otro caso.</span>
-</span><span id="to_str-516"><a href="#to_str-516"><span class="linenos">516</span></a><span class="sd">    """</span>
-</span><span id="to_str-517"><a href="#to_str-517"><span class="linenos">517</span></a>    <span class="k">return</span> <span class="n">raw</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
+</span><span id="to_str-516"><a href="#to_str-516"><span class="linenos">516</span></a>
+</span><span id="to_str-517"><a href="#to_str-517"><span class="linenos">517</span></a><span class="sd">    Examples:</span>
+</span><span id="to_str-518"><a href="#to_str-518"><span class="linenos">518</span></a><span class="sd">        &gt;&gt;&gt; to_str("hola")</span>
+</span><span id="to_str-519"><a href="#to_str-519"><span class="linenos">519</span></a><span class="sd">        'hola'</span>
+</span><span id="to_str-520"><a href="#to_str-520"><span class="linenos">520</span></a><span class="sd">        &gt;&gt;&gt; to_str("   ") is None</span>
+</span><span id="to_str-521"><a href="#to_str-521"><span class="linenos">521</span></a><span class="sd">        True</span>
+</span><span id="to_str-522"><a href="#to_str-522"><span class="linenos">522</span></a><span class="sd">        &gt;&gt;&gt; to_str(42) is None</span>
+</span><span id="to_str-523"><a href="#to_str-523"><span class="linenos">523</span></a><span class="sd">        True</span>
+</span><span id="to_str-524"><a href="#to_str-524"><span class="linenos">524</span></a><span class="sd">    """</span>
+</span><span id="to_str-525"><a href="#to_str-525"><span class="linenos">525</span></a>    <span class="k">return</span> <span class="n">raw</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -3146,6 +3240,20 @@ iterable se aplana recursivamente y se ignoran los <code>None</code>.</p>
   <p>El propio <code>raw</code> si es un <code>str</code> que no está vacío ni es solo espacios;
   <code>None</code> en otro caso.</p>
 </blockquote>
+
+<h6 id="examples">Examples:</h6>
+
+<blockquote>
+  <div class="pdoc-code codehilite">
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">to_str</span><span class="p">(</span><span class="s2">"hola"</span><span class="p">)</span>
+<span class="go">'hola'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">to_str</span><span class="p">(</span><span class="s2">"   "</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">to_str</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+<span class="go">True</span>
+</code></pre>
+  </div>
+</blockquote>
 </div>
 
 
@@ -3161,46 +3269,46 @@ iterable se aplana recursivamente y se ignoran los <code>None</code>.</p>
 
     </div>
     <a class="headerlink" href="#to_timedelta"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="to_timedelta-520"><a href="#to_timedelta-520"><span class="linenos">520</span></a><span class="k">def</span><span class="w"> </span><span class="nf">to_timedelta</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="to_timedelta-521"><a href="#to_timedelta-521"><span class="linenos">521</span></a><span class="w">    </span><span class="sd">"""Convierte segundos o un texto de duración a timedelta.</span>
-</span><span id="to_timedelta-522"><a href="#to_timedelta-522"><span class="linenos">522</span></a>
-</span><span id="to_timedelta-523"><a href="#to_timedelta-523"><span class="linenos">523</span></a><span class="sd">    Con un `str` se interpreta una duración con unidades: `d`, `h`,</span>
-</span><span id="to_timedelta-524"><a href="#to_timedelta-524"><span class="linenos">524</span></a><span class="sd">    `min`/`m` y `s`, con decimales y separadas por espacios opcionales</span>
-</span><span id="to_timedelta-525"><a href="#to_timedelta-525"><span class="linenos">525</span></a><span class="sd">    (`"1h 30m"`, `"1,5h"`). Un texto sin unidades (`"90"`) no es válido.</span>
-</span><span id="to_timedelta-526"><a href="#to_timedelta-526"><span class="linenos">526</span></a>
-</span><span id="to_timedelta-527"><a href="#to_timedelta-527"><span class="linenos">527</span></a><span class="sd">    Args:</span>
-</span><span id="to_timedelta-528"><a href="#to_timedelta-528"><span class="linenos">528</span></a><span class="sd">        raw: Cantidad de segundos, o texto de duración.</span>
-</span><span id="to_timedelta-529"><a href="#to_timedelta-529"><span class="linenos">529</span></a>
-</span><span id="to_timedelta-530"><a href="#to_timedelta-530"><span class="linenos">530</span></a><span class="sd">    Returns:</span>
-</span><span id="to_timedelta-531"><a href="#to_timedelta-531"><span class="linenos">531</span></a><span class="sd">        La duración, o `None` si el valor falta, no es válido, no es finito</span>
-</span><span id="to_timedelta-532"><a href="#to_timedelta-532"><span class="linenos">532</span></a><span class="sd">        o es desmesurado.</span>
-</span><span id="to_timedelta-533"><a href="#to_timedelta-533"><span class="linenos">533</span></a>
-</span><span id="to_timedelta-534"><a href="#to_timedelta-534"><span class="linenos">534</span></a><span class="sd">    Examples:</span>
-</span><span id="to_timedelta-535"><a href="#to_timedelta-535"><span class="linenos">535</span></a><span class="sd">        &gt;&gt;&gt; to_timedelta(90)</span>
-</span><span id="to_timedelta-536"><a href="#to_timedelta-536"><span class="linenos">536</span></a><span class="sd">        datetime.timedelta(seconds=90)</span>
-</span><span id="to_timedelta-537"><a href="#to_timedelta-537"><span class="linenos">537</span></a><span class="sd">        &gt;&gt;&gt; to_timedelta("1h 30m")</span>
-</span><span id="to_timedelta-538"><a href="#to_timedelta-538"><span class="linenos">538</span></a><span class="sd">        datetime.timedelta(seconds=5400)</span>
-</span><span id="to_timedelta-539"><a href="#to_timedelta-539"><span class="linenos">539</span></a><span class="sd">        &gt;&gt;&gt; to_timedelta("1h30x") is None</span>
-</span><span id="to_timedelta-540"><a href="#to_timedelta-540"><span class="linenos">540</span></a><span class="sd">        True</span>
-</span><span id="to_timedelta-541"><a href="#to_timedelta-541"><span class="linenos">541</span></a><span class="sd">    """</span>
-</span><span id="to_timedelta-542"><a href="#to_timedelta-542"><span class="linenos">542</span></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-</span><span id="to_timedelta-543"><a href="#to_timedelta-543"><span class="linenos">543</span></a>        <span class="n">text</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
-</span><span id="to_timedelta-544"><a href="#to_timedelta-544"><span class="linenos">544</span></a>        <span class="n">tokens</span> <span class="o">=</span> <span class="n">_DURATION_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
-</span><span id="to_timedelta-545"><a href="#to_timedelta-545"><span class="linenos">545</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">tokens</span> <span class="ow">or</span> <span class="n">_DURATION_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
-</span><span id="to_timedelta-546"><a href="#to_timedelta-546"><span class="linenos">546</span></a>            <span class="k">return</span> <span class="kc">None</span>
-</span><span id="to_timedelta-547"><a href="#to_timedelta-547"><span class="linenos">547</span></a>        <span class="n">seconds</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
-</span><span id="to_timedelta-548"><a href="#to_timedelta-548"><span class="linenos">548</span></a>            <span class="nb">float</span><span class="p">(</span><span class="n">number</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">","</span><span class="p">,</span> <span class="s2">"."</span><span class="p">))</span> <span class="o">*</span> <span class="n">_DURATION_UNITS</span><span class="p">[</span><span class="n">unit</span><span class="p">]</span>
-</span><span id="to_timedelta-549"><a href="#to_timedelta-549"><span class="linenos">549</span></a>            <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">unit</span> <span class="ow">in</span> <span class="n">tokens</span>
-</span><span id="to_timedelta-550"><a href="#to_timedelta-550"><span class="linenos">550</span></a>        <span class="p">)</span>
-</span><span id="to_timedelta-551"><a href="#to_timedelta-551"><span class="linenos">551</span></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="to_timedelta-552"><a href="#to_timedelta-552"><span class="linenos">552</span></a>        <span class="n">seconds</span> <span class="o">=</span> <span class="n">raw</span>
-</span><span id="to_timedelta-553"><a href="#to_timedelta-553"><span class="linenos">553</span></a>    <span class="k">if</span> <span class="p">(</span>
-</span><span id="to_timedelta-554"><a href="#to_timedelta-554"><span class="linenos">554</span></a>        <span class="n">seconds</span> <span class="ow">is</span> <span class="kc">None</span>
-</span><span id="to_timedelta-555"><a href="#to_timedelta-555"><span class="linenos">555</span></a>        <span class="ow">or</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
-</span><span id="to_timedelta-556"><a href="#to_timedelta-556"><span class="linenos">556</span></a>        <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">_MAX_TIMEDELTA_SECONDS</span>
-</span><span id="to_timedelta-557"><a href="#to_timedelta-557"><span class="linenos">557</span></a>    <span class="p">):</span>
-</span><span id="to_timedelta-558"><a href="#to_timedelta-558"><span class="linenos">558</span></a>        <span class="k">return</span> <span class="kc">None</span>
-</span><span id="to_timedelta-559"><a href="#to_timedelta-559"><span class="linenos">559</span></a>    <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="to_timedelta-528"><a href="#to_timedelta-528"><span class="linenos">528</span></a><span class="k">def</span><span class="w"> </span><span class="nf">to_timedelta</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="to_timedelta-529"><a href="#to_timedelta-529"><span class="linenos">529</span></a><span class="w">    </span><span class="sd">"""Convierte segundos o un texto de duración a timedelta.</span>
+</span><span id="to_timedelta-530"><a href="#to_timedelta-530"><span class="linenos">530</span></a>
+</span><span id="to_timedelta-531"><a href="#to_timedelta-531"><span class="linenos">531</span></a><span class="sd">    Con un `str` se interpreta una duración con unidades: `d`, `h`,</span>
+</span><span id="to_timedelta-532"><a href="#to_timedelta-532"><span class="linenos">532</span></a><span class="sd">    `min`/`m` y `s`, con decimales y separadas por espacios opcionales</span>
+</span><span id="to_timedelta-533"><a href="#to_timedelta-533"><span class="linenos">533</span></a><span class="sd">    (`"1h 30m"`, `"1,5h"`). Un texto sin unidades (`"90"`) no es válido.</span>
+</span><span id="to_timedelta-534"><a href="#to_timedelta-534"><span class="linenos">534</span></a>
+</span><span id="to_timedelta-535"><a href="#to_timedelta-535"><span class="linenos">535</span></a><span class="sd">    Args:</span>
+</span><span id="to_timedelta-536"><a href="#to_timedelta-536"><span class="linenos">536</span></a><span class="sd">        raw: Cantidad de segundos, o texto de duración.</span>
+</span><span id="to_timedelta-537"><a href="#to_timedelta-537"><span class="linenos">537</span></a>
+</span><span id="to_timedelta-538"><a href="#to_timedelta-538"><span class="linenos">538</span></a><span class="sd">    Returns:</span>
+</span><span id="to_timedelta-539"><a href="#to_timedelta-539"><span class="linenos">539</span></a><span class="sd">        La duración, o `None` si el valor falta, no es válido, no es finito</span>
+</span><span id="to_timedelta-540"><a href="#to_timedelta-540"><span class="linenos">540</span></a><span class="sd">        o es desmesurado.</span>
+</span><span id="to_timedelta-541"><a href="#to_timedelta-541"><span class="linenos">541</span></a>
+</span><span id="to_timedelta-542"><a href="#to_timedelta-542"><span class="linenos">542</span></a><span class="sd">    Examples:</span>
+</span><span id="to_timedelta-543"><a href="#to_timedelta-543"><span class="linenos">543</span></a><span class="sd">        &gt;&gt;&gt; to_timedelta(90)</span>
+</span><span id="to_timedelta-544"><a href="#to_timedelta-544"><span class="linenos">544</span></a><span class="sd">        datetime.timedelta(seconds=90)</span>
+</span><span id="to_timedelta-545"><a href="#to_timedelta-545"><span class="linenos">545</span></a><span class="sd">        &gt;&gt;&gt; to_timedelta("1h 30m")</span>
+</span><span id="to_timedelta-546"><a href="#to_timedelta-546"><span class="linenos">546</span></a><span class="sd">        datetime.timedelta(seconds=5400)</span>
+</span><span id="to_timedelta-547"><a href="#to_timedelta-547"><span class="linenos">547</span></a><span class="sd">        &gt;&gt;&gt; to_timedelta("1h30x") is None</span>
+</span><span id="to_timedelta-548"><a href="#to_timedelta-548"><span class="linenos">548</span></a><span class="sd">        True</span>
+</span><span id="to_timedelta-549"><a href="#to_timedelta-549"><span class="linenos">549</span></a><span class="sd">    """</span>
+</span><span id="to_timedelta-550"><a href="#to_timedelta-550"><span class="linenos">550</span></a>    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="to_timedelta-551"><a href="#to_timedelta-551"><span class="linenos">551</span></a>        <span class="n">text</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+</span><span id="to_timedelta-552"><a href="#to_timedelta-552"><span class="linenos">552</span></a>        <span class="n">tokens</span> <span class="o">=</span> <span class="n">_DURATION_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</span><span id="to_timedelta-553"><a href="#to_timedelta-553"><span class="linenos">553</span></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">tokens</span> <span class="ow">or</span> <span class="n">_DURATION_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+</span><span id="to_timedelta-554"><a href="#to_timedelta-554"><span class="linenos">554</span></a>            <span class="k">return</span> <span class="kc">None</span>
+</span><span id="to_timedelta-555"><a href="#to_timedelta-555"><span class="linenos">555</span></a>        <span class="n">seconds</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+</span><span id="to_timedelta-556"><a href="#to_timedelta-556"><span class="linenos">556</span></a>            <span class="nb">float</span><span class="p">(</span><span class="n">number</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">","</span><span class="p">,</span> <span class="s2">"."</span><span class="p">))</span> <span class="o">*</span> <span class="n">_DURATION_UNITS</span><span class="p">[</span><span class="n">unit</span><span class="p">]</span>
+</span><span id="to_timedelta-557"><a href="#to_timedelta-557"><span class="linenos">557</span></a>            <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">unit</span> <span class="ow">in</span> <span class="n">tokens</span>
+</span><span id="to_timedelta-558"><a href="#to_timedelta-558"><span class="linenos">558</span></a>        <span class="p">)</span>
+</span><span id="to_timedelta-559"><a href="#to_timedelta-559"><span class="linenos">559</span></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="to_timedelta-560"><a href="#to_timedelta-560"><span class="linenos">560</span></a>        <span class="n">seconds</span> <span class="o">=</span> <span class="n">raw</span>
+</span><span id="to_timedelta-561"><a href="#to_timedelta-561"><span class="linenos">561</span></a>    <span class="k">if</span> <span class="p">(</span>
+</span><span id="to_timedelta-562"><a href="#to_timedelta-562"><span class="linenos">562</span></a>        <span class="n">seconds</span> <span class="ow">is</span> <span class="kc">None</span>
+</span><span id="to_timedelta-563"><a href="#to_timedelta-563"><span class="linenos">563</span></a>        <span class="ow">or</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
+</span><span id="to_timedelta-564"><a href="#to_timedelta-564"><span class="linenos">564</span></a>        <span class="ow">or</span> <span class="nb">abs</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">_MAX_TIMEDELTA_SECONDS</span>
+</span><span id="to_timedelta-565"><a href="#to_timedelta-565"><span class="linenos">565</span></a>    <span class="p">):</span>
+</span><span id="to_timedelta-566"><a href="#to_timedelta-566"><span class="linenos">566</span></a>        <span class="k">return</span> <span class="kc">None</span>
+</span><span id="to_timedelta-567"><a href="#to_timedelta-567"><span class="linenos">567</span></a>    <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">seconds</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -4535,14 +4643,26 @@ control ni el país emisor.</p>
 </span><span id="valid_password-581"><a href="#valid_password-581"><span class="linenos">581</span></a>
 </span><span id="valid_password-582"><a href="#valid_password-582"><span class="linenos">582</span></a><span class="sd">    Raises:</span>
 </span><span id="valid_password-583"><a href="#valid_password-583"><span class="linenos">583</span></a><span class="sd">        ValueError: Si se han indicado argumentos ambiguos o incoherentes.</span>
-</span><span id="valid_password-584"><a href="#valid_password-584"><span class="linenos">584</span></a><span class="sd">    """</span>
-</span><span id="valid_password-585"><a href="#valid_password-585"><span class="linenos">585</span></a>    <span class="n">_check_password_args</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">special_characters</span><span class="p">,</span> <span class="n">only_digits</span><span class="p">)</span>
-</span><span id="valid_password-586"><a href="#valid_password-586"><span class="linenos">586</span></a>    <span class="n">min_length</span><span class="p">,</span> <span class="n">max_length</span> <span class="o">=</span> <span class="n">length</span>
-</span><span id="valid_password-587"><a href="#valid_password-587"><span class="linenos">587</span></a>
-</span><span id="valid_password-588"><a href="#valid_password-588"><span class="linenos">588</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">min_length</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_length</span><span class="p">:</span>
-</span><span id="valid_password-589"><a href="#valid_password-589"><span class="linenos">589</span></a>        <span class="k">return</span> <span class="kc">False</span>
-</span><span id="valid_password-590"><a href="#valid_password-590"><span class="linenos">590</span></a>
-</span><span id="valid_password-591"><a href="#valid_password-591"><span class="linenos">591</span></a>    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">_allowed_chars</span><span class="p">(</span><span class="n">special_characters</span><span class="p">,</span> <span class="n">allow_uppercase</span><span class="p">,</span> <span class="n">only_digits</span><span class="p">)</span>
+</span><span id="valid_password-584"><a href="#valid_password-584"><span class="linenos">584</span></a>
+</span><span id="valid_password-585"><a href="#valid_password-585"><span class="linenos">585</span></a><span class="sd">    Examples:</span>
+</span><span id="valid_password-586"><a href="#valid_password-586"><span class="linenos">586</span></a><span class="sd">        &gt;&gt;&gt; valid_password("Secreto123", length=(8, 16))</span>
+</span><span id="valid_password-587"><a href="#valid_password-587"><span class="linenos">587</span></a><span class="sd">        True</span>
+</span><span id="valid_password-588"><a href="#valid_password-588"><span class="linenos">588</span></a><span class="sd">        &gt;&gt;&gt; valid_password("corta", length=(8, 16))</span>
+</span><span id="valid_password-589"><a href="#valid_password-589"><span class="linenos">589</span></a><span class="sd">        False</span>
+</span><span id="valid_password-590"><a href="#valid_password-590"><span class="linenos">590</span></a><span class="sd">        &gt;&gt;&gt; valid_password("clave!2026", length=(8, 16))</span>
+</span><span id="valid_password-591"><a href="#valid_password-591"><span class="linenos">591</span></a><span class="sd">        False</span>
+</span><span id="valid_password-592"><a href="#valid_password-592"><span class="linenos">592</span></a><span class="sd">        &gt;&gt;&gt; valid_password("clave!2026", length=(8, 16), special_characters="!")</span>
+</span><span id="valid_password-593"><a href="#valid_password-593"><span class="linenos">593</span></a><span class="sd">        True</span>
+</span><span id="valid_password-594"><a href="#valid_password-594"><span class="linenos">594</span></a><span class="sd">        &gt;&gt;&gt; valid_password("12345678", length=(8, 8), only_digits=True)</span>
+</span><span id="valid_password-595"><a href="#valid_password-595"><span class="linenos">595</span></a><span class="sd">        True</span>
+</span><span id="valid_password-596"><a href="#valid_password-596"><span class="linenos">596</span></a><span class="sd">    """</span>
+</span><span id="valid_password-597"><a href="#valid_password-597"><span class="linenos">597</span></a>    <span class="n">_check_password_args</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">special_characters</span><span class="p">,</span> <span class="n">only_digits</span><span class="p">)</span>
+</span><span id="valid_password-598"><a href="#valid_password-598"><span class="linenos">598</span></a>    <span class="n">min_length</span><span class="p">,</span> <span class="n">max_length</span> <span class="o">=</span> <span class="n">length</span>
+</span><span id="valid_password-599"><a href="#valid_password-599"><span class="linenos">599</span></a>
+</span><span id="valid_password-600"><a href="#valid_password-600"><span class="linenos">600</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">min_length</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_length</span><span class="p">:</span>
+</span><span id="valid_password-601"><a href="#valid_password-601"><span class="linenos">601</span></a>        <span class="k">return</span> <span class="kc">False</span>
+</span><span id="valid_password-602"><a href="#valid_password-602"><span class="linenos">602</span></a>
+</span><span id="valid_password-603"><a href="#valid_password-603"><span class="linenos">603</span></a>    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">_allowed_chars</span><span class="p">(</span><span class="n">special_characters</span><span class="p">,</span> <span class="n">allow_uppercase</span><span class="p">,</span> <span class="n">only_digits</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -4572,6 +4692,24 @@ tipo de carácter. Con <code>only_digits</code>, <code>allow_uppercase</code> ca
 <ul>
 <li><strong>ValueError:</strong>  Si se han indicado argumentos ambiguos o incoherentes.</li>
 </ul>
+
+<h6 id="examples">Examples:</h6>
+
+<blockquote>
+  <div class="pdoc-code codehilite">
+<pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">valid_password</span><span class="p">(</span><span class="s2">"Secreto123"</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">valid_password</span><span class="p">(</span><span class="s2">"corta"</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">valid_password</span><span class="p">(</span><span class="s2">"clave!2026"</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">valid_password</span><span class="p">(</span><span class="s2">"clave!2026"</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">special_characters</span><span class="o">=</span><span class="s2">"!"</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">valid_password</span><span class="p">(</span><span class="s2">"12345678"</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">only_digits</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">True</span>
+</code></pre>
+  </div>
+</blockquote>
 </div>
 
 
@@ -4587,32 +4725,32 @@ tipo de carácter. Con <code>only_digits</code>, <code>allow_uppercase</code> ca
 
     </div>
     <a class="headerlink" href="#valid_phone"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_phone-594"><a href="#valid_phone-594"><span class="linenos">594</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_phone</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="valid_phone-595"><a href="#valid_phone-595"><span class="linenos">595</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string es un teléfono en formato internacional básico.</span>
-</span><span id="valid_phone-596"><a href="#valid_phone-596"><span class="linenos">596</span></a>
-</span><span id="valid_phone-597"><a href="#valid_phone-597"><span class="linenos">597</span></a><span class="sd">    Admite un `+` inicial y los separadores espacio, punto, guion y</span>
-</span><span id="valid_phone-598"><a href="#valid_phone-598"><span class="linenos">598</span></a><span class="sd">    paréntesis; exige entre 7 y 15 dígitos (E.164). No valida por país.</span>
-</span><span id="valid_phone-599"><a href="#valid_phone-599"><span class="linenos">599</span></a>
-</span><span id="valid_phone-600"><a href="#valid_phone-600"><span class="linenos">600</span></a><span class="sd">    Args:</span>
-</span><span id="valid_phone-601"><a href="#valid_phone-601"><span class="linenos">601</span></a><span class="sd">        raw: String a validar.</span>
-</span><span id="valid_phone-602"><a href="#valid_phone-602"><span class="linenos">602</span></a>
-</span><span id="valid_phone-603"><a href="#valid_phone-603"><span class="linenos">603</span></a><span class="sd">    Returns:</span>
-</span><span id="valid_phone-604"><a href="#valid_phone-604"><span class="linenos">604</span></a><span class="sd">        `True` si el formato es válido.</span>
-</span><span id="valid_phone-605"><a href="#valid_phone-605"><span class="linenos">605</span></a>
-</span><span id="valid_phone-606"><a href="#valid_phone-606"><span class="linenos">606</span></a><span class="sd">    Examples:</span>
-</span><span id="valid_phone-607"><a href="#valid_phone-607"><span class="linenos">607</span></a><span class="sd">        &gt;&gt;&gt; valid_phone("+34 612 345 678")</span>
-</span><span id="valid_phone-608"><a href="#valid_phone-608"><span class="linenos">608</span></a><span class="sd">        True</span>
-</span><span id="valid_phone-609"><a href="#valid_phone-609"><span class="linenos">609</span></a><span class="sd">        &gt;&gt;&gt; valid_phone("(91) 123-4567")</span>
-</span><span id="valid_phone-610"><a href="#valid_phone-610"><span class="linenos">610</span></a><span class="sd">        True</span>
-</span><span id="valid_phone-611"><a href="#valid_phone-611"><span class="linenos">611</span></a><span class="sd">        &gt;&gt;&gt; valid_phone("12345")</span>
-</span><span id="valid_phone-612"><a href="#valid_phone-612"><span class="linenos">612</span></a><span class="sd">        False</span>
-</span><span id="valid_phone-613"><a href="#valid_phone-613"><span class="linenos">613</span></a><span class="sd">    """</span>
-</span><span id="valid_phone-614"><a href="#valid_phone-614"><span class="linenos">614</span></a>    <span class="n">text</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-</span><span id="valid_phone-615"><a href="#valid_phone-615"><span class="linenos">615</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\+?[0-9 .()\-]+"</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
-</span><span id="valid_phone-616"><a href="#valid_phone-616"><span class="linenos">616</span></a>        <span class="k">return</span> <span class="kc">False</span>
-</span><span id="valid_phone-617"><a href="#valid_phone-617"><span class="linenos">617</span></a>    <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"("</span><span class="p">)</span> <span class="o">!=</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">")"</span><span class="p">):</span>
-</span><span id="valid_phone-618"><a href="#valid_phone-618"><span class="linenos">618</span></a>        <span class="k">return</span> <span class="kc">False</span>
-</span><span id="valid_phone-619"><a href="#valid_phone-619"><span class="linenos">619</span></a>    <span class="k">return</span> <span class="mi">7</span> <span class="o">&lt;=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">char</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">text</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">15</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_phone-606"><a href="#valid_phone-606"><span class="linenos">606</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_phone</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="valid_phone-607"><a href="#valid_phone-607"><span class="linenos">607</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string es un teléfono en formato internacional básico.</span>
+</span><span id="valid_phone-608"><a href="#valid_phone-608"><span class="linenos">608</span></a>
+</span><span id="valid_phone-609"><a href="#valid_phone-609"><span class="linenos">609</span></a><span class="sd">    Admite un `+` inicial y los separadores espacio, punto, guion y</span>
+</span><span id="valid_phone-610"><a href="#valid_phone-610"><span class="linenos">610</span></a><span class="sd">    paréntesis; exige entre 7 y 15 dígitos (E.164). No valida por país.</span>
+</span><span id="valid_phone-611"><a href="#valid_phone-611"><span class="linenos">611</span></a>
+</span><span id="valid_phone-612"><a href="#valid_phone-612"><span class="linenos">612</span></a><span class="sd">    Args:</span>
+</span><span id="valid_phone-613"><a href="#valid_phone-613"><span class="linenos">613</span></a><span class="sd">        raw: String a validar.</span>
+</span><span id="valid_phone-614"><a href="#valid_phone-614"><span class="linenos">614</span></a>
+</span><span id="valid_phone-615"><a href="#valid_phone-615"><span class="linenos">615</span></a><span class="sd">    Returns:</span>
+</span><span id="valid_phone-616"><a href="#valid_phone-616"><span class="linenos">616</span></a><span class="sd">        `True` si el formato es válido.</span>
+</span><span id="valid_phone-617"><a href="#valid_phone-617"><span class="linenos">617</span></a>
+</span><span id="valid_phone-618"><a href="#valid_phone-618"><span class="linenos">618</span></a><span class="sd">    Examples:</span>
+</span><span id="valid_phone-619"><a href="#valid_phone-619"><span class="linenos">619</span></a><span class="sd">        &gt;&gt;&gt; valid_phone("+34 612 345 678")</span>
+</span><span id="valid_phone-620"><a href="#valid_phone-620"><span class="linenos">620</span></a><span class="sd">        True</span>
+</span><span id="valid_phone-621"><a href="#valid_phone-621"><span class="linenos">621</span></a><span class="sd">        &gt;&gt;&gt; valid_phone("(91) 123-4567")</span>
+</span><span id="valid_phone-622"><a href="#valid_phone-622"><span class="linenos">622</span></a><span class="sd">        True</span>
+</span><span id="valid_phone-623"><a href="#valid_phone-623"><span class="linenos">623</span></a><span class="sd">        &gt;&gt;&gt; valid_phone("12345")</span>
+</span><span id="valid_phone-624"><a href="#valid_phone-624"><span class="linenos">624</span></a><span class="sd">        False</span>
+</span><span id="valid_phone-625"><a href="#valid_phone-625"><span class="linenos">625</span></a><span class="sd">    """</span>
+</span><span id="valid_phone-626"><a href="#valid_phone-626"><span class="linenos">626</span></a>    <span class="n">text</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+</span><span id="valid_phone-627"><a href="#valid_phone-627"><span class="linenos">627</span></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"\+?[0-9 .()\-]+"</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+</span><span id="valid_phone-628"><a href="#valid_phone-628"><span class="linenos">628</span></a>        <span class="k">return</span> <span class="kc">False</span>
+</span><span id="valid_phone-629"><a href="#valid_phone-629"><span class="linenos">629</span></a>    <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">"("</span><span class="p">)</span> <span class="o">!=</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">")"</span><span class="p">):</span>
+</span><span id="valid_phone-630"><a href="#valid_phone-630"><span class="linenos">630</span></a>        <span class="k">return</span> <span class="kc">False</span>
+</span><span id="valid_phone-631"><a href="#valid_phone-631"><span class="linenos">631</span></a>    <span class="k">return</span> <span class="mi">7</span> <span class="o">&lt;=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">char</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">text</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">15</span>
 </span></pre></div>
 
 
@@ -4661,26 +4799,26 @@ paréntesis; exige entre 7 y 15 dígitos (E.164). No valida por país.</p>
 
     </div>
     <a class="headerlink" href="#valid_port"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_port-622"><a href="#valid_port-622"><span class="linenos">622</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_port</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="valid_port-623"><a href="#valid_port-623"><span class="linenos">623</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string lo aceptaría `to_port`.</span>
-</span><span id="valid_port-624"><a href="#valid_port-624"><span class="linenos">624</span></a>
-</span><span id="valid_port-625"><a href="#valid_port-625"><span class="linenos">625</span></a><span class="sd">    Args:</span>
-</span><span id="valid_port-626"><a href="#valid_port-626"><span class="linenos">626</span></a><span class="sd">        raw: String a validar.</span>
-</span><span id="valid_port-627"><a href="#valid_port-627"><span class="linenos">627</span></a>
-</span><span id="valid_port-628"><a href="#valid_port-628"><span class="linenos">628</span></a><span class="sd">    Returns:</span>
-</span><span id="valid_port-629"><a href="#valid_port-629"><span class="linenos">629</span></a><span class="sd">        `True` si el string representa un puerto en el rango 1-65535.</span>
-</span><span id="valid_port-630"><a href="#valid_port-630"><span class="linenos">630</span></a>
-</span><span id="valid_port-631"><a href="#valid_port-631"><span class="linenos">631</span></a><span class="sd">    Examples:</span>
-</span><span id="valid_port-632"><a href="#valid_port-632"><span class="linenos">632</span></a><span class="sd">        &gt;&gt;&gt; valid_port("8080")</span>
-</span><span id="valid_port-633"><a href="#valid_port-633"><span class="linenos">633</span></a><span class="sd">        True</span>
-</span><span id="valid_port-634"><a href="#valid_port-634"><span class="linenos">634</span></a><span class="sd">        &gt;&gt;&gt; valid_port("0")</span>
-</span><span id="valid_port-635"><a href="#valid_port-635"><span class="linenos">635</span></a><span class="sd">        False</span>
-</span><span id="valid_port-636"><a href="#valid_port-636"><span class="linenos">636</span></a><span class="sd">        &gt;&gt;&gt; valid_port("70000")</span>
-</span><span id="valid_port-637"><a href="#valid_port-637"><span class="linenos">637</span></a><span class="sd">        False</span>
-</span><span id="valid_port-638"><a href="#valid_port-638"><span class="linenos">638</span></a><span class="sd">        &gt;&gt;&gt; valid_port("abc")</span>
-</span><span id="valid_port-639"><a href="#valid_port-639"><span class="linenos">639</span></a><span class="sd">        False</span>
-</span><span id="valid_port-640"><a href="#valid_port-640"><span class="linenos">640</span></a><span class="sd">    """</span>
-</span><span id="valid_port-641"><a href="#valid_port-641"><span class="linenos">641</span></a>    <span class="k">return</span> <span class="n">to_port</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_port-634"><a href="#valid_port-634"><span class="linenos">634</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_port</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="valid_port-635"><a href="#valid_port-635"><span class="linenos">635</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string lo aceptaría `to_port`.</span>
+</span><span id="valid_port-636"><a href="#valid_port-636"><span class="linenos">636</span></a>
+</span><span id="valid_port-637"><a href="#valid_port-637"><span class="linenos">637</span></a><span class="sd">    Args:</span>
+</span><span id="valid_port-638"><a href="#valid_port-638"><span class="linenos">638</span></a><span class="sd">        raw: String a validar.</span>
+</span><span id="valid_port-639"><a href="#valid_port-639"><span class="linenos">639</span></a>
+</span><span id="valid_port-640"><a href="#valid_port-640"><span class="linenos">640</span></a><span class="sd">    Returns:</span>
+</span><span id="valid_port-641"><a href="#valid_port-641"><span class="linenos">641</span></a><span class="sd">        `True` si el string representa un puerto en el rango 1-65535.</span>
+</span><span id="valid_port-642"><a href="#valid_port-642"><span class="linenos">642</span></a>
+</span><span id="valid_port-643"><a href="#valid_port-643"><span class="linenos">643</span></a><span class="sd">    Examples:</span>
+</span><span id="valid_port-644"><a href="#valid_port-644"><span class="linenos">644</span></a><span class="sd">        &gt;&gt;&gt; valid_port("8080")</span>
+</span><span id="valid_port-645"><a href="#valid_port-645"><span class="linenos">645</span></a><span class="sd">        True</span>
+</span><span id="valid_port-646"><a href="#valid_port-646"><span class="linenos">646</span></a><span class="sd">        &gt;&gt;&gt; valid_port("0")</span>
+</span><span id="valid_port-647"><a href="#valid_port-647"><span class="linenos">647</span></a><span class="sd">        False</span>
+</span><span id="valid_port-648"><a href="#valid_port-648"><span class="linenos">648</span></a><span class="sd">        &gt;&gt;&gt; valid_port("70000")</span>
+</span><span id="valid_port-649"><a href="#valid_port-649"><span class="linenos">649</span></a><span class="sd">        False</span>
+</span><span id="valid_port-650"><a href="#valid_port-650"><span class="linenos">650</span></a><span class="sd">        &gt;&gt;&gt; valid_port("abc")</span>
+</span><span id="valid_port-651"><a href="#valid_port-651"><span class="linenos">651</span></a><span class="sd">        False</span>
+</span><span id="valid_port-652"><a href="#valid_port-652"><span class="linenos">652</span></a><span class="sd">    """</span>
+</span><span id="valid_port-653"><a href="#valid_port-653"><span class="linenos">653</span></a>    <span class="k">return</span> <span class="n">to_port</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -4728,24 +4866,24 @@ paréntesis; exige entre 7 y 15 dígitos (E.164). No valida por país.</p>
 
     </div>
     <a class="headerlink" href="#valid_postal_code"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_postal_code-644"><a href="#valid_postal_code-644"><span class="linenos">644</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_postal_code</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="valid_postal_code-645"><a href="#valid_postal_code-645"><span class="linenos">645</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string es un código postal español (provincias 01-52).</span>
-</span><span id="valid_postal_code-646"><a href="#valid_postal_code-646"><span class="linenos">646</span></a>
-</span><span id="valid_postal_code-647"><a href="#valid_postal_code-647"><span class="linenos">647</span></a><span class="sd">    Args:</span>
-</span><span id="valid_postal_code-648"><a href="#valid_postal_code-648"><span class="linenos">648</span></a><span class="sd">        raw: String a validar.</span>
-</span><span id="valid_postal_code-649"><a href="#valid_postal_code-649"><span class="linenos">649</span></a>
-</span><span id="valid_postal_code-650"><a href="#valid_postal_code-650"><span class="linenos">650</span></a><span class="sd">    Returns:</span>
-</span><span id="valid_postal_code-651"><a href="#valid_postal_code-651"><span class="linenos">651</span></a><span class="sd">        `True` si son 5 dígitos y los dos primeros son una provincia válida.</span>
-</span><span id="valid_postal_code-652"><a href="#valid_postal_code-652"><span class="linenos">652</span></a>
-</span><span id="valid_postal_code-653"><a href="#valid_postal_code-653"><span class="linenos">653</span></a><span class="sd">    Examples:</span>
-</span><span id="valid_postal_code-654"><a href="#valid_postal_code-654"><span class="linenos">654</span></a><span class="sd">        &gt;&gt;&gt; valid_postal_code("38001")</span>
-</span><span id="valid_postal_code-655"><a href="#valid_postal_code-655"><span class="linenos">655</span></a><span class="sd">        True</span>
-</span><span id="valid_postal_code-656"><a href="#valid_postal_code-656"><span class="linenos">656</span></a><span class="sd">        &gt;&gt;&gt; valid_postal_code("00001")</span>
-</span><span id="valid_postal_code-657"><a href="#valid_postal_code-657"><span class="linenos">657</span></a><span class="sd">        False</span>
-</span><span id="valid_postal_code-658"><a href="#valid_postal_code-658"><span class="linenos">658</span></a><span class="sd">        &gt;&gt;&gt; valid_postal_code("53000")</span>
-</span><span id="valid_postal_code-659"><a href="#valid_postal_code-659"><span class="linenos">659</span></a><span class="sd">        False</span>
-</span><span id="valid_postal_code-660"><a href="#valid_postal_code-660"><span class="linenos">660</span></a><span class="sd">    """</span>
-</span><span id="valid_postal_code-661"><a href="#valid_postal_code-661"><span class="linenos">661</span></a>    <span class="k">return</span> <span class="n">_POSTAL_CODE_RE</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_postal_code-656"><a href="#valid_postal_code-656"><span class="linenos">656</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_postal_code</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="valid_postal_code-657"><a href="#valid_postal_code-657"><span class="linenos">657</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string es un código postal español (provincias 01-52).</span>
+</span><span id="valid_postal_code-658"><a href="#valid_postal_code-658"><span class="linenos">658</span></a>
+</span><span id="valid_postal_code-659"><a href="#valid_postal_code-659"><span class="linenos">659</span></a><span class="sd">    Args:</span>
+</span><span id="valid_postal_code-660"><a href="#valid_postal_code-660"><span class="linenos">660</span></a><span class="sd">        raw: String a validar.</span>
+</span><span id="valid_postal_code-661"><a href="#valid_postal_code-661"><span class="linenos">661</span></a>
+</span><span id="valid_postal_code-662"><a href="#valid_postal_code-662"><span class="linenos">662</span></a><span class="sd">    Returns:</span>
+</span><span id="valid_postal_code-663"><a href="#valid_postal_code-663"><span class="linenos">663</span></a><span class="sd">        `True` si son 5 dígitos y los dos primeros son una provincia válida.</span>
+</span><span id="valid_postal_code-664"><a href="#valid_postal_code-664"><span class="linenos">664</span></a>
+</span><span id="valid_postal_code-665"><a href="#valid_postal_code-665"><span class="linenos">665</span></a><span class="sd">    Examples:</span>
+</span><span id="valid_postal_code-666"><a href="#valid_postal_code-666"><span class="linenos">666</span></a><span class="sd">        &gt;&gt;&gt; valid_postal_code("38001")</span>
+</span><span id="valid_postal_code-667"><a href="#valid_postal_code-667"><span class="linenos">667</span></a><span class="sd">        True</span>
+</span><span id="valid_postal_code-668"><a href="#valid_postal_code-668"><span class="linenos">668</span></a><span class="sd">        &gt;&gt;&gt; valid_postal_code("00001")</span>
+</span><span id="valid_postal_code-669"><a href="#valid_postal_code-669"><span class="linenos">669</span></a><span class="sd">        False</span>
+</span><span id="valid_postal_code-670"><a href="#valid_postal_code-670"><span class="linenos">670</span></a><span class="sd">        &gt;&gt;&gt; valid_postal_code("53000")</span>
+</span><span id="valid_postal_code-671"><a href="#valid_postal_code-671"><span class="linenos">671</span></a><span class="sd">        False</span>
+</span><span id="valid_postal_code-672"><a href="#valid_postal_code-672"><span class="linenos">672</span></a><span class="sd">    """</span>
+</span><span id="valid_postal_code-673"><a href="#valid_postal_code-673"><span class="linenos">673</span></a>    <span class="k">return</span> <span class="n">_POSTAL_CODE_RE</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -4791,24 +4929,24 @@ paréntesis; exige entre 7 y 15 dígitos (E.164). No valida por país.</p>
 
     </div>
     <a class="headerlink" href="#valid_slug"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_slug-664"><a href="#valid_slug-664"><span class="linenos">664</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_slug</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="valid_slug-665"><a href="#valid_slug-665"><span class="linenos">665</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string es un slug: minúsculas, dígitos y guiones simples.</span>
-</span><span id="valid_slug-666"><a href="#valid_slug-666"><span class="linenos">666</span></a>
-</span><span id="valid_slug-667"><a href="#valid_slug-667"><span class="linenos">667</span></a><span class="sd">    Args:</span>
-</span><span id="valid_slug-668"><a href="#valid_slug-668"><span class="linenos">668</span></a><span class="sd">        raw: String a validar.</span>
-</span><span id="valid_slug-669"><a href="#valid_slug-669"><span class="linenos">669</span></a>
-</span><span id="valid_slug-670"><a href="#valid_slug-670"><span class="linenos">670</span></a><span class="sd">    Returns:</span>
-</span><span id="valid_slug-671"><a href="#valid_slug-671"><span class="linenos">671</span></a><span class="sd">        `True` si el string es un slug válido (el que produce `parse_slug`).</span>
-</span><span id="valid_slug-672"><a href="#valid_slug-672"><span class="linenos">672</span></a>
-</span><span id="valid_slug-673"><a href="#valid_slug-673"><span class="linenos">673</span></a><span class="sd">    Examples:</span>
-</span><span id="valid_slug-674"><a href="#valid_slug-674"><span class="linenos">674</span></a><span class="sd">        &gt;&gt;&gt; valid_slug("hola-mundo")</span>
-</span><span id="valid_slug-675"><a href="#valid_slug-675"><span class="linenos">675</span></a><span class="sd">        True</span>
-</span><span id="valid_slug-676"><a href="#valid_slug-676"><span class="linenos">676</span></a><span class="sd">        &gt;&gt;&gt; valid_slug("Hola Mundo")</span>
-</span><span id="valid_slug-677"><a href="#valid_slug-677"><span class="linenos">677</span></a><span class="sd">        False</span>
-</span><span id="valid_slug-678"><a href="#valid_slug-678"><span class="linenos">678</span></a><span class="sd">        &gt;&gt;&gt; valid_slug("hola--mundo")</span>
-</span><span id="valid_slug-679"><a href="#valid_slug-679"><span class="linenos">679</span></a><span class="sd">        False</span>
-</span><span id="valid_slug-680"><a href="#valid_slug-680"><span class="linenos">680</span></a><span class="sd">    """</span>
-</span><span id="valid_slug-681"><a href="#valid_slug-681"><span class="linenos">681</span></a>    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[a-z0-9]+(?:-[a-z0-9]+)*"</span><span class="p">,</span> <span class="n">raw</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_slug-676"><a href="#valid_slug-676"><span class="linenos">676</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_slug</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="valid_slug-677"><a href="#valid_slug-677"><span class="linenos">677</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string es un slug: minúsculas, dígitos y guiones simples.</span>
+</span><span id="valid_slug-678"><a href="#valid_slug-678"><span class="linenos">678</span></a>
+</span><span id="valid_slug-679"><a href="#valid_slug-679"><span class="linenos">679</span></a><span class="sd">    Args:</span>
+</span><span id="valid_slug-680"><a href="#valid_slug-680"><span class="linenos">680</span></a><span class="sd">        raw: String a validar.</span>
+</span><span id="valid_slug-681"><a href="#valid_slug-681"><span class="linenos">681</span></a>
+</span><span id="valid_slug-682"><a href="#valid_slug-682"><span class="linenos">682</span></a><span class="sd">    Returns:</span>
+</span><span id="valid_slug-683"><a href="#valid_slug-683"><span class="linenos">683</span></a><span class="sd">        `True` si el string es un slug válido (el que produce `parse_slug`).</span>
+</span><span id="valid_slug-684"><a href="#valid_slug-684"><span class="linenos">684</span></a>
+</span><span id="valid_slug-685"><a href="#valid_slug-685"><span class="linenos">685</span></a><span class="sd">    Examples:</span>
+</span><span id="valid_slug-686"><a href="#valid_slug-686"><span class="linenos">686</span></a><span class="sd">        &gt;&gt;&gt; valid_slug("hola-mundo")</span>
+</span><span id="valid_slug-687"><a href="#valid_slug-687"><span class="linenos">687</span></a><span class="sd">        True</span>
+</span><span id="valid_slug-688"><a href="#valid_slug-688"><span class="linenos">688</span></a><span class="sd">        &gt;&gt;&gt; valid_slug("Hola Mundo")</span>
+</span><span id="valid_slug-689"><a href="#valid_slug-689"><span class="linenos">689</span></a><span class="sd">        False</span>
+</span><span id="valid_slug-690"><a href="#valid_slug-690"><span class="linenos">690</span></a><span class="sd">        &gt;&gt;&gt; valid_slug("hola--mundo")</span>
+</span><span id="valid_slug-691"><a href="#valid_slug-691"><span class="linenos">691</span></a><span class="sd">        False</span>
+</span><span id="valid_slug-692"><a href="#valid_slug-692"><span class="linenos">692</span></a><span class="sd">    """</span>
+</span><span id="valid_slug-693"><a href="#valid_slug-693"><span class="linenos">693</span></a>    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="sa">r</span><span class="s2">"[a-z0-9]+(?:-[a-z0-9]+)*"</span><span class="p">,</span> <span class="n">raw</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -4854,31 +4992,31 @@ paréntesis; exige entre 7 y 15 dígitos (E.164). No valida por país.</p>
 
     </div>
     <a class="headerlink" href="#valid_url"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_url-684"><a href="#valid_url-684"><span class="linenos">684</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_url</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="valid_url-685"><a href="#valid_url-685"><span class="linenos">685</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string presenta formato de URL http/https.</span>
-</span><span id="valid_url-686"><a href="#valid_url-686"><span class="linenos">686</span></a>
-</span><span id="valid_url-687"><a href="#valid_url-687"><span class="linenos">687</span></a><span class="sd">    Args:</span>
-</span><span id="valid_url-688"><a href="#valid_url-688"><span class="linenos">688</span></a><span class="sd">        raw: String a validar.</span>
-</span><span id="valid_url-689"><a href="#valid_url-689"><span class="linenos">689</span></a>
-</span><span id="valid_url-690"><a href="#valid_url-690"><span class="linenos">690</span></a><span class="sd">    Returns:</span>
-</span><span id="valid_url-691"><a href="#valid_url-691"><span class="linenos">691</span></a><span class="sd">        `True` si es una URL http/https con host y sin espacios.</span>
-</span><span id="valid_url-692"><a href="#valid_url-692"><span class="linenos">692</span></a>
-</span><span id="valid_url-693"><a href="#valid_url-693"><span class="linenos">693</span></a><span class="sd">    Examples:</span>
-</span><span id="valid_url-694"><a href="#valid_url-694"><span class="linenos">694</span></a><span class="sd">        &gt;&gt;&gt; valid_url("https://example.com/x")</span>
-</span><span id="valid_url-695"><a href="#valid_url-695"><span class="linenos">695</span></a><span class="sd">        True</span>
-</span><span id="valid_url-696"><a href="#valid_url-696"><span class="linenos">696</span></a><span class="sd">        &gt;&gt;&gt; valid_url("https://[::1")</span>
-</span><span id="valid_url-697"><a href="#valid_url-697"><span class="linenos">697</span></a><span class="sd">        False</span>
-</span><span id="valid_url-698"><a href="#valid_url-698"><span class="linenos">698</span></a><span class="sd">    """</span>
-</span><span id="valid_url-699"><a href="#valid_url-699"><span class="linenos">699</span></a>    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isspace</span><span class="p">,</span> <span class="n">raw</span><span class="p">)):</span>
-</span><span id="valid_url-700"><a href="#valid_url-700"><span class="linenos">700</span></a>        <span class="k">return</span> <span class="kc">False</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_url-696"><a href="#valid_url-696"><span class="linenos">696</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_url</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="valid_url-697"><a href="#valid_url-697"><span class="linenos">697</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string presenta formato de URL http/https.</span>
+</span><span id="valid_url-698"><a href="#valid_url-698"><span class="linenos">698</span></a>
+</span><span id="valid_url-699"><a href="#valid_url-699"><span class="linenos">699</span></a><span class="sd">    Args:</span>
+</span><span id="valid_url-700"><a href="#valid_url-700"><span class="linenos">700</span></a><span class="sd">        raw: String a validar.</span>
 </span><span id="valid_url-701"><a href="#valid_url-701"><span class="linenos">701</span></a>
-</span><span id="valid_url-702"><a href="#valid_url-702"><span class="linenos">702</span></a>    <span class="k">try</span><span class="p">:</span>
-</span><span id="valid_url-703"><a href="#valid_url-703"><span class="linenos">703</span></a>        <span class="n">url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
-</span><span id="valid_url-704"><a href="#valid_url-704"><span class="linenos">704</span></a>        <span class="n">_</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">port</span>  <span class="c1"># Lanza ValueError si el puerto es inválido.</span>
-</span><span id="valid_url-705"><a href="#valid_url-705"><span class="linenos">705</span></a>    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-</span><span id="valid_url-706"><a href="#valid_url-706"><span class="linenos">706</span></a>        <span class="k">return</span> <span class="kc">False</span>
-</span><span id="valid_url-707"><a href="#valid_url-707"><span class="linenos">707</span></a>
-</span><span id="valid_url-708"><a href="#valid_url-708"><span class="linenos">708</span></a>    <span class="k">return</span> <span class="n">url</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"http"</span><span class="p">,</span> <span class="s2">"https"</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">hostname</span><span class="p">)</span>
+</span><span id="valid_url-702"><a href="#valid_url-702"><span class="linenos">702</span></a><span class="sd">    Returns:</span>
+</span><span id="valid_url-703"><a href="#valid_url-703"><span class="linenos">703</span></a><span class="sd">        `True` si es una URL http/https con host y sin espacios.</span>
+</span><span id="valid_url-704"><a href="#valid_url-704"><span class="linenos">704</span></a>
+</span><span id="valid_url-705"><a href="#valid_url-705"><span class="linenos">705</span></a><span class="sd">    Examples:</span>
+</span><span id="valid_url-706"><a href="#valid_url-706"><span class="linenos">706</span></a><span class="sd">        &gt;&gt;&gt; valid_url("https://example.com/x")</span>
+</span><span id="valid_url-707"><a href="#valid_url-707"><span class="linenos">707</span></a><span class="sd">        True</span>
+</span><span id="valid_url-708"><a href="#valid_url-708"><span class="linenos">708</span></a><span class="sd">        &gt;&gt;&gt; valid_url("https://[::1")</span>
+</span><span id="valid_url-709"><a href="#valid_url-709"><span class="linenos">709</span></a><span class="sd">        False</span>
+</span><span id="valid_url-710"><a href="#valid_url-710"><span class="linenos">710</span></a><span class="sd">    """</span>
+</span><span id="valid_url-711"><a href="#valid_url-711"><span class="linenos">711</span></a>    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="o">.</span><span class="n">isspace</span><span class="p">,</span> <span class="n">raw</span><span class="p">)):</span>
+</span><span id="valid_url-712"><a href="#valid_url-712"><span class="linenos">712</span></a>        <span class="k">return</span> <span class="kc">False</span>
+</span><span id="valid_url-713"><a href="#valid_url-713"><span class="linenos">713</span></a>
+</span><span id="valid_url-714"><a href="#valid_url-714"><span class="linenos">714</span></a>    <span class="k">try</span><span class="p">:</span>
+</span><span id="valid_url-715"><a href="#valid_url-715"><span class="linenos">715</span></a>        <span class="n">url</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+</span><span id="valid_url-716"><a href="#valid_url-716"><span class="linenos">716</span></a>        <span class="n">_</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">port</span>  <span class="c1"># Lanza ValueError si el puerto es inválido.</span>
+</span><span id="valid_url-717"><a href="#valid_url-717"><span class="linenos">717</span></a>    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+</span><span id="valid_url-718"><a href="#valid_url-718"><span class="linenos">718</span></a>        <span class="k">return</span> <span class="kc">False</span>
+</span><span id="valid_url-719"><a href="#valid_url-719"><span class="linenos">719</span></a>
+</span><span id="valid_url-720"><a href="#valid_url-720"><span class="linenos">720</span></a>    <span class="k">return</span> <span class="n">url</span><span class="o">.</span><span class="n">scheme</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"http"</span><span class="p">,</span> <span class="s2">"https"</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">bool</span><span class="p">(</span><span class="n">url</span><span class="o">.</span><span class="n">hostname</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -4922,29 +5060,29 @@ paréntesis; exige entre 7 y 15 dígitos (E.164). No valida por país.</p>
 
     </div>
     <a class="headerlink" href="#valid_uuid"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_uuid-711"><a href="#valid_uuid-711"><span class="linenos">711</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_uuid</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="valid_uuid-712"><a href="#valid_uuid-712"><span class="linenos">712</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string es un UUID en forma canónica (8-4-4-4-12).</span>
-</span><span id="valid_uuid-713"><a href="#valid_uuid-713"><span class="linenos">713</span></a>
-</span><span id="valid_uuid-714"><a href="#valid_uuid-714"><span class="linenos">714</span></a><span class="sd">    Args:</span>
-</span><span id="valid_uuid-715"><a href="#valid_uuid-715"><span class="linenos">715</span></a><span class="sd">        raw: String a validar.</span>
-</span><span id="valid_uuid-716"><a href="#valid_uuid-716"><span class="linenos">716</span></a>
-</span><span id="valid_uuid-717"><a href="#valid_uuid-717"><span class="linenos">717</span></a><span class="sd">    Returns:</span>
-</span><span id="valid_uuid-718"><a href="#valid_uuid-718"><span class="linenos">718</span></a><span class="sd">        `True` si el string es un UUID válido.</span>
-</span><span id="valid_uuid-719"><a href="#valid_uuid-719"><span class="linenos">719</span></a>
-</span><span id="valid_uuid-720"><a href="#valid_uuid-720"><span class="linenos">720</span></a><span class="sd">    Examples:</span>
-</span><span id="valid_uuid-721"><a href="#valid_uuid-721"><span class="linenos">721</span></a><span class="sd">        &gt;&gt;&gt; valid_uuid("123e4567-e89b-12d3-a456-426614174000")</span>
-</span><span id="valid_uuid-722"><a href="#valid_uuid-722"><span class="linenos">722</span></a><span class="sd">        True</span>
-</span><span id="valid_uuid-723"><a href="#valid_uuid-723"><span class="linenos">723</span></a><span class="sd">        &gt;&gt;&gt; valid_uuid("123e4567")</span>
-</span><span id="valid_uuid-724"><a href="#valid_uuid-724"><span class="linenos">724</span></a><span class="sd">        False</span>
-</span><span id="valid_uuid-725"><a href="#valid_uuid-725"><span class="linenos">725</span></a><span class="sd">    """</span>
-</span><span id="valid_uuid-726"><a href="#valid_uuid-726"><span class="linenos">726</span></a>    <span class="k">return</span> <span class="p">(</span>
-</span><span id="valid_uuid-727"><a href="#valid_uuid-727"><span class="linenos">727</span></a>        <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span>
-</span><span id="valid_uuid-728"><a href="#valid_uuid-728"><span class="linenos">728</span></a>            <span class="sa">r</span><span class="s2">"[0-9a-fA-F]</span><span class="si">{8}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-"</span>
-</span><span id="valid_uuid-729"><a href="#valid_uuid-729"><span class="linenos">729</span></a>            <span class="sa">r</span><span class="s2">"[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{12}</span><span class="s2">"</span><span class="p">,</span>
-</span><span id="valid_uuid-730"><a href="#valid_uuid-730"><span class="linenos">730</span></a>            <span class="n">raw</span><span class="p">,</span>
-</span><span id="valid_uuid-731"><a href="#valid_uuid-731"><span class="linenos">731</span></a>        <span class="p">)</span>
-</span><span id="valid_uuid-732"><a href="#valid_uuid-732"><span class="linenos">732</span></a>        <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-</span><span id="valid_uuid-733"><a href="#valid_uuid-733"><span class="linenos">733</span></a>    <span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="valid_uuid-723"><a href="#valid_uuid-723"><span class="linenos">723</span></a><span class="k">def</span><span class="w"> </span><span class="nf">valid_uuid</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="valid_uuid-724"><a href="#valid_uuid-724"><span class="linenos">724</span></a><span class="w">    </span><span class="sd">"""Comprueba si el string es un UUID en forma canónica (8-4-4-4-12).</span>
+</span><span id="valid_uuid-725"><a href="#valid_uuid-725"><span class="linenos">725</span></a>
+</span><span id="valid_uuid-726"><a href="#valid_uuid-726"><span class="linenos">726</span></a><span class="sd">    Args:</span>
+</span><span id="valid_uuid-727"><a href="#valid_uuid-727"><span class="linenos">727</span></a><span class="sd">        raw: String a validar.</span>
+</span><span id="valid_uuid-728"><a href="#valid_uuid-728"><span class="linenos">728</span></a>
+</span><span id="valid_uuid-729"><a href="#valid_uuid-729"><span class="linenos">729</span></a><span class="sd">    Returns:</span>
+</span><span id="valid_uuid-730"><a href="#valid_uuid-730"><span class="linenos">730</span></a><span class="sd">        `True` si el string es un UUID válido.</span>
+</span><span id="valid_uuid-731"><a href="#valid_uuid-731"><span class="linenos">731</span></a>
+</span><span id="valid_uuid-732"><a href="#valid_uuid-732"><span class="linenos">732</span></a><span class="sd">    Examples:</span>
+</span><span id="valid_uuid-733"><a href="#valid_uuid-733"><span class="linenos">733</span></a><span class="sd">        &gt;&gt;&gt; valid_uuid("123e4567-e89b-12d3-a456-426614174000")</span>
+</span><span id="valid_uuid-734"><a href="#valid_uuid-734"><span class="linenos">734</span></a><span class="sd">        True</span>
+</span><span id="valid_uuid-735"><a href="#valid_uuid-735"><span class="linenos">735</span></a><span class="sd">        &gt;&gt;&gt; valid_uuid("123e4567")</span>
+</span><span id="valid_uuid-736"><a href="#valid_uuid-736"><span class="linenos">736</span></a><span class="sd">        False</span>
+</span><span id="valid_uuid-737"><a href="#valid_uuid-737"><span class="linenos">737</span></a><span class="sd">    """</span>
+</span><span id="valid_uuid-738"><a href="#valid_uuid-738"><span class="linenos">738</span></a>    <span class="k">return</span> <span class="p">(</span>
+</span><span id="valid_uuid-739"><a href="#valid_uuid-739"><span class="linenos">739</span></a>        <span class="n">re</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span>
+</span><span id="valid_uuid-740"><a href="#valid_uuid-740"><span class="linenos">740</span></a>            <span class="sa">r</span><span class="s2">"[0-9a-fA-F]</span><span class="si">{8}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-"</span>
+</span><span id="valid_uuid-741"><a href="#valid_uuid-741"><span class="linenos">741</span></a>            <span class="sa">r</span><span class="s2">"[0-9a-fA-F]</span><span class="si">{4}</span><span class="s2">-[0-9a-fA-F]</span><span class="si">{12}</span><span class="s2">"</span><span class="p">,</span>
+</span><span id="valid_uuid-742"><a href="#valid_uuid-742"><span class="linenos">742</span></a>            <span class="n">raw</span><span class="p">,</span>
+</span><span id="valid_uuid-743"><a href="#valid_uuid-743"><span class="linenos">743</span></a>        <span class="p">)</span>
+</span><span id="valid_uuid-744"><a href="#valid_uuid-744"><span class="linenos">744</span></a>        <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+</span><span id="valid_uuid-745"><a href="#valid_uuid-745"><span class="linenos">745</span></a>    <span class="p">)</span>
 </span></pre></div>
 
 
