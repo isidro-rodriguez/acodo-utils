@@ -30,6 +30,7 @@ from .getters import (
     get_env,
     get_hash,
     get_random_password,
+    get_random_token,
 )
 from .parsers import (
     parse_amount,
@@ -70,6 +71,7 @@ __all__ = [
     "get_env",
     "get_hash",
     "get_random_password",
+    "get_random_token",
     "has_required_attrs",
     "has_required_fields",
     "has_required_keys",

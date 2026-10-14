@@ -139,3 +139,34 @@ def get_random_password(
     min_length, max_length = length
     size = secrets.randbelow(max_length - min_length + 1) + min_length
     return "".join(secrets.choice(alphabet) for _ in range(size))
+
+
+def get_random_token(nbytes: int = 32, url_safe: bool = True) -> str:
+    """Genera un token aleatorio criptográficamente seguro con `secrets`.
+
+    Args:
+        nbytes: Cantidad de bytes de entropía (por defecto 32).
+        url_safe: Si es `True`, usa codificación URL-segura (`token_urlsafe`);
+            si es `False`, genera hexadecimal (`token_hex`).
+
+    Returns:
+        El token generado.
+
+    Raises:
+        ValueError: Si `nbytes` no es un entero positivo.
+
+    Examples:
+        >>> token = get_random_token()
+        >>> len(token) >= 40
+        True
+        >>> len(get_random_token(16, url_safe=False))
+        32
+    """
+    import secrets  # Import perezoso.
+
+    if not isinstance(nbytes, int) or isinstance(nbytes, bool) or nbytes < 1:
+        raise ValueError("`nbytes` debe ser un entero positivo.")
+
+    if url_safe:
+        return secrets.token_urlsafe(nbytes)
+    return secrets.token_hex(nbytes)

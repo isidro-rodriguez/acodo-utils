@@ -83,6 +83,7 @@ from irg_utils import to_bool, valid_email
 - [`get_env`](#get_env): Lee una variable de entorno y la convierte con un conversor `to_*`.
 - [`get_hash`](#get_hash): Calcula el hash hexadecimal de un texto, bytes o fichero.
 - [`get_random_password`](#get_random_password): Genera una contraseña aleatoria que cumple los criterios de `valid_password`.
+- [`get_random_token`](#get_random_token): Genera un token aleatorio criptográficamente seguro con `secrets`.
 
 ## Conversores
 
@@ -1434,3 +1435,32 @@ admitiría `valid_password` con esos argumentos.
 **Lanza**
 
 - `ValueError`: Si se han indicado argumentos ambiguos o incoherentes.
+
+### `get_random_token`
+
+```python
+get_random_token(nbytes: int = 32, url_safe: bool = True) -> str
+```
+
+Genera un token aleatorio criptográficamente seguro con `secrets`.
+
+**Parámetros**
+
+- `nbytes`: Cantidad de bytes de entropía (por defecto 32).
+- `url_safe`: Si es `True`, usa codificación URL-segura (`token_urlsafe`); si es `False`, genera hexadecimal (`token_hex`).
+
+**Devuelve:** El token generado.
+
+**Lanza**
+
+- `ValueError`: Si `nbytes` no es un entero positivo.
+
+**Ejemplos**
+
+```pycon
+>>> token = get_random_token()
+>>> len(token) >= 40
+True
+>>> len(get_random_token(16, url_safe=False))
+32
+```

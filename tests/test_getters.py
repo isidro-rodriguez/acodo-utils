@@ -85,3 +85,28 @@ def test_get_random_password_invalid_args() -> None:
         iu.get_random_password((10, 4))
     with pytest.raises(ValueError, match="ambiguos"):
         iu.get_random_password(only_digits=True, special_characters="#")
+
+
+def test_get_random_token_url_safe() -> None:
+    token = iu.get_random_token()
+    assert len(token) >= 40
+    assert all(char.isalnum() or char in "-_" for char in token)
+
+
+def test_get_random_token_hex() -> None:
+    token = iu.get_random_token(16, url_safe=False)
+    assert len(token) == 32
+    assert all(char in "0123456789abcdef" for char in token)
+
+
+def test_get_random_token_unique() -> None:
+    assert iu.get_random_token() != iu.get_random_token()
+
+
+def test_get_random_token_invalid_nbytes() -> None:
+    with pytest.raises(ValueError, match="nbytes"):
+        iu.get_random_token(0)
+    with pytest.raises(ValueError, match="nbytes"):
+        iu.get_random_token(-5)
+    with pytest.raises(ValueError, match="nbytes"):
+        iu.get_random_token(True)
