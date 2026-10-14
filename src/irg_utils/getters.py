@@ -8,32 +8,36 @@ antes de llamarlas.
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import os
+import secrets
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import TYPE_CHECKING, TypeVar
+from uuid import uuid4
 
-from .converters import to_int
+from .converters import to_str
+from .validators import _allowed_chars, _check_password_args
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from datetime import datetime
     from os import PathLike
     from uuid import UUID
 
 T = TypeVar("T")
 
-_BLOCK_SIZE = 1 << 16  # 64 KiB: hashea por bloques sin cargar todo en memoria.
-
 
 def get_env(
     name: str,
-    cast: Callable[[str], T | None] = to_int,  # ty: ignore[invalid-parameter-default]
+    cast: Callable[[str], T | None] = to_str,  # ty: ignore[invalid-parameter-default]
     default: T | None = None,
 ) -> T | None:
     """Lee una variable de entorno y la convierte con un conversor `to_*`.
 
     Args:
         name: Nombre de la variable de entorno.
-        cast: Conversor a aplicar sobre el valor leído (por defecto `to_int`).
+        cast: Conversor a aplicar sobre el valor leído (por defecto `to_str`).
         default: Valor a devolver si la variable falta o el conversor falla.
 
     Returns:
@@ -42,14 +46,14 @@ def get_env(
 
     Examples:
         >>> import os
-        >>> from irg_utils import to_str
+        >>> from irg_utils import to_int
         >>> os.environ["IRG_PORT"] = "8080"
         >>> get_env("IRG_PORT")
-        8080
-        >>> get_env("IRG_PORT", cast=to_str)
         '8080'
-        >>> get_env("IRG_AUSENTE", default=7)
-        7
+        >>> get_env("IRG_PORT", cast=to_int)
+        8080
+        >>> get_env("IRG_AUSENTE", default="x")
+        'x'
         >>> del os.environ["IRG_PORT"]
     """
     raw = os.environ.get(name)
@@ -59,18 +63,49 @@ def get_env(
     return default if value is None else value
 
 
-def get_hash(
-    raw: str | bytes | PathLike[str],
+def get_file_hash(
+    path: str | PathLike[str],
     algorithm: str = "sha256",
 ) -> str:
-    """Calcula el hash hexadecimal de un texto, bytes o fichero.
+    """Calcula el hash hexadecimal del contenido de un fichero.
 
-    Si `raw` es una ruta a un fichero existente, se hashea su contenido por
-    bloques (sin cargarlo entero en memoria); en caso contrario se interpreta
-    como texto o bytes y se codifica en UTF-8.
+    El fichero se lee por bloques, sin cargarlo entero en memoria.
 
     Args:
-        raw: Texto, bytes o ruta a un fichero cuyo hash se quiere calcular.
+        path: Ruta del fichero cuyo hash se quiere calcular.
+        algorithm: Algoritmo de `hashlib` (por ejemplo `sha256`, `sha1`).
+
+    Returns:
+        El hash en formato hexadecimal.
+
+    Raises:
+        ValueError: Si el algoritmo no está soportado por `hashlib`.
+        OSError: Si el fichero no existe o no puede leerse.
+
+    Examples:
+        >>> import tempfile
+        >>> from pathlib import Path
+        >>> with tempfile.TemporaryDirectory() as folder:
+        ...     file = Path(folder) / "abc.txt"
+        ...     _ = file.write_bytes(b"abc")
+        ...     get_file_hash(file, "sha1")
+        'a9993e364706816aba3e25717850c26c9cd0d89d'
+    """
+    try:
+        with Path(path).open("rb") as file:
+            return hashlib.file_digest(file, algorithm).hexdigest()
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"Algoritmo de hash no soportado: {algorithm!r}.") from exc
+
+
+def get_hash(raw: str | bytes, algorithm: str = "sha256") -> str:
+    """Calcula el hash hexadecimal de un texto o de unos bytes.
+
+    El texto se codifica en UTF-8. Para hashear un fichero usa
+    `get_file_hash`.
+
+    Args:
+        raw: Texto o bytes cuyo hash se quiere calcular.
         algorithm: Algoritmo de `hashlib` (por ejemplo `sha256`, `sha1`).
 
     Returns:
@@ -85,25 +120,11 @@ def get_hash(
         >>> get_hash(b"abc", "sha1")
         'a9993e364706816aba3e25717850c26c9cd0d89d'
     """
-    import hashlib  # Import perezoso.
-    from pathlib import Path  # Import perezoso: pesado.
-
     try:
         digest = hashlib.new(algorithm)
     except (TypeError, ValueError) as exc:
         raise ValueError(f"Algoritmo de hash no soportado: {algorithm!r}.") from exc
-
-    if isinstance(raw, (str, os.PathLike)):
-        path = Path(raw).expanduser()
-        if path.is_file():
-            with path.open("rb") as file:
-                for block in iter(lambda: file.read(_BLOCK_SIZE), b""):
-                    digest.update(block)
-            return digest.hexdigest()
-        raw = os.fspath(raw)  # Ruta inexistente: se trata como texto.
-
-    data = raw.encode() if isinstance(raw, str) else raw
-    digest.update(data)
+    digest.update(raw.encode() if isinstance(raw, str) else raw)
     return digest.hexdigest()
 
 
@@ -130,9 +151,6 @@ def get_hmac(key: str | bytes, message: str | bytes, algorithm: str = "sha256") 
         >>> get_hmac("Jefe", "what do ya want for nothing?")
         '5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843'
     """
-    import hashlib
-    import hmac
-
     try:
         hashlib.new(algorithm)
     except (TypeError, ValueError) as exc:
@@ -153,8 +171,6 @@ def get_now() -> datetime:
         >>> get_now().tzinfo is not None
         True
     """
-    from datetime import UTC, datetime  # Import perezoso.
-
     return datetime.now(UTC)
 
 
@@ -178,8 +194,6 @@ def get_otp(digits: int = 6) -> str:
         >>> len(get_otp(8))
         8
     """
-    import secrets  # Import perezoso.
-
     if not isinstance(digits, int) or isinstance(digits, bool) or digits < 1:
         raise ValueError("`digits` debe ser un entero positivo.")
 
@@ -212,8 +226,6 @@ def get_password_hash(
     Raises:
         ValueError: Si el algoritmo no está soportado o `iterations` < 1.
     """
-    import hashlib
-
     if (
         not isinstance(iterations, int)
         or isinstance(iterations, bool)
@@ -254,8 +266,6 @@ def get_random_choice(seq: Sequence[T]) -> T:
         >>> get_random_choice([42])
         42
     """
-    import secrets  # Import perezoso.
-
     if not seq:
         raise ValueError("La secuencia no puede estar vacía.")
     return secrets.choice(seq)
@@ -281,8 +291,6 @@ def get_random_int(minimum: int, maximum: int) -> int:
         >>> get_random_int(5, 5)
         5
     """
-    import secrets  # Import perezoso.
-
     if minimum > maximum:
         raise ValueError("El mínimo no puede ser mayor que el máximo.")
     return secrets.randbelow(maximum - minimum + 1) + minimum
@@ -312,12 +320,8 @@ def get_random_password(
     Raises:
         ValueError: Si se han indicado argumentos ambiguos o incoherentes.
     """
-    from .validators import _allowed_chars, _check_password_args
-
     _check_password_args(length, special_characters, only_digits)
     alphabet = sorted(_allowed_chars(special_characters, allow_uppercase, only_digits))
-
-    import secrets  # Import perezoso.
 
     min_length, max_length = length
     size = secrets.randbelow(max_length - min_length + 1) + min_length
@@ -345,8 +349,6 @@ def get_random_token(nbytes: int = 32, url_safe: bool = True) -> str:
         >>> len(get_random_token(16, url_safe=False))
         32
     """
-    import secrets  # Import perezoso.
-
     if not isinstance(nbytes, int) or isinstance(nbytes, bool) or nbytes < 1:
         raise ValueError("`nbytes` debe ser un entero positivo.")
 
@@ -366,6 +368,4 @@ def get_uuid() -> UUID:
         >>> valid_uuid(str(get_uuid()))
         True
     """
-    from uuid import uuid4  # Import perezoso.
-
     return uuid4()

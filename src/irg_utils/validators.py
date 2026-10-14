@@ -8,8 +8,13 @@ from __future__ import annotations
 import re
 import string
 from functools import cache
+from ipaddress import ip_address
+from json import loads
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
+
+from .converters import to_bool, to_date, to_datetime, to_port
+from .parsers import parse_duration
 
 if TYPE_CHECKING:
     from typing import NoReturn
@@ -115,8 +120,6 @@ def valid_bool(raw: str) -> bool:
         >>> valid_bool("basura")
         False
     """
-    from .converters import to_bool
-
     return to_bool(raw) is not None
 
 
@@ -135,8 +138,6 @@ def valid_date(raw: str) -> bool:
         >>> valid_date("basura")
         False
     """
-    from .converters import to_date
-
     return to_date(raw) is not None
 
 
@@ -155,8 +156,6 @@ def valid_datetime(raw: str) -> bool:
         >>> valid_datetime("basura")
         False
     """
-    from .converters import to_datetime
-
     return to_datetime(raw) is not None
 
 
@@ -227,8 +226,6 @@ def valid_duration(raw: str) -> bool:
         >>> valid_duration("abc")
         False
     """
-    from .parsers import parse_duration
-
     return parse_duration(raw) is not None
 
 
@@ -353,8 +350,6 @@ def valid_ip(raw: str, version: int | None = None) -> bool:
         >>> valid_ip("999.1.1.1")
         False
     """
-    from ipaddress import ip_address  # Import perezoso.
-
     if version not in (None, 4, 6):
         raise ValueError("`version` debe ser None, 4 o 6.")
 
@@ -389,8 +384,6 @@ def valid_json(raw: str) -> bool:
         >>> valid_json("NaN")
         False
     """
-    from json import loads  # Import perezoso.
-
     try:
         loads(raw, parse_constant=_reject_constant)
     except (ValueError, RecursionError):  # JSONDecodeError es ValueError
@@ -582,8 +575,6 @@ def valid_port(raw: str) -> bool:
         >>> valid_port("abc")
         False
     """
-    from .converters import to_port
-
     return to_port(raw) is not None
 
 

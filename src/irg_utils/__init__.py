@@ -53,6 +53,7 @@ from .converters import (
 )
 from .getters import (
     get_env,
+    get_file_hash,
     get_hash,
     get_hmac,
     get_now,
@@ -101,6 +102,7 @@ from .validators import (
 
 __all__ = [
     "get_env",
+    "get_file_hash",
     "get_hash",
     "get_hmac",
     "get_now",

@@ -10,14 +10,16 @@ from __future__ import annotations
 import math
 import re
 from collections.abc import Iterable, Mapping
+from dataclasses import asdict, is_dataclass
 from datetime import UTC, date, datetime, timedelta
+from decimal import Decimal, InvalidOperation
+from email.utils import parsedate_to_datetime
 from os import fspath
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from decimal import Decimal
     from os import PathLike
-    from pathlib import Path
     from typing import Any
 
 
@@ -224,9 +226,7 @@ def to_datetime(raw: str) -> datetime | None:
         except ValueError:
             pass
 
-    # RFC 2822 / RFC 5322. Import perezoso: `email.utils` es pesado.
-    from email.utils import parsedate_to_datetime
-
+    # RFC 2822 / RFC 5322.
     try:
         return _midnight(parsedate_to_datetime(raw))
     except (TypeError, ValueError, OverflowError):
@@ -254,8 +254,6 @@ def to_decimal(raw: str | float | None) -> Decimal | None:
         >>> to_decimal("nan") is None
         True
     """
-    from decimal import Decimal, InvalidOperation  # Import perezoso: pesado.
-
     if raw is None or isinstance(raw, bool):
         return None
     if isinstance(raw, str) and "_" in raw:
@@ -289,7 +287,6 @@ def to_dict(raw: object) -> dict[Any, Any]:
         >>> to_dict(None)
         {}
     """
-    from dataclasses import asdict, is_dataclass
 
     def _convert(value: object) -> object:
         if is_dataclass(value) and not isinstance(value, type):
@@ -416,8 +413,6 @@ def to_path(raw: str | PathLike[str] | None) -> Path | None:
         >>> to_path("   ") is None
         True
     """
-    from pathlib import Path  # Import perezoso: pesado.
-
     if raw is None:
         return None
 

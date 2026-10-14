@@ -5,12 +5,17 @@ import pathlib
 import pytest
 
 import irg_utils as iu
-from irg_utils import to_bool, to_float
+from irg_utils import to_bool, to_float, to_int
+
+
+def test_get_env_returns_str_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("IRG_PORT", "8080")
+    assert iu.get_env("IRG_PORT") == "8080"
 
 
 def test_get_env_converts_with_to_int(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("IRG_PORT", "8080")
-    assert iu.get_env("IRG_PORT") == 8080
+    assert iu.get_env("IRG_PORT", cast=to_int) == 8080
 
 
 def test_get_env_with_custom_cast(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -22,13 +27,13 @@ def test_get_env_with_custom_cast(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_get_env_missing_returns_default(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("IRG_AUSENTE", raising=False)
-    assert iu.get_env("IRG_AUSENTE", default=7) == 7
+    assert iu.get_env("IRG_AUSENTE", default="x") == "x"
     assert iu.get_env("IRG_AUSENTE", cast=to_bool, default=False) is False
 
 
 def test_get_env_unconvertible_returns_default(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("IRG_PORT", "no-es-numero")
-    assert iu.get_env("IRG_PORT", default=-1) == -1
+    assert iu.get_env("IRG_PORT", cast=to_int, default=-1) == -1
     assert iu.get_env("IRG_PORT", cast=to_bool, default=False) is False
 
 
@@ -43,11 +48,30 @@ def test_get_hash_bytes_and_algorithm() -> None:
     assert iu.get_hash("abc", "sha256") == iu.get_hash(b"abc")
 
 
-def test_get_hash_matches_bytes_for_file(tmp_path: pathlib.Path) -> None:
+def test_get_hash_does_not_read_files(tmp_path: pathlib.Path) -> None:
     file = tmp_path / "datos.bin"
-    content = b"contenido de prueba " * 5000  # Varios bloques de 64 KiB.
+    file.write_bytes(b"contenido")
+    assert iu.get_hash(str(file)) != iu.get_hash(b"contenido")
+
+
+def test_get_file_hash_matches_bytes(tmp_path: pathlib.Path) -> None:
+    file = tmp_path / "datos.bin"
+    content = b"contenido de prueba " * 5000
     file.write_bytes(content)
-    assert iu.get_hash(file) == iu.get_hash(content)
+    assert iu.get_file_hash(file) == iu.get_hash(content)
+    assert iu.get_file_hash(str(file), "sha1") == iu.get_hash(content, "sha1")
+
+
+def test_get_file_hash_invalid_algorithm(tmp_path: pathlib.Path) -> None:
+    file = tmp_path / "datos.bin"
+    file.write_bytes(b"x")
+    with pytest.raises(ValueError, match="no soportado"):
+        iu.get_file_hash(file, "algoritmo-inexistente")
+
+
+def test_get_file_hash_missing_file(tmp_path: pathlib.Path) -> None:
+    with pytest.raises(FileNotFoundError):
+        iu.get_file_hash(tmp_path / "no-existe")
 
 
 def test_get_hash_invalid_algorithm() -> None:

@@ -7,6 +7,7 @@ devuelve `timedelta | None`.
 from __future__ import annotations
 
 import re
+import unicodedata
 from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING
 
@@ -279,8 +280,6 @@ def parse_slug(raw: str) -> str:
         >>> parse_slug("¡Hola, Mundo! Ñandú")
         'hola-mundo-nandu'
     """
-    import unicodedata  # Import perezoso.
-
     text = unicodedata.normalize("NFKD", raw).encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
