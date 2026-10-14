@@ -10,15 +10,16 @@ import string
 from functools import cache
 from ipaddress import ip_address
 from json import loads
-from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
-from .converters import to_bool, to_date, to_datetime, to_port
+from .converters import (
+    _reject_constant,
+    to_bool,
+    to_date,
+    to_datetime,
+    to_port,
+)
 from .parsers import parse_duration
-
-if TYPE_CHECKING:
-    from typing import NoReturn
-
 
 # =============================================================================
 #  Constantes
@@ -74,6 +75,11 @@ _WINDOWS_RESERVED_NAMES = frozenset(
 # =============================================================================
 
 
+_CIF_RE = re.compile(r"[ABCDEFGHJNPQRSUVW][0-9]{7}[0-9A-J]")
+
+_POSTAL_CODE_RE = re.compile(r"(?:0[1-9]|[1-4][0-9]|5[0-2])[0-9]{3}")
+
+
 def _dni_letter(number: int) -> str:
     # Letra de control de DNI/NIE.
     return _DNI_LETTERS[number % 23]
@@ -121,6 +127,37 @@ def valid_bool(raw: str) -> bool:
         False
     """
     return to_bool(raw) is not None
+
+
+def valid_cif(raw: str) -> bool:
+    """Comprueba si el string es un CIF español válido (persona jurídica).
+
+    Formato: letra de entidad, 7 dígitos y carácter de control (dígito o
+    letra según el tipo de entidad).
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si el formato y el carácter de control son correctos.
+
+    Examples:
+        >>> valid_cif("A58818501")
+        True
+        >>> valid_cif("A58818502")
+        False
+    """
+    text = raw.upper()
+    if not _CIF_RE.fullmatch(text):
+        return False
+    digits = [int(char) for char in text[1:8]]
+    total = sum(digits[1::2]) + sum(sum(divmod(2 * d, 10)) for d in digits[::2])
+    control = (10 - total % 10) % 10
+    if text[0] in "ABEH":
+        return text[8] == str(control)
+    if text[0] in "NPQRSW":
+        return text[8] == "JABCDEFGHI"[control]
+    return text[8] in (str(control), "JABCDEFGHI"[control])
 
 
 def valid_date(raw: str) -> bool:
@@ -360,11 +397,6 @@ def valid_ip(raw: str, version: int | None = None) -> bool:
     return version is None or ip.version == version
 
 
-def _reject_constant(name: str) -> NoReturn:
-    # Rechaza NaN, Infinity y -Infinity, que no son JSON estándar.
-    raise ValueError(name)
-
-
 def valid_json(raw: str) -> bool:
     """Comprueba si el string es JSON bien formado (RFC 8259).
 
@@ -439,6 +471,36 @@ def valid_nie(raw: str) -> bool:
         return False
     number = int(f"{'XYZ'.index(text[0])}{text[1:8]}")
     return text[8] == _dni_letter(number)
+
+
+def valid_nif(raw: str) -> bool:
+    """Comprueba si el string es un NIF español de persona física válido.
+
+    Admite DNI, NIE y los NIF especiales que empiezan por K, L o M. Para
+    personas jurídicas usa `valid_cif`.
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si el formato y la letra de control son correctos.
+
+    Examples:
+        >>> valid_nif("12345678Z")
+        True
+        >>> valid_nif("X1234567L")
+        True
+        >>> valid_nif("K1234567L")
+        True
+        >>> valid_nif("12345678A")
+        False
+    """
+    text = raw.upper()
+    if valid_dni(text) or valid_nie(text):
+        return True
+    return bool(re.fullmatch(r"[KLM][0-9]{7}[A-Z]", text)) and text[8] == _dni_letter(
+        int(text[1:8])
+    )
 
 
 def valid_passport(raw: str) -> bool:
@@ -576,6 +638,26 @@ def valid_port(raw: str) -> bool:
         False
     """
     return to_port(raw) is not None
+
+
+def valid_postal_code(raw: str) -> bool:
+    """Comprueba si el string es un código postal español (provincias 01-52).
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si son 5 dígitos y los dos primeros son una provincia válida.
+
+    Examples:
+        >>> valid_postal_code("38001")
+        True
+        >>> valid_postal_code("00001")
+        False
+        >>> valid_postal_code("53000")
+        False
+    """
+    return _POSTAL_CODE_RE.fullmatch(raw) is not None
 
 
 def valid_slug(raw: str) -> bool:

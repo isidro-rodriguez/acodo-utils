@@ -433,3 +433,64 @@ def test_valid_url(raw: str, expected: bool) -> None:
 )
 def test_valid_uuid(raw: str, expected: bool) -> None:
     assert iu.valid_uuid(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("A58818501", True),
+        ("B12345674", True),
+        ("a58818501", True),
+        ("A58818502", False),
+        ("B1234567D", False),  # B exige dígito de control.
+        ("Q2826000H", True),  # Q exige letra de control.
+        ("P2800000H", True),
+        ("P28000008", False),
+        ("C0000000" + "0", True),  # C admite dígito...
+        ("C0000000" + "J", True),  # ...o letra.
+        ("C0000000" + "A", False),
+        ("I12345674", False),  # Letra de entidad no válida.
+        ("B123456", False),
+        ("", False),
+    ],
+)
+def test_valid_cif(raw: str, expected: bool) -> None:
+    assert iu.valid_cif(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("12345678Z", True),
+        ("X1234567L", True),
+        ("K1234567L", True),
+        ("m1234567l", True),
+        ("12345678A", False),
+        ("X1234567A", False),
+        ("K1234567A", False),
+        ("A58818501", False),
+        ("", False),
+    ],
+)
+def test_valid_nif(raw: str, expected: bool) -> None:
+    assert iu.valid_nif(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("38001", True),
+        ("35500", True),
+        ("01001", True),
+        ("52999", True),
+        ("00001", False),
+        ("53000", False),
+        ("3800", False),
+        ("380011", False),
+        ("3800a", False),
+        ("٣٨٠٠١", False),  # Dígitos no ASCII.
+        ("", False),
+    ],
+)
+def test_valid_postal_code(raw: str, expected: bool) -> None:
+    assert iu.valid_postal_code(raw) is expected

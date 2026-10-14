@@ -14,13 +14,14 @@ from dataclasses import asdict, is_dataclass
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 from email.utils import parsedate_to_datetime
+from json import loads
 from os import fspath
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from os import PathLike
-    from typing import Any
+    from typing import Any, NoReturn
 
 
 # =============================================================================
@@ -76,6 +77,11 @@ _NUMERIC_FORMATS = (
 # =============================================================================
 #  Conversores
 # =============================================================================
+
+
+def _reject_constant(name: str) -> NoReturn:
+    # Rechaza NaN, Infinity y -Infinity, que no son JSON estándar.
+    raise ValueError(name)
 
 
 def to_bool(raw: str | int | None) -> bool | None:
@@ -368,6 +374,35 @@ def to_int(raw: str | float | int | None) -> int | None:
     try:
         return int(raw)
     except (ValueError, TypeError):
+        return None
+
+
+def to_json(raw: str | bytes | None) -> Any | None:
+    """Convierte un string JSON (RFC 8259) en su valor de Python.
+
+    Se rechazan `NaN`, `Infinity` y `-Infinity`. El JSON `null` también
+    produce `None`: para distinguirlo de un JSON inválido usa `valid_json`.
+
+    Args:
+        raw: String o bytes con el JSON.
+
+    Returns:
+        El valor decodificado (`dict`, `list`, `str`, `int`, `float`,
+        `bool` o `None`); `None` si el JSON no es válido.
+
+    Examples:
+        >>> to_json('{"a": [1, 2]}')
+        {'a': [1, 2]}
+        >>> to_json("{'a': 1}") is None
+        True
+        >>> to_json("NaN") is None
+        True
+    """
+    if raw is None:
+        return None
+    try:
+        return loads(raw, parse_constant=_reject_constant)
+    except (ValueError, RecursionError):  # JSONDecodeError es ValueError
         return None
 
 

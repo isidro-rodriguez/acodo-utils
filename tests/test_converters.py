@@ -281,3 +281,22 @@ def test_to_str(raw: object, expected: str | None) -> None:
 )
 def test_to_timedelta(raw: float | None, expected: timedelta | None) -> None:
     assert iu.to_timedelta(raw) == expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ('{"a": [1, 2]}', {"a": [1, 2]}),
+        (b"[1, 2]", [1, 2]),
+        ("true", True),
+        ("null", None),
+        ("{'a': 1}", None),
+        ("NaN", None),
+        ("Infinity", None),
+        ("", None),
+        (None, None),
+        ("[" * 100_000, None),
+    ],
+)
+def test_to_json(raw: str | bytes | None, expected: object) -> None:
+    assert iu.to_json(raw) == expected
