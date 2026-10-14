@@ -299,6 +299,23 @@ def test_valid_nie(raw: str, expected: bool) -> None:
     assert iu.valid_nie(raw) is expected
 
 
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("ABC123456", True),
+        ("abc123456", True),
+        ("12345678", True),
+        ("AB123", False),
+        ("ABC-1234", False),
+        ("ABCDEFGHIJK", False),
+        ("ABC 12345", False),
+        ("", False),
+    ],
+)
+def test_valid_passport(raw: str, expected: bool) -> None:
+    assert iu.valid_passport(raw) is expected
+
+
 class TestValidPassword:
     @pytest.mark.parametrize(
         ("raw", "kwargs", "expected"),

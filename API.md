@@ -68,6 +68,7 @@ from irg_utils import to_bool, valid_email
 - [`valid_json`](#valid_json): Comprueba si el string es JSON bien formado (RFC 8259).
 - [`valid_mac`](#valid_mac): Comprueba si el string es una dirección MAC de 48 bits válida.
 - [`valid_nie`](#valid_nie): Comprueba si el string es un NIE español válido (X/Y/Z, 7 dígitos, letra).
+- [`valid_passport`](#valid_passport): Comprueba si el string tiene formato de pasaporte genérico.
 - [`valid_password`](#valid_password): Comprueba si el string presenta el formato de contraseña requerido.
 - [`valid_phone`](#valid_phone): Comprueba si el string es un teléfono en formato internacional básico.
 - [`valid_port`](#valid_port): Comprueba si el string lo aceptaría `to_port`.
@@ -1134,6 +1135,37 @@ Comprueba si el string es un NIE español válido (X/Y/Z, 7 dígitos, letra).
 >>> valid_nie("X1234567L")
 True
 >>> valid_nie("X1234567A")
+False
+```
+
+### `valid_passport`
+
+```python
+valid_passport(raw: str) -> bool
+```
+
+Comprueba si el string tiene formato de pasaporte genérico.
+
+Cada país usa su propio formato, así que aquí se acepta el patrón más
+habitual: entre 6 y 9 caracteres alfanuméricos. No valida el dígito de
+control ni el país emisor.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el string presenta un formato de pasaporte genérico.
+
+**Ejemplos**
+
+```pycon
+>>> valid_passport("ABC123456")
+True
+>>> valid_passport("12345678")
+True
+>>> valid_passport("AB123")
+False
+>>> valid_passport("ABC-1234")
 False
 ```
 

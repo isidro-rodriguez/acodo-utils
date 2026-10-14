@@ -448,6 +448,32 @@ def valid_nie(raw: str) -> bool:
     return text[8] == _dni_letter(number)
 
 
+def valid_passport(raw: str) -> bool:
+    """Comprueba si el string tiene formato de pasaporte genérico.
+
+    Cada país usa su propio formato, así que aquí se acepta el patrón más
+    habitual: entre 6 y 9 caracteres alfanuméricos. No valida el dígito de
+    control ni el país emisor.
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si el string presenta un formato de pasaporte genérico.
+
+    Examples:
+        >>> valid_passport("ABC123456")
+        True
+        >>> valid_passport("12345678")
+        True
+        >>> valid_passport("AB123")
+        False
+        >>> valid_passport("ABC-1234")
+        False
+    """
+    return re.fullmatch(r"[A-Z0-9]{6,9}", raw.upper()) is not None
+
+
 @cache
 def _allowed_chars(
     special_characters: str,
