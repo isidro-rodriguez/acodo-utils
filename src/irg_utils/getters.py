@@ -225,6 +225,15 @@ def get_password_hash(
 
     Raises:
         ValueError: Si el algoritmo no está soportado o `iterations` < 1.
+
+    Examples:
+        >>> hashed = get_password_hash("secreto", "sal", iterations=1000)
+        >>> hashed
+        '85a0d61dca9df1effa45c6540efa5f00f9511e7dfd53d8d2f1d72447ceadbfa9'
+        >>> get_password_hash("secreto", "sal", iterations=1000) == hashed
+        True
+        >>> get_password_hash("secreto", "otra-sal", iterations=1000) == hashed
+        False
     """
     if (
         not isinstance(iterations, int)
@@ -319,6 +328,16 @@ def get_random_password(
 
     Raises:
         ValueError: Si se han indicado argumentos ambiguos o incoherentes.
+
+    Examples:
+        >>> len(get_random_password(length=(12, 12)))
+        12
+        >>> get_random_password(length=(6, 6), only_digits=True).isdigit()
+        True
+        >>> from irg_utils import valid_password
+        >>> password = get_random_password(special_characters="!?")
+        >>> valid_password(password, length=(8, 16), special_characters="!?")
+        True
     """
     _check_password_args(length, special_characters, only_digits)
     alphabet = sorted(_allowed_chars(special_characters, allow_uppercase, only_digits))

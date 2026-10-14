@@ -580,6 +580,18 @@ def valid_password(
 
     Raises:
         ValueError: Si se han indicado argumentos ambiguos o incoherentes.
+
+    Examples:
+        >>> valid_password("Secreto123", length=(8, 16))
+        True
+        >>> valid_password("corta", length=(8, 16))
+        False
+        >>> valid_password("clave!2026", length=(8, 16))
+        False
+        >>> valid_password("clave!2026", length=(8, 16), special_characters="!")
+        True
+        >>> valid_password("12345678", length=(8, 8), only_digits=True)
+        True
     """
     _check_password_args(length, special_characters, only_digits)
     min_length, max_length = length

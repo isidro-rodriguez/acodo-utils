@@ -48,6 +48,12 @@ def has_required_fields(
 
     Returns:
         `True` si la colección tiene todos los campos requeridos.
+
+    Examples:
+        >>> has_required_fields(["a", "b", "c"], ["a", "c"])
+        True
+        >>> has_required_fields({"a", "b"}, ["a", "z"])
+        False
     """
     return all(field in raw for field in required_fields)
 
@@ -64,5 +70,11 @@ def has_required_keys(
 
     Returns:
         `True` si el diccionario tiene todas las llaves requeridas.
+
+    Examples:
+        >>> has_required_keys({"name": "Ana", "age": 30}, ["name"])
+        True
+        >>> has_required_keys({"name": "Ana"}, ["name", "age"])
+        False
     """
     return all(key in raw for key in required_keys)

@@ -512,6 +512,14 @@ def to_str(raw: object) -> str | None:
     Returns:
         El propio `raw` si es un `str` que no está vacío ni es solo espacios;
         `None` en otro caso.
+
+    Examples:
+        >>> to_str("hola")
+        'hola'
+        >>> to_str("   ") is None
+        True
+        >>> to_str(42) is None
+        True
     """
     return raw if isinstance(raw, str) and raw.strip() else None
 
