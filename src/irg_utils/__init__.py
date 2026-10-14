@@ -28,8 +28,8 @@ valid_email("email_sin_punto@ejemplo-com") # False
 
 Convenio de nombrado
 --------------------
-Las funciones se agrupan por categoría: cada categoría empieza por un
-prefijo, y dentro de cada una van en orden alfabético.
+Las funciones se agrupan por categoría, cada categoría empieza por un
+prefijo y dentro de cada una van en orden alfabético.
 
 | Prefijo   | Returns       | Categoría |
 |-----------|---------------|-----------|
