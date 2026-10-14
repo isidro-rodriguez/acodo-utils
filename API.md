@@ -87,6 +87,7 @@ from irg_utils import to_bool, valid_email
 - [`get_otp`](#get_otp): Genera un código numérico de un solo uso (OTP) con `secrets`.
 - [`get_password_hash`](#get_password_hash): Deriva un hash de contraseña con PBKDF2 (`hashlib`).
 - [`get_random_choice`](#get_random_choice): Elige un elemento al azar de una secuencia usando `secrets` (CSPRNG).
+- [`get_random_int`](#get_random_int): Genera un entero aleatorio en el rango inclusivo con `secrets`.
 - [`get_random_password`](#get_random_password): Genera una contraseña aleatoria que cumple los criterios de `valid_password`.
 - [`get_random_token`](#get_random_token): Genera un token aleatorio criptográficamente seguro con `secrets`.
 
@@ -1544,6 +1545,35 @@ Elige un elemento al azar de una secuencia usando `secrets` (CSPRNG).
 True
 >>> get_random_choice([42])
 42
+```
+
+### `get_random_int`
+
+```python
+get_random_int(minimum: int, maximum: int) -> int
+```
+
+Genera un entero aleatorio en el rango inclusivo con `secrets`.
+
+**Parámetros**
+
+- `minimum`: Extremo inferior del rango (incluido).
+- `maximum`: Extremo superior del rango (incluido).
+
+**Devuelve:** Un entero entre `minimum` y `maximum`, ambos inclusive.
+
+**Lanza**
+
+- `ValueError`: Si `minimum` es mayor que `maximum`.
+
+**Ejemplos**
+
+```pycon
+>>> valor = get_random_int(1, 6)
+>>> 1 <= valor <= 6
+True
+>>> get_random_int(5, 5)
+5
 ```
 
 ### `get_random_password`

@@ -34,6 +34,7 @@ from .getters import (
     get_otp,
     get_password_hash,
     get_random_choice,
+    get_random_int,
     get_random_password,
     get_random_token,
 )
@@ -80,6 +81,7 @@ __all__ = [
     "get_otp",
     "get_password_hash",
     "get_random_choice",
+    "get_random_int",
     "get_random_password",
     "get_random_token",
     "has_required_attrs",

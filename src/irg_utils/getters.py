@@ -260,6 +260,33 @@ def get_random_choice(seq: Sequence[T]) -> T:
     return secrets.choice(seq)
 
 
+def get_random_int(minimum: int, maximum: int) -> int:
+    """Genera un entero aleatorio en el rango inclusivo con `secrets`.
+
+    Args:
+        minimum: Extremo inferior del rango (incluido).
+        maximum: Extremo superior del rango (incluido).
+
+    Returns:
+        Un entero entre `minimum` y `maximum`, ambos inclusive.
+
+    Raises:
+        ValueError: Si `minimum` es mayor que `maximum`.
+
+    Examples:
+        >>> valor = get_random_int(1, 6)
+        >>> 1 <= valor <= 6
+        True
+        >>> get_random_int(5, 5)
+        5
+    """
+    import secrets  # Import perezoso.
+
+    if minimum > maximum:
+        raise ValueError("El mínimo no puede ser mayor que el máximo.")
+    return secrets.randbelow(maximum - minimum + 1) + minimum
+
+
 def get_random_password(
     length: tuple[int, int] = (8, 16),
     special_characters: str = "",

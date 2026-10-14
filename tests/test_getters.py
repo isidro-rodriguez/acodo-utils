@@ -146,6 +146,25 @@ def test_get_random_choice_empty_raises() -> None:
         iu.get_random_choice([])
 
 
+def test_get_random_int_within_range() -> None:
+    for _ in range(50):
+        assert 1 <= iu.get_random_int(1, 6) <= 6
+
+
+def test_get_random_int_inclusive_bounds() -> None:
+    seen = {iu.get_random_int(0, 1) for _ in range(100)}
+    assert seen == {0, 1}
+
+
+def test_get_random_int_single_value() -> None:
+    assert iu.get_random_int(7, 7) == 7
+
+
+def test_get_random_int_invalid_range() -> None:
+    with pytest.raises(ValueError, match="mínimo"):
+        iu.get_random_int(10, 4)
+
+
 def test_get_random_password_passes_validation() -> None:
     from irg_utils import valid_password
 
