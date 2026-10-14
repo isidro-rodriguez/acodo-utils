@@ -17,6 +17,7 @@ wheels/
 .coverage
 *.pem
 
-# Documentación generada por pdoc en CI (se conserva el logo, commiteado)
-docs/*
-!docs/logo.png
+# Documentación generada por pdoc en CI
+docs/index.html
+docs/irg_utils.html
+docs/search.js
