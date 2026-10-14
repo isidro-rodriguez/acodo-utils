@@ -2,8 +2,8 @@
 
 Requiere Python >= 3.11 (`datetime.UTC`).
 
-Convenio: prefijos `to_*`, `has_*`, `parse_*` y `valid_*`. Dentro de cada
-categoría, las funciones públicas van en orden alfabético.
+Convenio: prefijos `to_*`, `has_*`, `parse_*`, `valid_*` y `get_*`. Dentro
+de cada categoría, las funciones públicas van en orden alfabético.
 """
 
 from .checkers import (
@@ -25,6 +25,9 @@ from .converters import (
     to_port,
     to_str,
     to_timedelta,
+)
+from .getters import (
+    get_env,
 )
 from .parsers import (
     parse_amount,
@@ -62,6 +65,7 @@ from .validators import (
 )
 
 __all__ = [
+    "get_env",
     "has_required_attrs",
     "has_required_fields",
     "has_required_keys",

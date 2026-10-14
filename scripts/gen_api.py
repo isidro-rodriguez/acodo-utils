@@ -17,6 +17,7 @@ SOURCES = (
     ROOT / "src" / "irg_utils" / "checkers.py",
     ROOT / "src" / "irg_utils" / "parsers.py",
     ROOT / "src" / "irg_utils" / "validators.py",
+    ROOT / "src" / "irg_utils" / "getters.py",
 )
 TARGET = ROOT / "API.md"
 
@@ -25,6 +26,7 @@ CATEGORIES = (
     ("has_", "Comprobaciones", "Verifican que los objetos cumplan los requisitos."),
     ("parse_", "Parsers", "Transforman tipos de datos a strings legibles."),
     ("valid_", "Validaciones", "Verifican que un string tenga el formato requerido."),
+    ("get_", "Getters", "Obtienen valores del entorno del programa."),
 )
 
 HEADER = """\
@@ -42,6 +44,8 @@ from irg_utils import to_bool, valid_email
 - `to_*`: nunca lanzan excepciones por valores inválidos; devuelven `None`.
 - `has_*` y `valid_*`: devuelven `bool`.
 - `parse_*`: devuelven `str`, salvo `parse_duration`, que devuelve `timedelta | None`.
+- `get_*`: producen valores del entorno (variables de entorno, hashes,
+  credenciales aleatorias seguras); no transforman ni verifican.
 - `ValueError` solo se lanza ante argumentos de configuración incorrectos
   (código de lenguaje, rango de longitud...), nunca por el dato evaluado.
 - Dentro de cada categoría, las funciones están en orden alfabético.

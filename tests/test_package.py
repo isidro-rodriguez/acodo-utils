@@ -4,9 +4,9 @@ import ast
 import pathlib
 
 import irg_utils as iu
-from irg_utils import checkers, converters, parsers, validators
+from irg_utils import checkers, converters, getters, parsers, validators
 
-MODULES = (converters, checkers, parsers, validators)
+MODULES = (converters, checkers, parsers, validators, getters)
 
 
 def test_all_is_sorted_and_complete() -> None:
@@ -24,6 +24,6 @@ def test_public_functions_are_alphabetical_per_prefix() -> None:
         if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
     ]
     assert sorted(public) == sorted(iu.__all__)
-    for prefix in ("to_", "has_", "parse_", "valid_"):
+    for prefix in ("to_", "has_", "parse_", "valid_", "get_"):
         names = [name for name in public if name.startswith(prefix)]
         assert names == sorted(names), prefix

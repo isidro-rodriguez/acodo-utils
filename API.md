@@ -12,6 +12,8 @@ from irg_utils import to_bool, valid_email
 - `to_*`: nunca lanzan excepciones por valores inválidos; devuelven `None`.
 - `has_*` y `valid_*`: devuelven `bool`.
 - `parse_*`: devuelven `str`, salvo `parse_duration`, que devuelve `timedelta | None`.
+- `get_*`: producen valores del entorno (variables de entorno, hashes,
+  credenciales aleatorias seguras); no transforman ni verifican.
 - `ValueError` solo se lanza ante argumentos de configuración incorrectos
   (código de lenguaje, rango de longitud...), nunca por el dato evaluado.
 - Dentro de cada categoría, las funciones están en orden alfabético.
@@ -75,6 +77,10 @@ from irg_utils import to_bool, valid_email
 - [`valid_slug`](#valid_slug): Comprueba si el string es un slug: minúsculas, dígitos y guiones simples.
 - [`valid_url`](#valid_url): Comprueba si el string presenta formato de URL http/https.
 - [`valid_uuid`](#valid_uuid): Comprueba si el string es un UUID en forma canónica (8-4-4-4-12).
+
+**Getters**
+
+- [`get_env`](#get_env): Lee una variable de entorno y la convierte con un conversor `to_*`.
 
 ## Conversores
 
@@ -1324,4 +1330,43 @@ Comprueba si el string es un UUID en forma canónica (8-4-4-4-12).
 True
 >>> valid_uuid("123e4567")
 False
+```
+
+## Getters
+
+Obtienen valores del entorno del programa.
+
+### `get_env`
+
+```python
+get_env(
+    name: str,
+    cast: Callable[[str], T | None] = to_int,
+    default: T | None = None,
+) -> T | None
+```
+
+Lee una variable de entorno y la convierte con un conversor `to_*`.
+
+**Parámetros**
+
+- `name`: Nombre de la variable de entorno.
+- `cast`: Conversor a aplicar sobre el valor leído (por defecto `to_int`).
+- `default`: Valor a devolver si la variable falta o el conversor falla.
+
+**Devuelve:** El valor convertido, o `default` si la variable no está definida o su valor no es convertible por `cast`.
+
+**Ejemplos**
+
+```pycon
+>>> import os
+>>> from irg_utils import to_str
+>>> os.environ["IRG_PORT"] = "8080"
+>>> get_env("IRG_PORT")
+8080
+>>> get_env("IRG_PORT", cast=to_str)
+'8080'
+>>> get_env("IRG_AUSENTE", default=7)
+7
+>>> del os.environ["IRG_PORT"]
 ```
