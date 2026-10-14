@@ -297,6 +297,18 @@ def test_to_timedelta(raw: float | None, expected: timedelta | None) -> None:
         (None, None),
         ("[" * 100_000, None),
     ],
+    ids=[
+        "object",
+        "bytes",
+        "true",
+        "null",
+        "single-quotes",
+        "nan",
+        "infinity",
+        "empty",
+        "none",
+        "deeply-nested",
+    ],
 )
 def test_to_json(raw: str | bytes | None, expected: object) -> None:
     assert iu.to_json(raw) == expected
