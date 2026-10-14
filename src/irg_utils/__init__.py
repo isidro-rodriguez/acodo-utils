@@ -4,6 +4,28 @@ aplicación — CLI, lógica de negocio, scripts de infraestructura, etc.
 Requiere **Python >= 3.11** y no introduce dependencias.
 
 
+Uso rápido
+----------
+
+Instalación:
+
+```bash
+uv add git+https://github.com/isidro-rodriguez/irg-utils
+```
+
+Uso:
+
+```python
+from irg_utils import get_hash, has_required_attrs, parse_slug, to_bytes, valid_email
+
+get_hash("abc") # ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+has_required_attrs("texto", ["upper", "lower"]) # True
+parse_slug("¡Hola, Mundo! Ñandú") # hola-mundo-nandu
+to_bytes("1,5 GiB") # 1610612736
+valid_email("email_sin_punto@ejemplo-com") # False
+```
+
+
 Convenio de nombrado
 --------------------
 Las funciones se agrupan por categoría: cada categoría empieza por un
@@ -19,7 +41,7 @@ prefijo, y dentro de cada una van en orden alfabético.
 
 
 Errores lanzados
------------
+----------------
 
 Solo se lanza `ValueError` ante argumentos ambiguos o inválidos:
 
@@ -27,19 +49,6 @@ Solo se lanza `ValueError` ante argumentos ambiguos o inválidos:
 - `parse_*` (`lang`),
 - `valid_ip` (`version`)
 - `valid_password`.
-
-
-Uso rápido
-----------
-```python
-from irg_utils import get_hash, has_required_attrs, parse_slug, to_bytes, valid_email
-
-get_hash("abc") # ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
-has_required_attrs("texto", ["upper", "lower"]) # True
-parse_slug("¡Hola, Mundo! Ñandú") # hola-mundo-nandu
-to_bytes("1,5 GiB") # 1610612736
-valid_email("email_sin_punto@ejemplo-com") # False
-```
 
 
 Enlaces de interés
