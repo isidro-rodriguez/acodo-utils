@@ -9,28 +9,23 @@ Convenio de nombrado
 Las funciones se agrupan por categoría: cada categoría empieza por un
 prefijo, y dentro de cada una van en orden alfabético.
 
-| Categoría    | Prefijo   | Utilidades |
-|--------------|-----------|------------|
-| Getters      | `get_*`   | Obtención de un valor, generalmente del entorno o de una credencial/ID aleatoria. |
-| Comprobación | `has_*`   | Comprobación de presencia de una clave, campo o estructura. <br>Siempre devuelve un `bool`. |
-| Parseo       | `parse_*` | Formatea un valor como texto legible (importes, fechas, tamaños...). Devuelve `str`. |
-| Conversión   | `to_*`    | Conversión segura de un valor a otro tipo. Si no puede convertirlo, devuelve `None`. |
-| Validación   | `valid_*` | Validación de formato o de dominio de un valor. <br>Siempre devuelve un `bool`. |
+| Prefijo   | Returns       | Categoría |
+|-----------|---------------|-----------|
+| `get_*`   | `Any`         | Obtenedores de valores del entorno, credencial, ID, ... |
+| `has_*`   | `bool`        | Comprobación de presencia de claves, campos o estructura. |
+| `parse_*` | `str`         | Formateado a texto legible (importes, fechas, tamaños,...). |
+| `to_*`    | `Any \| None` | Conversión de tipo, o `None` si no puede. |
+| `valid_*` | `bool`        | Validación de formato o de dominio de un valor. |
 
-
-Excepciones
+Errores lanzados
 -----------
-**Valores devueltos distintos de los de la tabla:**
 
-- `to_list` devuelve `[]` y `to_dict` devuelve `{}`, en lugar de `None`.
-- `parse_duration` lee un texto y devuelve `timedelta | None`, en lugar de `str`.
+Solo se lanza `ValueError` ante argumentos ambiguos o inválidos:
 
-**Errores lanzados:**
-
-- `to_*` y `valid_*` nunca lanzan por el dato evaluado.
-- Solo se lanza `ValueError` si los argumentos de configuración son
-  inválidos: `get_*` (algoritmo, rango, longitud...), `parse_*` (`lang`),
-  `valid_ip` (`version`) y `valid_password`.
+- `get_*` (algoritmo, rango, longitud...)
+- `parse_*` (`lang`),
+- `valid_ip` (`version`)
+- `valid_password`.
 
 
 Uso rápido
