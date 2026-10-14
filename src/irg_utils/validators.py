@@ -488,6 +488,19 @@ def _allowed_chars(
     return frozenset(string.digits + letters + special_characters)
 
 
+def _check_password_args(
+    length: tuple[int, int],
+    special_characters: str,
+    only_digits: bool,
+) -> None:
+    # Valida los argumentos de configuración compartidos por valid_ y get_.
+    min_length, max_length = length
+    if min_length > max_length:
+        raise ValueError("Rango de longitud incoherente: mínimo mayor que máximo.")
+    if only_digits and special_characters:
+        raise ValueError("Argumentos ambiguos: `only_digits` con `special_characters`.")
+
+
 def valid_password(
     raw: str,
     length: tuple[int, int],
@@ -513,11 +526,8 @@ def valid_password(
     Raises:
         ValueError: Si se han indicado argumentos ambiguos o incoherentes.
     """
+    _check_password_args(length, special_characters, only_digits)
     min_length, max_length = length
-    if min_length > max_length:
-        raise ValueError("Rango de longitud incoherente: mínimo mayor que máximo.")
-    if only_digits and special_characters:
-        raise ValueError("Argumentos ambiguos: `only_digits` con `special_characters`.")
 
     if not min_length <= len(raw) <= max_length:
         return False

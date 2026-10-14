@@ -82,6 +82,7 @@ from irg_utils import to_bool, valid_email
 
 - [`get_env`](#get_env): Lee una variable de entorno y la convierte con un conversor `to_*`.
 - [`get_hash`](#get_hash): Calcula el hash hexadecimal de un texto, bytes o fichero.
+- [`get_random_password`](#get_random_password): Genera una contraseña aleatoria que cumple los criterios de `valid_password`.
 
 ## Conversores
 
@@ -1403,3 +1404,33 @@ como texto o bytes y se codifica en UTF-8.
 >>> get_hash(b"abc", "sha1")
 'a9993e364706816aba3e25717850c26c9cd0d89d'
 ```
+
+### `get_random_password`
+
+```python
+get_random_password(
+    length: tuple[int, int] = (8, 16),
+    special_characters: str = '',
+    allow_uppercase: bool = True,
+    only_digits: bool = False,
+) -> str
+```
+
+Genera una contraseña aleatoria que cumple los criterios de `valid_password`.
+
+Usa `secrets` (CSPRNG), nunca `random`. La longitud se elige al azar
+dentro del rango indicado y cada carácter se toma del mismo conjunto que
+admitiría `valid_password` con esos argumentos.
+
+**Parámetros**
+
+- `length`: Rango (mínimo, máximo) de longitud, ambos inclusive.
+- `special_characters`: Caracteres especiales permitidos.
+- `allow_uppercase`: Mayúsculas permitidas.
+- `only_digits`: Si solo se generan dígitos.
+
+**Devuelve:** La contraseña generada.
+
+**Lanza**
+
+- `ValueError`: Si se han indicado argumentos ambiguos o incoherentes.

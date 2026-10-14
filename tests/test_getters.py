@@ -53,3 +53,35 @@ def test_get_hash_matches_bytes_for_file(tmp_path: pathlib.Path) -> None:
 def test_get_hash_invalid_algorithm() -> None:
     with pytest.raises(ValueError, match="no soportado"):
         iu.get_hash("abc", "algoritmo-inexistente")
+
+
+def test_get_random_password_passes_validation() -> None:
+    from irg_utils import valid_password
+
+    for _ in range(50):
+        password = iu.get_random_password()
+        assert valid_password(password, (8, 16))
+
+
+def test_get_random_password_length_range() -> None:
+    password = iu.get_random_password((12, 12))
+    assert len(password) == 12
+
+
+def test_get_random_password_only_digits() -> None:
+    password = iu.get_random_password((10, 10), only_digits=True)
+    assert password.isdigit()
+
+
+def test_get_random_password_special_and_no_upper() -> None:
+    password = iu.get_random_password(
+        (20, 20), special_characters="#@", allow_uppercase=False
+    )
+    assert set(password) <= set("abcdefghijklmnñopqrstuvwxyz0123456789#@")
+
+
+def test_get_random_password_invalid_args() -> None:
+    with pytest.raises(ValueError, match="incoherente"):
+        iu.get_random_password((10, 4))
+    with pytest.raises(ValueError, match="ambiguos"):
+        iu.get_random_password(only_digits=True, special_characters="#")

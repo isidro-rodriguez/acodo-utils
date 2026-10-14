@@ -103,3 +103,39 @@ def get_hash(
     data = raw.encode() if isinstance(raw, str) else raw
     digest.update(data)
     return digest.hexdigest()
+
+
+def get_random_password(
+    length: tuple[int, int] = (8, 16),
+    special_characters: str = "",
+    allow_uppercase: bool = True,
+    only_digits: bool = False,
+) -> str:
+    """Genera una contraseña aleatoria que cumple los criterios de `valid_password`.
+
+    Usa `secrets` (CSPRNG), nunca `random`. La longitud se elige al azar
+    dentro del rango indicado y cada carácter se toma del mismo conjunto que
+    admitiría `valid_password` con esos argumentos.
+
+    Args:
+        length: Rango (mínimo, máximo) de longitud, ambos inclusive.
+        special_characters: Caracteres especiales permitidos.
+        allow_uppercase: Mayúsculas permitidas.
+        only_digits: Si solo se generan dígitos.
+
+    Returns:
+        La contraseña generada.
+
+    Raises:
+        ValueError: Si se han indicado argumentos ambiguos o incoherentes.
+    """
+    from .validators import _allowed_chars, _check_password_args
+
+    _check_password_args(length, special_characters, only_digits)
+    alphabet = sorted(_allowed_chars(special_characters, allow_uppercase, only_digits))
+
+    import secrets  # Import perezoso.
+
+    min_length, max_length = length
+    size = secrets.randbelow(max_length - min_length + 1) + min_length
+    return "".join(secrets.choice(alphabet) for _ in range(size))
