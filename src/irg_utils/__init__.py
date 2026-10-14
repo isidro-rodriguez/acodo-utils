@@ -19,7 +19,7 @@ prefijo, y dentro de cada una van en orden alfabético.
 
 
 Errores lanzados
------------
+----------------
 
 Solo se lanza `ValueError` ante argumentos ambiguos o inválidos:
 
