@@ -185,6 +185,55 @@ def get_otp(digits: int = 6) -> str:
     return str(secrets.randbelow(10**digits)).zfill(digits)
 
 
+def get_password_hash(
+    password: str | bytes,
+    salt: str | bytes,
+    *,
+    algorithm: str = "sha256",
+    iterations: int = 600_000,
+) -> str:
+    """Deriva un hash de contraseña con PBKDF2 (`hashlib`).
+
+    Pensado para almacenar contraseñas de forma segura, no para generarlas
+    (usa `get_random_password` para eso). Es determinista: mismos `password`,
+    `salt`, `algorithm` e `iterations` producen el mismo resultado, útil para
+    verificar.
+
+    Args:
+        password: Contraseña a derivar (texto o bytes).
+        salt: Sal (texto o bytes); debe ser única por contraseña.
+        algorithm: Algoritmo HMAC de `hashlib` (por ejemplo `sha256`, `sha1`).
+        iterations: Número de iteraciones (mayor = más lento y seguro).
+
+    Returns:
+        El hash derivado en formato hexadecimal.
+
+    Raises:
+        ValueError: Si el algoritmo no está soportado o `iterations` < 1.
+    """
+    import hashlib
+
+    if (
+        not isinstance(iterations, int)
+        or isinstance(iterations, bool)
+        or iterations < 1
+    ):
+        raise ValueError("`iterations` debe ser un entero positivo.")
+
+    password_bytes = password.encode() if isinstance(password, str) else password
+    salt_bytes = salt.encode() if isinstance(salt, str) else salt
+
+    try:
+        return hashlib.pbkdf2_hmac(
+            algorithm,
+            password_bytes,
+            salt_bytes,
+            iterations,
+        ).hex()
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"Algoritmo de hash no soportado: {algorithm!r}.") from exc
+
+
 def get_random_password(
     length: tuple[int, int] = (8, 16),
     special_characters: str = "",

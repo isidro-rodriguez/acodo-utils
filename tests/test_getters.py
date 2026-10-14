@@ -105,6 +105,32 @@ def test_get_otp_invalid_digits() -> None:
         iu.get_otp(True)
 
 
+def test_get_password_hash_deterministic() -> None:
+    first = iu.get_password_hash("secreto", "sal", iterations=1000)
+    second = iu.get_password_hash("secreto", "sal", iterations=1000)
+    assert first == second
+    assert len(first) == 64  # SHA-256 -> 32 bytes -> 64 hex.
+
+
+def test_get_password_hash_str_and_bytes_equivalent() -> None:
+    assert iu.get_password_hash("sec", "sal", iterations=10) == iu.get_password_hash(
+        b"sec", b"sal", iterations=10
+    )
+
+
+def test_get_password_hash_depends_on_salt() -> None:
+    assert iu.get_password_hash("sec", "sal-a", iterations=10) != iu.get_password_hash(
+        "sec", "sal-b", iterations=10
+    )
+
+
+def test_get_password_hash_invalid_args() -> None:
+    with pytest.raises(ValueError, match="iterations"):
+        iu.get_password_hash("sec", "sal", iterations=0)
+    with pytest.raises(ValueError, match="no soportado"):
+        iu.get_password_hash("sec", "sal", algorithm="algoritmo-inexistente")
+
+
 def test_get_random_password_passes_validation() -> None:
     from irg_utils import valid_password
 

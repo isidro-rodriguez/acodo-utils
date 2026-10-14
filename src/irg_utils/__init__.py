@@ -32,6 +32,7 @@ from .getters import (
     get_hmac,
     get_now,
     get_otp,
+    get_password_hash,
     get_random_password,
     get_random_token,
 )
@@ -76,6 +77,7 @@ __all__ = [
     "get_hmac",
     "get_now",
     "get_otp",
+    "get_password_hash",
     "get_random_password",
     "get_random_token",
     "has_required_attrs",

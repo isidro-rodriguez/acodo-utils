@@ -85,6 +85,7 @@ from irg_utils import to_bool, valid_email
 - [`get_hmac`](#get_hmac): Calcula el HMAC hexadecimal de un mensaje con una clave secreta.
 - [`get_now`](#get_now): Devuelve la fecha y hora actual en UTC, con zona horaria.
 - [`get_otp`](#get_otp): Genera un código numérico de un solo uso (OTP) con `secrets`.
+- [`get_password_hash`](#get_password_hash): Deriva un hash de contraseña con PBKDF2 (`hashlib`).
 - [`get_random_password`](#get_random_password): Genera una contraseña aleatoria que cumple los criterios de `valid_password`.
 - [`get_random_token`](#get_random_token): Genera un token aleatorio criptográficamente seguro con `secrets`.
 
@@ -1489,6 +1490,32 @@ True
 >>> len(get_otp(8))
 8
 ```
+
+### `get_password_hash`
+
+```python
+get_password_hash(password: str | bytes, salt: str | bytes) -> str
+```
+
+Deriva un hash de contraseña con PBKDF2 (`hashlib`).
+
+Pensado para almacenar contraseñas de forma segura, no para generarlas
+(usa `get_random_password` para eso). Es determinista: mismos `password`,
+`salt`, `algorithm` e `iterations` producen el mismo resultado, útil para
+verificar.
+
+**Parámetros**
+
+- `password`: Contraseña a derivar (texto o bytes).
+- `salt`: Sal (texto o bytes); debe ser única por contraseña.
+- `algorithm`: Algoritmo HMAC de `hashlib` (por ejemplo `sha256`, `sha1`).
+- `iterations`: Número de iteraciones (mayor = más lento y seguro).
+
+**Devuelve:** El hash derivado en formato hexadecimal.
+
+**Lanza**
+
+- `ValueError`: Si el algoritmo no está soportado o `iterations` < 1.
 
 ### `get_random_password`
 
