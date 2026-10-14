@@ -29,6 +29,7 @@ from .converters import (
 from .getters import (
     get_env,
     get_hash,
+    get_hmac,
     get_random_password,
     get_random_token,
 )
@@ -70,6 +71,7 @@ from .validators import (
 __all__ = [
     "get_env",
     "get_hash",
+    "get_hmac",
     "get_random_password",
     "get_random_token",
     "has_required_attrs",

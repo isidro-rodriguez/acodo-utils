@@ -55,6 +55,26 @@ def test_get_hash_invalid_algorithm() -> None:
         iu.get_hash("abc", "algoritmo-inexistente")
 
 
+def test_get_hmac_known_vector() -> None:
+    # Vector de prueba RFC 4231 (caso 2).
+    assert iu.get_hmac("Jefe", "what do ya want for nothing?") == (
+        "5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843"
+    )
+
+
+def test_get_hmac_str_and_bytes_equivalent() -> None:
+    assert iu.get_hmac("clave", "mensaje") == iu.get_hmac(b"clave", b"mensaje")
+
+
+def test_get_hmac_depends_on_key() -> None:
+    assert iu.get_hmac("clave-a", "mensaje") != iu.get_hmac("clave-b", "mensaje")
+
+
+def test_get_hmac_invalid_algorithm() -> None:
+    with pytest.raises(ValueError, match="no soportado"):
+        iu.get_hmac("clave", "mensaje", "algoritmo-inexistente")
+
+
 def test_get_random_password_passes_validation() -> None:
     from irg_utils import valid_password
 

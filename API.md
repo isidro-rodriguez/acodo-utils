@@ -82,6 +82,7 @@ from irg_utils import to_bool, valid_email
 
 - [`get_env`](#get_env): Lee una variable de entorno y la convierte con un conversor `to_*`.
 - [`get_hash`](#get_hash): Calcula el hash hexadecimal de un texto, bytes o fichero.
+- [`get_hmac`](#get_hmac): Calcula el HMAC hexadecimal de un mensaje con una clave secreta.
 - [`get_random_password`](#get_random_password): Genera una contraseña aleatoria que cumple los criterios de `valid_password`.
 - [`get_random_token`](#get_random_token): Genera un token aleatorio criptográficamente seguro con `secrets`.
 
@@ -1404,6 +1405,42 @@ como texto o bytes y se codifica en UTF-8.
 'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'
 >>> get_hash(b"abc", "sha1")
 'a9993e364706816aba3e25717850c26c9cd0d89d'
+```
+
+### `get_hmac`
+
+```python
+get_hmac(
+    key: str | bytes,
+    message: str | bytes,
+    algorithm: str = 'sha256',
+) -> str
+```
+
+Calcula el HMAC hexadecimal de un mensaje con una clave secreta.
+
+A diferencia de `get_hash`, usa una clave, lo que permite verificar la
+integridad y autenticidad de un mensaje, no solo su huella.
+
+**Parámetros**
+
+- `key`: Clave secreta (texto o bytes).
+- `message`: Mensaje a autenticar (texto o bytes).
+- `algorithm`: Algoritmo de `hashlib` (por ejemplo `sha256`, `sha1`).
+
+**Devuelve:** El HMAC en formato hexadecimal.
+
+**Lanza**
+
+- `ValueError`: Si el algoritmo no está soportado por `hashlib`.
+
+**Ejemplos**
+
+```pycon
+>>> get_hmac("clave", "mensaje", "sha1")
+'25dff5fc3efc225e6d8a520e32dec1c8f671b86f'
+>>> get_hmac("Jefe", "what do ya want for nothing?")
+'5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843'
 ```
 
 ### `get_random_password`

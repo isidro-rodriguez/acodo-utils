@@ -105,6 +105,42 @@ def get_hash(
     return digest.hexdigest()
 
 
+def get_hmac(key: str | bytes, message: str | bytes, algorithm: str = "sha256") -> str:
+    """Calcula el HMAC hexadecimal de un mensaje con una clave secreta.
+
+    A diferencia de `get_hash`, usa una clave, lo que permite verificar la
+    integridad y autenticidad de un mensaje, no solo su huella.
+
+    Args:
+        key: Clave secreta (texto o bytes).
+        message: Mensaje a autenticar (texto o bytes).
+        algorithm: Algoritmo de `hashlib` (por ejemplo `sha256`, `sha1`).
+
+    Returns:
+        El HMAC en formato hexadecimal.
+
+    Raises:
+        ValueError: Si el algoritmo no está soportado por `hashlib`.
+
+    Examples:
+        >>> get_hmac("clave", "mensaje", "sha1")
+        '25dff5fc3efc225e6d8a520e32dec1c8f671b86f'
+        >>> get_hmac("Jefe", "what do ya want for nothing?")
+        '5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843'
+    """
+    import hashlib
+    import hmac
+
+    try:
+        hashlib.new(algorithm)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"Algoritmo de hash no soportado: {algorithm!r}.") from exc
+
+    key_bytes = key.encode() if isinstance(key, str) else key
+    message_bytes = message.encode() if isinstance(message, str) else message
+    return hmac.new(key_bytes, message_bytes, algorithm).hexdigest()
+
+
 def get_random_password(
     length: tuple[int, int] = (8, 16),
     special_characters: str = "",
