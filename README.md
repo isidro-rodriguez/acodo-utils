@@ -4,11 +4,7 @@ Utilidades de uso compartido entre proyectos. Python >= 3.11, sin dependencias.
 
 ## Instalación
 
-```bash
-uv add git+https://github.com/isidro-rodriguez/irg-utils
-```
-
-Para actualizar a una versión nueva:
+Para instalar o actualizar el paquete.
 
 ```bash
 uv add git+https://github.com/isidro-rodriguez/irg-utils
@@ -23,20 +19,31 @@ to_bool("sí")  # True
 valid_email("hola")  # False
 ```
 
-Documentación web: https://isidro-rodriguez.github.io/irg-utils/
+[API web](https://isidro-rodriguez.github.io/irg-utils/)
 
 ## Desarrollo
 
 ```bash
+# Actualización ante cambios de versión.
 uv sync
-uv run pre-commit install # instala los hooks en .git (una vez por clon)
+
+# Comprobación de calidad (formatos, tipos y testeo)
 uv run ruff format
 uv run ruff check
 uv run ty check
-uv run pytest # cobertura exigida: 100 %
-uv run py scripts/gen_api.py # regenera API.md tras cambiar docstrings
-uv run py scripts/gh_token.py # obtiene un token de Github App
-uv run pre-commit run --all-files # verificación manual de todos los hooks
+uv run pytest
+
+# Instalación de los hooks en .git
+uv run pre-commit install
+
+# Verificación manual de todos los hooks
+uv run pre-commit run --all-files
+
+# Generador de tokens para commits de agente
+uv run py scripts/gh_token.py
+
+# Consulta offline de la API en <http://localhost:8080>
+uv run pdoc .\src\irg_utils\ -d google 
 ```
 
 ## Licencia

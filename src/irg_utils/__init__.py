@@ -6,7 +6,7 @@ Requiere **Python >= 3.11** y no introduce dependencias.
 Uso rápido
 ----------
 
-Instalación:
+Para instalar o actualizar el paquete:
 
 ```bash
 uv add git+https://github.com/isidro-rodriguez/irg-utils
