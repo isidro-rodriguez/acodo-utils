@@ -84,6 +84,7 @@ from irg_utils import to_bool, valid_email
 - [`get_hash`](#get_hash): Calcula el hash hexadecimal de un texto, bytes o fichero.
 - [`get_hmac`](#get_hmac): Calcula el HMAC hexadecimal de un mensaje con una clave secreta.
 - [`get_now`](#get_now): Devuelve la fecha y hora actual en UTC, con zona horaria.
+- [`get_otp`](#get_otp): Genera un código numérico de un solo uso (OTP) con `secrets`.
 - [`get_random_password`](#get_random_password): Genera una contraseña aleatoria que cumple los criterios de `valid_password`.
 - [`get_random_token`](#get_random_token): Genera un token aleatorio criptográficamente seguro con `secrets`.
 
@@ -1459,6 +1460,34 @@ Devuelve la fecha y hora actual en UTC, con zona horaria.
 ```pycon
 >>> get_now().tzinfo is not None
 True
+```
+
+### `get_otp`
+
+```python
+get_otp(digits: int = 6) -> str
+```
+
+Genera un código numérico de un solo uso (OTP) con `secrets`.
+
+**Parámetros**
+
+- `digits`: Cantidad de dígitos del código (por defecto 6).
+
+**Devuelve:** El código, como cadena de `digits` dígitos (con ceros a la izquierda si es necesario).
+
+**Lanza**
+
+- `ValueError`: Si `digits` es menor que 1.
+
+**Ejemplos**
+
+```pycon
+>>> import re
+>>> re.fullmatch(r"[0-9]{6}", get_otp()) is not None
+True
+>>> len(get_otp(8))
+8
 ```
 
 ### `get_random_password`

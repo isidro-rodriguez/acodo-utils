@@ -92,6 +92,19 @@ def test_get_now_within_call_window() -> None:
     assert before <= now <= after
 
 
+def test_get_otp_format() -> None:
+    assert len(iu.get_otp()) == 6
+    assert iu.get_otp().isdigit()
+    assert len(iu.get_otp(8)) == 8
+
+
+def test_get_otp_invalid_digits() -> None:
+    with pytest.raises(ValueError, match="digits"):
+        iu.get_otp(0)
+    with pytest.raises(ValueError, match="digits"):
+        iu.get_otp(True)
+
+
 def test_get_random_password_passes_validation() -> None:
     from irg_utils import valid_password
 

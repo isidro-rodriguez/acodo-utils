@@ -157,6 +157,34 @@ def get_now() -> datetime:
     return datetime.now(UTC)
 
 
+def get_otp(digits: int = 6) -> str:
+    """Genera un código numérico de un solo uso (OTP) con `secrets`.
+
+    Args:
+        digits: Cantidad de dígitos del código (por defecto 6).
+
+    Returns:
+        El código, como cadena de `digits` dígitos (con ceros a la izquierda
+        si es necesario).
+
+    Raises:
+        ValueError: Si `digits` es menor que 1.
+
+    Examples:
+        >>> import re
+        >>> re.fullmatch(r"[0-9]{6}", get_otp()) is not None
+        True
+        >>> len(get_otp(8))
+        8
+    """
+    import secrets  # Import perezoso.
+
+    if not isinstance(digits, int) or isinstance(digits, bool) or digits < 1:
+        raise ValueError("`digits` debe ser un entero positivo.")
+
+    return str(secrets.randbelow(10**digits)).zfill(digits)
+
+
 def get_random_password(
     length: tuple[int, int] = (8, 16),
     special_characters: str = "",
