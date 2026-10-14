@@ -15,14 +15,18 @@ def test_all_is_sorted_and_complete() -> None:
 
 
 def test_public_functions_are_alphabetical_per_prefix() -> None:
-    public = [
-        node.name
-        for module in MODULES
-        for node in ast.parse(
-            pathlib.Path(str(module.__file__)).read_text(encoding="utf-8")
-        ).body
-        if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
-    ]
+    # `dict.fromkeys` elimina duplicados conservando el orden: las sobrecargas
+    # (`@overload`) repiten el nombre de la función.
+    public = list(
+        dict.fromkeys(
+            node.name
+            for module in MODULES
+            for node in ast.parse(
+                pathlib.Path(str(module.__file__)).read_text(encoding="utf-8")
+            ).body
+            if isinstance(node, ast.FunctionDef) and not node.name.startswith("_")
+        )
+    )
     assert sorted(public) == sorted(iu.__all__)
     for prefix in ("to_", "has_", "parse_", "valid_", "get_"):
         names = [name for name in public if name.startswith(prefix)]

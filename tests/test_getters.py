@@ -1,6 +1,7 @@
 """Tests de los getters (`get_*`)."""
 
 import pathlib
+from typing import assert_type
 
 import pytest
 
@@ -35,6 +36,40 @@ def test_get_env_unconvertible_returns_default(monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.setenv("IRG_PORT", "no-es-numero")
     assert iu.get_env("IRG_PORT", cast=to_int, default=-1) == -1
     assert iu.get_env("IRG_PORT", cast=to_bool, default=False) is False
+
+
+def test_get_env_required_returns_value(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("IRG_PORT", "8080")
+    assert iu.get_env("IRG_PORT", required=True) == "8080"
+    assert iu.get_env("IRG_PORT", to_int, required=True) == 8080
+
+
+@pytest.mark.parametrize("value", [None, "", "   ", "no-es-numero"])
+def test_get_env_required_fails_when_missing_or_invalid(
+    monkeypatch: pytest.MonkeyPatch, value: str | None
+) -> None:
+    if value is None:
+        monkeypatch.delenv("IRG_PORT", raising=False)
+    else:
+        monkeypatch.setenv("IRG_PORT", value)
+    with pytest.raises(ValueError, match="IRG_PORT"):
+        iu.get_env("IRG_PORT", to_int, required=True)
+
+
+def test_get_env_required_and_default_are_incompatible() -> None:
+    with pytest.raises(ValueError, match="incompatibles"):
+        iu.get_env("IRG_PORT", to_int, 1, required=True)  # ty: ignore[no-matching-overload]
+
+
+def test_get_env_return_types(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Comprobación estática de las sobrecargas (`ty` falla si no coinciden).
+    monkeypatch.setenv("IRG_PORT", "8080")
+    assert_type(iu.get_env("IRG_PORT"), str | None)
+    assert_type(iu.get_env("IRG_PORT", default="x"), str)
+    assert_type(iu.get_env("IRG_PORT", required=True), str)
+    assert_type(iu.get_env("IRG_PORT", to_int), int | None)
+    assert_type(iu.get_env("IRG_PORT", to_int, 1), int)
+    assert_type(iu.get_env("IRG_PORT", to_int, required=True), int)
 
 
 def test_get_hash_text() -> None:

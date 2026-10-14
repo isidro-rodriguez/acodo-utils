@@ -14,7 +14,7 @@ import os
 import secrets
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, overload
 from uuid import uuid4
 
 from .converters import to_str
@@ -28,21 +28,61 @@ if TYPE_CHECKING:
 T = TypeVar("T")
 
 
+@overload
+def get_env(name: str, *, required: Literal[True]) -> str: ...
+@overload
+def get_env(name: str, *, default: str) -> str: ...
+@overload
 def get_env(
     name: str,
-    cast: Callable[[str], T | None] = to_str,  # ty: ignore[invalid-parameter-default]
-    default: T | None = None,
-) -> T | None:
+    *,
+    default: None = None,
+    required: Literal[False] = False,
+) -> str | None: ...
+@overload
+def get_env(
+    name: str,
+    cast: Callable[[str], T | None],
+    *,
+    required: Literal[True],
+) -> T: ...
+@overload
+def get_env(name: str, cast: Callable[[str], T | None], default: T) -> T: ...
+@overload
+def get_env(
+    name: str,
+    cast: Callable[[str], T | None],
+    default: None = None,
+    *,
+    required: Literal[False] = False,
+) -> T | None: ...
+def get_env(
+    name: str,
+    cast: Callable[[str], Any] = to_str,
+    default: Any = None,
+    *,
+    required: bool = False,
+) -> Any:
     """Lee una variable de entorno y la convierte con un conversor `to_*`.
+
+    El tipo devuelto depende de los argumentos: con `default` o
+    `required=True` es el del conversor (sin `None`); en otro caso, el del
+    conversor o `None`.
 
     Args:
         name: Nombre de la variable de entorno.
         cast: Conversor a aplicar sobre el valor leído (por defecto `to_str`).
         default: Valor a devolver si la variable falta o el conversor falla.
+        required: Si es `True`, lanza `ValueError` en lugar de devolver
+            `None` cuando la variable falta o no es convertible.
 
     Returns:
         El valor convertido, o `default` si la variable no está definida o su
         valor no es convertible por `cast`.
+
+    Raises:
+        ValueError: Si `required` es `True` y la variable falta o no es
+            convertible, o si se indican a la vez `required` y `default`.
 
     Examples:
         >>> import os
@@ -54,13 +94,25 @@ def get_env(
         8080
         >>> get_env("IRG_AUSENTE", default="x")
         'x'
+        >>> get_env("IRG_AUSENTE", to_int, 3000)
+        3000
+        >>> get_env("IRG_PORT", to_int, required=True)
+        8080
+        >>> get_env("IRG_AUSENTE", required=True)
+        Traceback (most recent call last):
+            ...
+        ValueError: La variable de entorno 'IRG_AUSENTE' falta o no es válida.
         >>> del os.environ["IRG_PORT"]
     """
+    if required and default is not None:
+        raise ValueError("`required` y `default` son incompatibles.")
     raw = os.environ.get(name)
-    if raw is None:
-        return default
-    value = cast(raw)
-    return default if value is None else value
+    value = None if raw is None else cast(raw)
+    if value is not None:
+        return value
+    if required:
+        raise ValueError(f"La variable de entorno {name!r} falta o no es válida.")
+    return default
 
 
 def get_file_hash(
