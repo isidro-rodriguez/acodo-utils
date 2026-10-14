@@ -17,6 +17,7 @@ prefijo, y dentro de cada una van en orden alfabético.
 | `to_*`    | `Any \| None` | Conversión de tipo, o `None` si no puede. |
 | `valid_*` | `bool`        | Validación de formato o de dominio de un valor. |
 
+
 Errores lanzados
 -----------
 
