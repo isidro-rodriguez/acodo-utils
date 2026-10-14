@@ -346,9 +346,6 @@ wheels = [
 name = "irg-utils"
 version = "1.12.0"
 source = { editable = "." }
-dependencies = [
-    { name = "pdoc" },
-]
 
 [package.dev-dependencies]
 dev = [
@@ -362,7 +359,6 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "pdoc", specifier = ">=16.0.0" }]
 
 [package.metadata.requires-dev]
 dev = [
