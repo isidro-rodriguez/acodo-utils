@@ -16,7 +16,7 @@ SOURCES = (
     ROOT / "src" / "irg_utils" / "converters.py",
     ROOT / "src" / "irg_utils" / "checkers.py",
     ROOT / "src" / "irg_utils" / "parsers.py",
-    ROOT / "src" / "irg_utils" / "validation.py",
+    ROOT / "src" / "irg_utils" / "validators.py",
 )
 TARGET = ROOT / "API.md"
 

@@ -36,7 +36,7 @@ from .parsers import (
     parse_slug,
     parse_timedelta,
 )
-from .validation import (
+from .validators import (
     valid_bic,
     valid_bool,
     valid_date,

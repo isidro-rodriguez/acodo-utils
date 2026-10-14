@@ -4,9 +4,9 @@ import ast
 import pathlib
 
 import irg_utils as iu
-from irg_utils import checkers, converters, parsers, validation
+from irg_utils import checkers, converters, parsers, validators
 
-MODULES = (converters, checkers, parsers, validation)
+MODULES = (converters, checkers, parsers, validators)
 
 
 def test_all_is_sorted_and_complete() -> None:
