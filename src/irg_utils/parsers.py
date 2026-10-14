@@ -1,7 +1,6 @@
 """Parsers: transforman valores a strings legibles.
 
-Las funciones `parse_*` devuelven `str`, salvo `parse_duration`, que
-devuelve `timedelta | None`.
+Las funciones `parse_*` siempre devuelven `str`.
 """
 
 from __future__ import annotations
@@ -10,8 +9,6 @@ import re
 import unicodedata
 from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING
-
-from .converters import to_timedelta
 
 if TYPE_CHECKING:
     from fractions import Fraction
@@ -27,10 +24,6 @@ _SWAP_SEPARATORS = str.maketrans(",.", ".,")
 _ENGLISH_CODES = frozenset({"en", "eng"})
 
 _SIZE_UNITS = ("KiB", "MiB", "GiB", "TiB", "PiB")
-
-_DURATION_PATTERN = r"(\d+(?:[.,]\d+)?)\s*(d|h|min|m|s)"
-
-_DURATION_UNITS = {"d": 86400, "h": 3600, "min": 60, "m": 60, "s": 1}
 
 
 # =============================================================================
@@ -154,40 +147,6 @@ def parse_datetime(raw: date | datetime, lang: str | None = None) -> str:
     if isinstance(raw, datetime) and (raw.hour or raw.minute or raw.second):
         text += raw.strftime(" %H:%M:%S" if raw.second else " %H:%M")
     return text
-
-
-def parse_duration(raw: str) -> timedelta | None:
-    """Parsea un texto de duración (`"1h 30m"`) a timedelta.
-
-    Es el camino inverso a `parse_timedelta`, y la única función de esta
-    sección que devuelve un valor en lugar de un texto. Unidades admitidas:
-    `d`, `h`, `min`/`m` y `s`; admite decimales (`"1,5h"`).
-
-    Args:
-        raw: Texto a parsear.
-
-    Returns:
-        La duración, o `None` si el texto no es válido.
-
-    Examples:
-        >>> parse_duration("1h 30m")
-        datetime.timedelta(seconds=5400)
-        >>> parse_duration("2d")
-        datetime.timedelta(days=2)
-        >>> parse_duration("1h30x") is None
-        True
-    """
-    text = raw.strip().casefold()
-
-    tokens = re.findall(_DURATION_PATTERN, text)
-    if not tokens or re.sub(_DURATION_PATTERN, "", text).strip():
-        return None
-
-    total = sum(
-        float(number.replace(",", ".")) * _DURATION_UNITS[unit]
-        for number, unit in tokens
-    )
-    return to_timedelta(total)
 
 
 def parse_percent(

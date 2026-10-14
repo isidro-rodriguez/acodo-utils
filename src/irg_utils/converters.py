@@ -1,8 +1,7 @@
 """Conversores: transforman valores en otros tipos.
 
-Las funciones `to_*` nunca lanzan excepciones por valores inválidos y
-casi todas devuelven `None` en ese caso. Las excepciones son `to_list` y
-`to_dict`, que devuelven `[]` y `{}` respectivamente.
+Las funciones `to_*` nunca lanzan excepciones por valores inválidos: si no
+pueden convertir el valor, devuelven `None`.
 """
 
 from __future__ import annotations
@@ -20,6 +19,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from os import PathLike
     from typing import Any, NoReturn
 
@@ -52,6 +52,10 @@ _BYTE_UNITS = {
 _MAX_TIMESTAMP = 4_133_980_799  # 2100-12-31T23:59:59Z
 
 _MAX_TIMEDELTA_SECONDS = 1e12
+
+_DURATION_RE = re.compile(r"(\d+(?:[.,]\d+)?)\s*(d|h|min|m|s)")
+
+_DURATION_UNITS = {"d": 86400, "h": 3600, "min": 60, "m": 60, "s": 1}
 
 # Los nombres de mes/día (%a %b %B) dependen del locale activo.
 _NAMED_MONTH_FORMATS = (
@@ -272,26 +276,28 @@ def to_decimal(raw: str | float | None) -> Decimal | None:
     return value if value.is_finite() else None
 
 
-def to_dict(raw: object) -> dict[Any, Any]:
+def to_dict(raw: object) -> dict[Any, Any] | None:
     """Convierte un valor a dict, convirtiendo también los anidados.
 
-    `None` produce `{}`. Se aceptan mappings, dataclasses y pares
-    `("k", v)`; los valores anidados que sean mappings o dataclasses se
-    convierten recursivamente. Cualquier otro valor produce `{}`.
+    Se aceptan mappings, dataclasses y pares `("k", v)`; los valores
+    anidados que sean mappings o dataclasses se convierten recursivamente.
 
     Args:
         raw: Valor a convertir.
 
     Returns:
-        El dict resultante; `{}` si el valor no es convertible.
+        El dict resultante; `None` si el valor no es convertible o el
+        resultado está vacío.
 
     Examples:
         >>> to_dict({"a": 1})
         {'a': 1}
         >>> to_dict([("a", 1), ("b", 2)])
         {'a': 1, 'b': 2}
-        >>> to_dict(None)
-        {}
+        >>> to_dict(None) is None
+        True
+        >>> to_dict({}) is None
+        True
     """
 
     def _convert(value: object) -> object:
@@ -301,18 +307,18 @@ def to_dict(raw: object) -> dict[Any, Any]:
             return {key: _convert(item) for key, item in value.items()}
         return value
 
-    if raw is None:
-        return {}
     if is_dataclass(raw) and not isinstance(raw, type):
-        return asdict(raw)
-    if isinstance(raw, Mapping):
-        return {key: _convert(value) for key, value in raw.items()}
-    if isinstance(raw, Iterable):
+        result = asdict(raw)
+    elif isinstance(raw, Mapping):
+        result = {key: _convert(value) for key, value in raw.items()}
+    elif isinstance(raw, Iterable):
         try:
-            return {key: _convert(value) for key, value in raw}
+            result = {key: _convert(value) for key, value in raw}
         except (TypeError, ValueError):
-            return {}
-    return {}
+            return None
+    else:
+        return None
+    return result or None
 
 
 def to_float(raw: str | float | None) -> float | None:
@@ -406,31 +412,40 @@ def to_json(raw: str | bytes | None) -> Any | None:
         return None
 
 
-def to_list(raw: object) -> list[Any]:
+def _flatten(raw: object) -> Iterator[Any]:
+    # Aplana iterables anidados; `None` no aporta elementos.
+    if raw is None:
+        return
+    if isinstance(raw, (str, bytes)) or not isinstance(raw, Iterable):
+        yield raw
+        return
+    for value in raw:
+        yield from _flatten(value)
+
+
+def to_list(raw: object) -> list[Any] | None:
     """Convierte un valor a lista, aplanando las anidadas.
 
-    `None` produce `[]`; un escalar (o un `str`/`bytes`) produce una lista
-    de un elemento; un iterable se aplanan recursivamente.
+    Un escalar (o un `str`/`bytes`) produce una lista de un elemento; un
+    iterable se aplana recursivamente y se ignoran los `None`.
 
     Args:
         raw: Valor a convertir.
 
     Returns:
-        La lista aplanada.
+        La lista aplanada; `None` si el resultado está vacío.
 
     Examples:
         >>> to_list([1, [2, 3]])
         [1, 2, 3]
         >>> to_list("abc")
         ['abc']
-        >>> to_list(None)
-        []
+        >>> to_list(None) is None
+        True
+        >>> to_list([]) is None
+        True
     """
-    if raw is None:
-        return []
-    if isinstance(raw, (str, bytes)) or not isinstance(raw, Iterable):
-        return [raw]
-    return [item for value in raw for item in to_list(value)]
+    return list(_flatten(raw)) or None
 
 
 def to_path(raw: str | PathLike[str] | None) -> Path | None:
@@ -501,19 +516,43 @@ def to_str(raw: object) -> str | None:
     return raw if isinstance(raw, str) and raw.strip() else None
 
 
-def to_timedelta(raw: float | None) -> timedelta | None:
-    """Convierte una cantidad numérica de segundos a timedelta.
+def to_timedelta(raw: str | float | None) -> timedelta | None:
+    """Convierte segundos o un texto de duración a timedelta.
+
+    Con un `str` se interpreta una duración con unidades: `d`, `h`,
+    `min`/`m` y `s`, con decimales y separadas por espacios opcionales
+    (`"1h 30m"`, `"1,5h"`). Un texto sin unidades (`"90"`) no es válido.
 
     Args:
-        raw: Cantidad de segundos a convertir.
+        raw: Cantidad de segundos, o texto de duración.
 
     Returns:
-        La duración, o `None` si el valor falta, no es finito o es desmesurado.
+        La duración, o `None` si el valor falta, no es válido, no es finito
+        o es desmesurado.
 
     Examples:
         >>> to_timedelta(90)
         datetime.timedelta(seconds=90)
+        >>> to_timedelta("1h 30m")
+        datetime.timedelta(seconds=5400)
+        >>> to_timedelta("1h30x") is None
+        True
     """
-    if raw is None or not math.isfinite(raw) or abs(raw) > _MAX_TIMEDELTA_SECONDS:
+    if isinstance(raw, str):
+        text = raw.strip().casefold()
+        tokens = _DURATION_RE.findall(text)
+        if not tokens or _DURATION_RE.sub("", text).strip():
+            return None
+        seconds = sum(
+            float(number.replace(",", ".")) * _DURATION_UNITS[unit]
+            for number, unit in tokens
+        )
+    else:
+        seconds = raw
+    if (
+        seconds is None
+        or not math.isfinite(seconds)
+        or abs(seconds) > _MAX_TIMEDELTA_SECONDS
+    ):
         return None
-    return timedelta(seconds=raw)
+    return timedelta(seconds=seconds)

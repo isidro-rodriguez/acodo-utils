@@ -68,26 +68,6 @@ def test_parse_datetime(raw: date, lang: str | None, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ("raw", "expected"),
-    [
-        ("1h 30m", timedelta(hours=1, minutes=30)),
-        ("1 min 30 s", timedelta(seconds=90)),
-        ("2d", timedelta(days=2)),
-        ("45s", timedelta(seconds=45)),
-        ("1,5h", timedelta(minutes=90)),
-        (" 1H ", timedelta(hours=1)),
-        ("1h30x", None),
-        ("1m30", None),
-        ("5", None),
-        ("", None),
-        ("99999999999999d", None),
-    ],
-)
-def test_parse_duration(raw: str, expected: timedelta | None) -> None:
-    assert iu.parse_duration(raw) == expected
-
-
-@pytest.mark.parametrize(
     ("raw", "lang", "decimals", "expected"),
     [
         (0.256, None, 1, "25,6 %"),

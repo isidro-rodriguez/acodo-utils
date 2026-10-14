@@ -18,8 +18,8 @@ from .converters import (
     to_date,
     to_datetime,
     to_port,
+    to_timedelta,
 )
-from .parsers import parse_duration
 
 # =============================================================================
 #  Constantes
@@ -249,7 +249,7 @@ def valid_domain(raw: str) -> bool:
 
 
 def valid_duration(raw: str) -> bool:
-    """Comprueba si el string es aceptado por `parse_duration`.
+    """Comprueba si el string es aceptado por `to_timedelta`.
 
     Args:
         raw: String a validar.
@@ -263,7 +263,7 @@ def valid_duration(raw: str) -> bool:
         >>> valid_duration("abc")
         False
     """
-    return parse_duration(raw) is not None
+    return to_timedelta(raw) is not None
 
 
 def valid_email(raw: str) -> bool:

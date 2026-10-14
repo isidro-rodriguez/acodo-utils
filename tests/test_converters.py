@@ -147,13 +147,15 @@ class _Parent:
             _Parent("ana", _Child("Madrid")),
             {"name": "ana", "child": {"city": "Madrid"}},
         ),
-        (None, {}),
-        (42, {}),
-        ([1, 2], {}),
-        ([("a", 1, 2)], {}),
+        (None, None),
+        ({}, None),
+        ("", None),
+        (42, None),
+        ([1, 2], None),
+        ([("a", 1, 2)], None),
     ],
 )
-def test_to_dict(raw: object, expected: dict) -> None:
+def test_to_dict(raw: object, expected: dict | None) -> None:
     assert iu.to_dict(raw) == expected  # type: ignore[arg-type]
 
 
@@ -203,14 +205,16 @@ def test_to_int(raw: object, expected: int | None) -> None:
     [
         ([1, [2, 3]], [1, 2, 3]),
         ((1, (2, (3, 4))), [1, 2, 3, 4]),
-        ([], []),
+        ([], None),
+        ([[], ()], None),
+        ([None, 1], [1]),
         ("abc", ["abc"]),
         (b"xy", [b"xy"]),
         (5, [5]),
-        (None, []),
+        (None, None),
     ],
 )
-def test_to_list(raw: object, expected: list) -> None:
+def test_to_list(raw: object, expected: list | None) -> None:
     assert iu.to_list(raw) == expected  # type: ignore[arg-type]
 
 
@@ -277,9 +281,20 @@ def test_to_str(raw: object, expected: str | None) -> None:
         (float("inf"), None),
         (1e13, None),
         (-1e13, None),
+        ("1h 30m", timedelta(hours=1, minutes=30)),
+        ("1 min 30 s", timedelta(seconds=90)),
+        ("2d", timedelta(days=2)),
+        ("45s", timedelta(seconds=45)),
+        ("1,5h", timedelta(minutes=90)),
+        (" 1H ", timedelta(hours=1)),
+        ("1h30x", None),
+        ("1m30", None),
+        ("5", None),
+        ("", None),
+        ("99999999999999d", None),
     ],
 )
-def test_to_timedelta(raw: float | None, expected: timedelta | None) -> None:
+def test_to_timedelta(raw: str | float | None, expected: timedelta | None) -> None:
     assert iu.to_timedelta(raw) == expected
 
 
