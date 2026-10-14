@@ -34,6 +34,16 @@ _DOMAIN_RE = re.compile(rf"{_LABEL}(?:\.{_LABEL})+")
 
 _TLD_RE = re.compile(r"[a-zA-Z]{2,}")
 
+# BIC/SWIFT (ISO 9362): 6 letras + 2 alfanuméricos + 3 opcionales.
+_BIC_RE = re.compile(r"[A-Z]{6}[A-Z0-9]{2}(?:[A-Z0-9]{3})?")
+
+# MAC de 48 bits: separada por `:`/`-`, por `.` (grupos de 4) o sin separar.
+_MAC_RE = re.compile(
+    r"(?:[0-9A-F]{2}[:-]){5}[0-9A-F]{2}"
+    r"|[0-9A-F]{4}(?:\.[0-9A-F]{4}){2}"
+    r"|[0-9A-F]{12}"
+)
+
 _LOWER_LETTERS = string.ascii_lowercase + "ñ"
 
 _HEX_DIGITS = frozenset(string.hexdigits)
@@ -62,6 +72,30 @@ _WINDOWS_RESERVED_NAMES = frozenset(
 def _dni_letter(number: int) -> str:
     # Letra de control de DNI/NIE.
     return _DNI_LETTERS[number % 23]
+
+
+def valid_bic(raw: str) -> bool:
+    """Comprueba si el string es un BIC/SWIFT con formato válido (ISO 9362).
+
+    Acepta 8 (BIC8) u 11 (BIC11) caracteres: seis letras del banco, dos del
+    código de país y dos o cinco alfanuméricos. No valida que el país esté
+    asignado realmente ni el dígito de control.
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si el BIC presenta un formato válido.
+
+    Examples:
+        >>> valid_bic("ESPCESMMXXX")
+        True
+        >>> valid_bic("ESPCESMM")
+        True
+        >>> valid_bic("ESPCESMMX")
+        False
+    """
+    return _BIC_RE.fullmatch(raw.upper()) is not None
 
 
 def valid_bool(raw: str) -> bool:
@@ -362,6 +396,34 @@ def valid_json(raw: str) -> bool:
     except (ValueError, RecursionError):  # JSONDecodeError es ValueError
         return False
     return True
+
+
+def valid_mac(raw: str) -> bool:
+    """Comprueba si el string es una dirección MAC de 48 bits válida.
+
+    Admite los separadores `:` y `-` (seis pares hexadecimales), `.` (tres
+    grupos de cuatro) o ningún separador (doce dígitos seguidos), en
+    mayúsculas o minúsculas.
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si el string es una MAC válida.
+
+    Examples:
+        >>> valid_mac("00:1A:2B:3C:4D:5E")
+        True
+        >>> valid_mac("00-1a-2b-3c-4d-5e")
+        True
+        >>> valid_mac("001A.2B3C.4D5E")
+        True
+        >>> valid_mac("00:1A:2B:3C:4D")
+        False
+        >>> valid_mac("GG:1A:2B:3C:4D:5E")
+        False
+    """
+    return _MAC_RE.fullmatch(raw.upper()) is not None
 
 
 def valid_nie(raw: str) -> bool:

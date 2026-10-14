@@ -37,6 +37,7 @@ from .parsers import (
     parse_timedelta,
 )
 from .validation import (
+    valid_bic,
     valid_bool,
     valid_date,
     valid_datetime,
@@ -49,6 +50,7 @@ from .validation import (
     valid_iban,
     valid_ip,
     valid_json,
+    valid_mac,
     valid_nie,
     valid_password,
     valid_phone,
@@ -83,6 +85,7 @@ __all__ = [
     "to_port",
     "to_str",
     "to_timedelta",
+    "valid_bic",
     "valid_bool",
     "valid_date",
     "valid_datetime",
@@ -95,6 +98,7 @@ __all__ = [
     "valid_iban",
     "valid_ip",
     "valid_json",
+    "valid_mac",
     "valid_nie",
     "valid_password",
     "valid_phone",

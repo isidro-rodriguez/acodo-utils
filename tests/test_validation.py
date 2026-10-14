@@ -24,6 +24,23 @@ def test_valid_bool(raw: str, expected: bool) -> None:
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
+        ("ESPCESMMXXX", True),
+        ("espcesmmxxx", True),
+        ("ESPCESMM", True),
+        ("ESPCESMM123", True),
+        ("ESPCESMMX", False),
+        ("ESPCES", False),
+        ("1234ESMMXXX", False),
+        ("", False),
+    ],
+)
+def test_valid_bic(raw: str, expected: bool) -> None:
+    assert iu.valid_bic(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
         ("31/01/2024", True),
         ("2024-01-31", True),
         (" 2024-01-31 ", True),
@@ -246,6 +263,23 @@ def test_valid_ip_invalid_version() -> None:
 )
 def test_valid_json(raw: str, expected: bool) -> None:
     assert iu.valid_json(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("00:1A:2B:3C:4D:5E", True),
+        ("00-1a-2b-3c-4d-5e", True),
+        ("001A.2B3C.4D5E", True),
+        ("001a2b3c4d5e", True),
+        ("00:1A:2B:3C:4D", False),
+        ("GG:1A:2B:3C:4D:5E", False),
+        ("00:1A:2B:3C:4D:5E:6F", False),
+        ("", False),
+    ],
+)
+def test_valid_mac(raw: str, expected: bool) -> None:
+    assert iu.valid_mac(raw) is expected
 
 
 @pytest.mark.parametrize(

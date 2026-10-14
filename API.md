@@ -53,6 +53,7 @@ from irg_utils import to_bool, valid_email
 
 **Validaciones**
 
+- [`valid_bic`](#valid_bic): Comprueba si el string es un BIC/SWIFT con formato válido (ISO 9362).
 - [`valid_bool`](#valid_bool): Comprueba si el string lo aceptaría `to_bool`.
 - [`valid_date`](#valid_date): Comprueba si el string lo aceptaría `to_date`.
 - [`valid_datetime`](#valid_datetime): Comprueba si el string lo aceptaría `to_datetime`.
@@ -65,6 +66,7 @@ from irg_utils import to_bool, valid_email
 - [`valid_iban`](#valid_iban): Comprueba si el string es un IBAN con dígitos de control correctos.
 - [`valid_ip`](#valid_ip): Comprueba si el string es una dirección IPv4 o IPv6 válida.
 - [`valid_json`](#valid_json): Comprueba si el string es JSON bien formado (RFC 8259).
+- [`valid_mac`](#valid_mac): Comprueba si el string es una dirección MAC de 48 bits válida.
 - [`valid_nie`](#valid_nie): Comprueba si el string es un NIE español válido (X/Y/Z, 7 dígitos, letra).
 - [`valid_password`](#valid_password): Comprueba si el string presenta el formato de contraseña requerido.
 - [`valid_phone`](#valid_phone): Comprueba si el string es un teléfono en formato internacional básico.
@@ -733,6 +735,35 @@ Formatea un timedelta a una cadena con formato `H:MM:SS` o `M:SS`.
 
 Verifican que un string tenga el formato requerido.
 
+### `valid_bic`
+
+```python
+valid_bic(raw: str) -> bool
+```
+
+Comprueba si el string es un BIC/SWIFT con formato válido (ISO 9362).
+
+Acepta 8 (BIC8) u 11 (BIC11) caracteres: seis letras del banco, dos del
+código de país y dos o cinco alfanuméricos. No valida que el país esté
+asignado realmente ni el dígito de control.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el BIC presenta un formato válido.
+
+**Ejemplos**
+
+```pycon
+>>> valid_bic("ESPCESMMXXX")
+True
+>>> valid_bic("ESPCESMM")
+True
+>>> valid_bic("ESPCESMMX")
+False
+```
+
 ### `valid_bool`
 
 ```python
@@ -1047,6 +1078,39 @@ True
 >>> valid_json("{'a': 1}")
 False
 >>> valid_json("NaN")
+False
+```
+
+### `valid_mac`
+
+```python
+valid_mac(raw: str) -> bool
+```
+
+Comprueba si el string es una dirección MAC de 48 bits válida.
+
+Admite los separadores `:` y `-` (seis pares hexadecimales), `.` (tres
+grupos de cuatro) o ningún separador (doce dígitos seguidos), en
+mayúsculas o minúsculas.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el string es una MAC válida.
+
+**Ejemplos**
+
+```pycon
+>>> valid_mac("00:1A:2B:3C:4D:5E")
+True
+>>> valid_mac("00-1a-2b-3c-4d-5e")
+True
+>>> valid_mac("001A.2B3C.4D5E")
+True
+>>> valid_mac("00:1A:2B:3C:4D")
+False
+>>> valid_mac("GG:1A:2B:3C:4D:5E")
 False
 ```
 
