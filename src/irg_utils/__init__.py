@@ -13,9 +13,24 @@ prefijo, y dentro de cada una van en orden alfabético.
 |--------------|-----------|------------|
 | Getters      | `get_*`   | Obtención de un valor, generalmente del entorno o de una credencial/ID aleatoria. |
 | Comprobación | `has_*`   | Comprobación de presencia de una clave, campo o estructura. <br>Siempre devuelve un `bool`. |
-| Parseo       | `parse_*` | Conversión con reglas. En error devuelve `None`.<br>Excepto `parse_duration`, que devuelve `timedelta \| None`. |
-| Conversión   | `to_*`    | Conversión segura de un valor a otro tipo. Nunca lanza por el dato evaluado: si no puede convertirlo, devuelve `None`.<br>Las excepciones son `to_list` (devuelve `[]`) y `to_dict` (devuelve `{}`). |
+| Parseo       | `parse_*` | Formatea un valor como texto legible (importes, fechas, tamaños...). Devuelve `str`. |
+| Conversión   | `to_*`    | Conversión segura de un valor a otro tipo. Si no puede convertirlo, devuelve `None`. |
 | Validación   | `valid_*` | Validación de formato o de dominio de un valor. <br>Siempre devuelve un `bool`. |
+
+
+Excepciones
+-----------
+**Valores devueltos distintos de los de la tabla:**
+
+- `to_list` devuelve `[]` y `to_dict` devuelve `{}`, en lugar de `None`.
+- `parse_duration` lee un texto y devuelve `timedelta | None`, en lugar de `str`.
+
+**Errores lanzados:**
+
+- `to_*` y `valid_*` nunca lanzan por el dato evaluado.
+- Solo se lanza `ValueError` si los argumentos de configuración son
+  inválidos: `get_*` (algoritmo, rango, longitud...), `parse_*` (`lang`),
+  `valid_ip` (`version`) y `valid_password`.
 
 
 Uso rápido
@@ -29,6 +44,18 @@ parse_slug("¡Hola, Mundo! Ñandú") # hola-mundo-nandu
 to_bytes("1,5 GiB") # 1610612736
 valid_email("email_sin_punto@ejemplo-com") # False
 ```
+
+
+Enlaces de interés
+------------------
+- [Repositorio del proyecto](https://github.com/isidro-rodriguez/irg-utils)
+- [Documentación de Python](https://docs.python.org/3/)
+- [PEP 8: guía de estilo](https://peps.python.org/pep-0008/)
+- [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html)
+  (estilo de los docstrings)
+- Herramientas de Astral: [uv](https://docs.astral.sh/uv/),
+  [Ruff](https://docs.astral.sh/ruff/) y [ty](https://docs.astral.sh/ty/)
+- [pytest](https://docs.pytest.org/)
 """  # noqa
 
 from .checkers import (
