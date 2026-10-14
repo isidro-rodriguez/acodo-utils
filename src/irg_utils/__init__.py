@@ -35,8 +35,8 @@ prefijo y dentro de cada una van en orden alfabético.
 |-----------|---------------|-----------|
 | `get_*`   | `Any`         | Obtenedores de valores del entorno, credencial, ID, ... |
 | `has_*`   | `bool`        | Comprobación de presencia de claves, campos o estructura. |
-| `parse_*` | `str`         | Formateado a texto legible (importes, fechas, tamaños,...). |
-| `to_*`    | `Any \| None` | Conversión de tipo, o `None` si no puede. |
+| `parse_*` | `str`         | Formateado a texto legible (importes, fechas, tamaños, ...). |
+| `to_*`    | `Any \| None` | Conversión de tipo o `None` si no puede. |
 | `valid_*` | `bool`        | Validación de formato o de dominio de un valor. |
 
 
