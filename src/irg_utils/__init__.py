@@ -1,9 +1,40 @@
-"""Módulo de funciones utilitarias.
+"""Funciones utilitarias compartidas entre proyectos.
 
-Requiere Python >= 3.11 (`datetime.UTC`).
+Módulo con helpers, convertidores, validadores, parseos y getters que
+pueden reutilizarse en cualquier aplicación — CLI, lógica de negocio o
+scripts de infraestructura. Requiere Python >= 3.11 (`datetime.UTC`) y
+no introduce dependencias.
 
-Convenio: prefijos `to_*`, `has_*`, `parse_*`, `valid_*` y `get_*`. Dentro
-de cada categoría, las funciones públicas van en orden alfabético.
+Convenio de nombrado
+--------------------
+Las funciones se agrupan por categoría: cada categoría empieza por un
+prefijo, y dentro de cada una van en orden alfabético.
+
+- `to_*`     Conversión segura de un valor a otro tipo. Nunca lanza por el
+             dato evaluado: si no puede convertirlo, devuelve `None`. Las
+             excepciones son `to_list` (devuelve `[]`) y `to_dict`
+             (devuelve `{}`).
+- `has_*`    Comprobación de presencia de una clave, campo o estructura.
+             Siempre devuelve un `bool`.
+- `valid_*`  Validación de formato o de dominio de un valor.
+             Siempre devuelve un `bool`.
+- `parse_*`  Conversión a un tipo concreto. En error devuelve `None`,
+             excepto `parse_duration`, que devuelve `timedelta | None`.
+- `get_*`    Obtención de un valor, generalmente del entorno o de una
+             credencial/ID aleatoria. No transforman ni verifican: son
+             "productoras".
+
+Uso rápido
+----------
+```python
+from irg_utils import parse_amount, valid_email
+
+amount = parse_amount(365346.32)
+print(amount) # 365.346,32
+
+if not valid_email("hola@ejemplo.com"):
+    raise ValueError("Email no válido")
+```
 """
 
 from .checkers import (
