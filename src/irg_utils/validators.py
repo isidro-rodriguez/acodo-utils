@@ -1,6 +1,11 @@
 """Validaciones: verifican que un string tenga el formato requerido.
 
 Las funciones `valid_*` devuelven `bool`.
+
+Comprueban el formato, no la existencia ni la titularidad: `valid_email`,
+`valid_phone` y `valid_url` son comprobaciones heurísticas. Si necesitas una
+validación estricta, usa en tu proyecto una librería especializada (por
+ejemplo `email-validator` o `phonenumbers`).
 """
 
 from __future__ import annotations
@@ -268,6 +273,9 @@ def valid_duration(raw: str) -> bool:
 
 def valid_email(raw: str) -> bool:
     """Comprueba si el string presenta un formato de email válido.
+
+    Solo comprueba el formato habitual (hasta 254 caracteres): no cubre todo
+    el RFC 5322 ni verifica que el dominio o el buzón existan.
 
     Args:
         raw: String a validar.
@@ -606,7 +614,8 @@ def valid_phone(raw: str) -> bool:
     """Comprueba si el string es un teléfono en formato internacional básico.
 
     Admite un `+` inicial y los separadores espacio, punto, guion y
-    paréntesis; exige entre 7 y 15 dígitos (E.164). No valida por país.
+    paréntesis; exige entre 7 y 15 dígitos (E.164). No valida por país ni comprueba que
+    el número exista.
 
     Args:
         raw: String a validar.
@@ -694,6 +703,8 @@ def valid_slug(raw: str) -> bool:
 
 def valid_url(raw: str) -> bool:
     """Comprueba si el string presenta formato de URL http/https.
+
+    Solo comprueba el formato: no verifica que el host exista ni responda.
 
     Args:
         raw: String a validar.
