@@ -71,6 +71,30 @@ def test_valid_dni(raw: str, expected: bool) -> None:
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
+        ("example.com", True),
+        ("sub.dominio.example.com", True),
+        ("EXAMPLE.COM", True),
+        ("a" * 63 + ".com", True),
+        ("example", False),
+        ("example.c", False),
+        ("example.123", False),
+        ("-example.com", False),
+        ("example-.com", False),
+        ("exa mple.com", False),
+        ("example.com.", False),
+        ("a" * 64 + ".com", False),
+        ("example..com", False),
+        (".com", False),
+        ("", False),
+    ],
+)
+def test_valid_domain(raw: str, expected: bool) -> None:
+    assert iu.valid_domain(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
         ("1h 30m", True),
         ("2d", True),
         ("1,5h", True),

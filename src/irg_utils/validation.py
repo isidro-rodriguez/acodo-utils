@@ -26,6 +26,14 @@ _EMAIL_RE = re.compile(
     r"(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+"
 )
 
+# Etiqueta DNS: 1-63 caracteres, empieza y termina en alfanumérico,
+# con guiones solo en el interior.
+_LABEL = r"[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
+
+_DOMAIN_RE = re.compile(rf"{_LABEL}(?:\.{_LABEL})+")
+
+_TLD_RE = re.compile(r"[a-zA-Z]{2,}")
+
 _LOWER_LETTERS = string.ascii_lowercase + "ñ"
 
 _HEX_DIGITS = frozenset(string.hexdigits)
@@ -137,6 +145,37 @@ def valid_dni(raw: str) -> bool:
     if not re.fullmatch(r"[0-9]{8}[A-Z]", text):
         return False
     return text[8] == _dni_letter(int(text[:8]))
+
+
+def valid_domain(raw: str) -> bool:
+    """Comprueba si el string es un nombre de dominio (DNS) bien formado.
+
+    Exige al menos dos etiquetas separadas por puntos, cada una de 1-63
+    caracteres que empiece y termine en alfanumérico (guiones solo en el
+    interior), un TLD final solo de letras de longitud ≥ 2 y una longitud
+    total ≤ 253. No se admiten espacios ni puntos finales; no valida IDN.
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si el string es un dominio válido.
+
+    Examples:
+        >>> valid_domain("example.com")
+        True
+        >>> valid_domain("sub.dominio.example.com")
+        True
+        >>> valid_domain("example")
+        False
+        >>> valid_domain("example.123")
+        False
+        >>> valid_domain("-example.com")
+        False
+    """
+    if len(raw) > 253 or _DOMAIN_RE.fullmatch(raw) is None:
+        return False
+    return _TLD_RE.fullmatch(raw.rsplit(".", 1)[-1]) is not None
 
 
 def valid_duration(raw: str) -> bool:

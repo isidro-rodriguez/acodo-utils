@@ -56,6 +56,7 @@ from irg_utils import to_bool, valid_email
 - [`valid_date`](#valid_date): Comprueba si el string lo aceptaría `to_date`.
 - [`valid_datetime`](#valid_datetime): Comprueba si el string lo aceptaría `to_datetime`.
 - [`valid_dni`](#valid_dni): Comprueba si el string es un DNI español válido (8 dígitos y letra).
+- [`valid_domain`](#valid_domain): Comprueba si el string es un nombre de dominio (DNS) bien formado.
 - [`valid_duration`](#valid_duration): Comprueba si el string es aceptado por `parse_duration`.
 - [`valid_email`](#valid_email): Comprueba si el string presenta un formato de email válido.
 - [`valid_filename`](#valid_filename): Comprueba si el string es un nombre de fichero válido en cualquier SO.
@@ -794,6 +795,40 @@ Comprueba si el string es un DNI español válido (8 dígitos y letra).
 >>> valid_dni("12345678Z")
 True
 >>> valid_dni("12345678A")
+False
+```
+
+### `valid_domain`
+
+```python
+valid_domain(raw: str) -> bool
+```
+
+Comprueba si el string es un nombre de dominio (DNS) bien formado.
+
+Exige al menos dos etiquetas separadas por puntos, cada una de 1-63
+caracteres que empiece y termine en alfanumérico (guiones solo en el
+interior), un TLD final solo de letras de longitud ≥ 2 y una longitud
+total ≤ 253. No se admiten espacios ni puntos finales; no valida IDN.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el string es un dominio válido.
+
+**Ejemplos**
+
+```pycon
+>>> valid_domain("example.com")
+True
+>>> valid_domain("sub.dominio.example.com")
+True
+>>> valid_domain("example")
+False
+>>> valid_domain("example.123")
+False
+>>> valid_domain("-example.com")
 False
 ```
 
