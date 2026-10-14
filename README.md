@@ -23,20 +23,21 @@ to_bool("sí")  # True
 valid_email("hola")  # False
 ```
 
-Referencia completa en [API.md](API.md).
+Documentación web: https://isidro-rodriguez.github.io/irg-utils/
 
 ## Desarrollo
 
 ```bash
 uv sync
-uv run pre-commit install             # instala los hooks en .git (una vez por clon)
+uv run pre-commit install # instala los hooks en .git (una vez por clon)
 uv run ruff format
 uv run ruff check
 uv run ty check
-uv run pytest                         # cobertura exigida: 100 %
-uv run py scripts/gen_api.py          # regenera API.md tras cambiar docstrings
-uv run py scripts/gh_token.py         # obtiene un token de Github App
-uv run pre-commit run --all-files     # verificación manual de todos los hooks
+uv run pytest # cobertura exigida: 100 %
+uv run py scripts/gen_api.py # regenera API.md tras cambiar docstrings
+uv run py scripts/gh_token.py # obtiene un token de Github App
+uv run pdoc -d google ./src/irg_utils/ --logo logo.png -o docs  # genera la web
+uv run pre-commit run --all-files # verificación manual de todos los hooks
 ```
 
 ## Licencia

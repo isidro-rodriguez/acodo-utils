@@ -16,3 +16,7 @@ wheels/
 .ruff_cache/
 .coverage
 *.pem
+
+# Documentación generada por pdoc en CI (se conserva el logo, commiteado)
+docs/*
+!docs/logo.png
