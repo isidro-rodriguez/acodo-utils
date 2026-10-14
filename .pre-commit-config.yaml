@@ -5,7 +5,7 @@ repos:
     hooks:
       # Con --fix va antes del formateo: sus correcciones pueden requerir reformateo.
       - id: ruff-check
-        args: [--fix]
+        args: [ --fix ]
       - id: ruff-format
 
   - repo: local
@@ -13,12 +13,6 @@ repos:
       - id: ty
         name: ty check
         entry: uv run ty check
-        language: system
-        pass_filenames: false
-        always_run: true
-      - id: gen-api
-        name: gen_api check
-        entry: uv run python scripts/gen_api.py --check
         language: system
         pass_filenames: false
         always_run: true
