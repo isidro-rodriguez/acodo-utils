@@ -165,6 +165,20 @@ def test_get_random_int_invalid_range() -> None:
         iu.get_random_int(10, 4)
 
 
+def test_get_uuid_is_version_4() -> None:
+    assert iu.get_uuid().version == 4
+
+
+def test_get_uuid_is_valid_canonical() -> None:
+    from irg_utils import valid_uuid
+
+    assert valid_uuid(str(iu.get_uuid()))
+
+
+def test_get_uuid_is_unique() -> None:
+    assert iu.get_uuid() != iu.get_uuid()
+
+
 def test_get_random_password_passes_validation() -> None:
     from irg_utils import valid_password
 

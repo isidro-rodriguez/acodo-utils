@@ -37,6 +37,7 @@ from .getters import (
     get_random_int,
     get_random_password,
     get_random_token,
+    get_uuid,
 )
 from .parsers import (
     parse_amount,
@@ -84,6 +85,7 @@ __all__ = [
     "get_random_int",
     "get_random_password",
     "get_random_token",
+    "get_uuid",
     "has_required_attrs",
     "has_required_fields",
     "has_required_keys",

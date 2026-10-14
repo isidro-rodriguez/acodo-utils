@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
     from datetime import datetime
     from os import PathLike
+    from uuid import UUID
 
 T = TypeVar("T")
 
@@ -352,3 +353,19 @@ def get_random_token(nbytes: int = 32, url_safe: bool = True) -> str:
     if url_safe:
         return secrets.token_urlsafe(nbytes)
     return secrets.token_hex(nbytes)
+
+
+def get_uuid() -> UUID:
+    """Genera un UUID versión 4 (aleatorio) con el módulo `uuid`.
+
+    Returns:
+        Un objeto `UUID` v4.
+
+    Examples:
+        >>> from irg_utils import valid_uuid
+        >>> valid_uuid(str(get_uuid()))
+        True
+    """
+    from uuid import uuid4  # Import perezoso.
+
+    return uuid4()

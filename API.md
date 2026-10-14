@@ -90,6 +90,7 @@ from irg_utils import to_bool, valid_email
 - [`get_random_int`](#get_random_int): Genera un entero aleatorio en el rango inclusivo con `secrets`.
 - [`get_random_password`](#get_random_password): Genera una contraseña aleatoria que cumple los criterios de `valid_password`.
 - [`get_random_token`](#get_random_token): Genera un token aleatorio criptográficamente seguro con `secrets`.
+- [`get_uuid`](#get_uuid): Genera un UUID versión 4 (aleatorio) con el módulo `uuid`.
 
 ## Conversores
 
@@ -1633,4 +1634,22 @@ Genera un token aleatorio criptográficamente seguro con `secrets`.
 True
 >>> len(get_random_token(16, url_safe=False))
 32
+```
+
+### `get_uuid`
+
+```python
+get_uuid() -> UUID
+```
+
+Genera un UUID versión 4 (aleatorio) con el módulo `uuid`.
+
+**Devuelve:** Un objeto `UUID` v4.
+
+**Ejemplos**
+
+```pycon
+>>> from irg_utils import valid_uuid
+>>> valid_uuid(str(get_uuid()))
+True
 ```
