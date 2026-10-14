@@ -81,6 +81,7 @@ from irg_utils import to_bool, valid_email
 **Getters**
 
 - [`get_env`](#get_env): Lee una variable de entorno y la convierte con un conversor `to_*`.
+- [`get_hash`](#get_hash): Calcula el hash hexadecimal de un texto, bytes o fichero.
 
 ## Conversores
 
@@ -1369,4 +1370,36 @@ Lee una variable de entorno y la convierte con un conversor `to_*`.
 >>> get_env("IRG_AUSENTE", default=7)
 7
 >>> del os.environ["IRG_PORT"]
+```
+
+### `get_hash`
+
+```python
+get_hash(raw: str | bytes | PathLike[str], algorithm: str = 'sha256') -> str
+```
+
+Calcula el hash hexadecimal de un texto, bytes o fichero.
+
+Si `raw` es una ruta a un fichero existente, se hashea su contenido por
+bloques (sin cargarlo entero en memoria); en caso contrario se interpreta
+como texto o bytes y se codifica en UTF-8.
+
+**Parámetros**
+
+- `raw`: Texto, bytes o ruta a un fichero cuyo hash se quiere calcular.
+- `algorithm`: Algoritmo de `hashlib` (por ejemplo `sha256`, `sha1`).
+
+**Devuelve:** El hash en formato hexadecimal.
+
+**Lanza**
+
+- `ValueError`: Si el algoritmo no está soportado por `hashlib`.
+
+**Ejemplos**
+
+```pycon
+>>> get_hash("abc")
+'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'
+>>> get_hash(b"abc", "sha1")
+'a9993e364706816aba3e25717850c26c9cd0d89d'
 ```

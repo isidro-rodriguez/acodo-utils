@@ -28,6 +28,7 @@ from .converters import (
 )
 from .getters import (
     get_env,
+    get_hash,
 )
 from .parsers import (
     parse_amount,
@@ -66,6 +67,7 @@ from .validators import (
 
 __all__ = [
     "get_env",
+    "get_hash",
     "has_required_attrs",
     "has_required_fields",
     "has_required_keys",
