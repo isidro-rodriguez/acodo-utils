@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, TypeVar
 from .converters import to_int
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Sequence
     from datetime import datetime
     from os import PathLike
 
@@ -232,6 +232,32 @@ def get_password_hash(
         ).hex()
     except (TypeError, ValueError) as exc:
         raise ValueError(f"Algoritmo de hash no soportado: {algorithm!r}.") from exc
+
+
+def get_random_choice(seq: Sequence[T]) -> T:
+    """Elige un elemento al azar de una secuencia usando `secrets` (CSPRNG).
+
+    Args:
+        seq: Secuencia no vacía de la que elegir.
+
+    Returns:
+        Un elemento de `seq`, elegido de forma segura.
+
+    Raises:
+        ValueError: Si la secuencia está vacía.
+
+    Examples:
+        >>> fruta = get_random_choice(["manzana", "pera", "uva"])
+        >>> fruta in ("manzana", "pera", "uva")
+        True
+        >>> get_random_choice([42])
+        42
+    """
+    import secrets  # Import perezoso.
+
+    if not seq:
+        raise ValueError("La secuencia no puede estar vacía.")
+    return secrets.choice(seq)
 
 
 def get_random_password(

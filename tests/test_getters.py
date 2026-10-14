@@ -131,6 +131,21 @@ def test_get_password_hash_invalid_args() -> None:
         iu.get_password_hash("sec", "sal", algorithm="algoritmo-inexistente")
 
 
+def test_get_random_choice_returns_element() -> None:
+    options = ["a", "b", "c"]
+    for _ in range(20):
+        assert iu.get_random_choice(options) in options
+
+
+def test_get_random_choice_single_element() -> None:
+    assert iu.get_random_choice([42]) == 42
+
+
+def test_get_random_choice_empty_raises() -> None:
+    with pytest.raises(ValueError, match="vacía"):
+        iu.get_random_choice([])
+
+
 def test_get_random_password_passes_validation() -> None:
     from irg_utils import valid_password
 

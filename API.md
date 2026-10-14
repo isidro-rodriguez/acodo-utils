@@ -86,6 +86,7 @@ from irg_utils import to_bool, valid_email
 - [`get_now`](#get_now): Devuelve la fecha y hora actual en UTC, con zona horaria.
 - [`get_otp`](#get_otp): Genera un código numérico de un solo uso (OTP) con `secrets`.
 - [`get_password_hash`](#get_password_hash): Deriva un hash de contraseña con PBKDF2 (`hashlib`).
+- [`get_random_choice`](#get_random_choice): Elige un elemento al azar de una secuencia usando `secrets` (CSPRNG).
 - [`get_random_password`](#get_random_password): Genera una contraseña aleatoria que cumple los criterios de `valid_password`.
 - [`get_random_token`](#get_random_token): Genera un token aleatorio criptográficamente seguro con `secrets`.
 
@@ -1516,6 +1517,34 @@ verificar.
 **Lanza**
 
 - `ValueError`: Si el algoritmo no está soportado o `iterations` < 1.
+
+### `get_random_choice`
+
+```python
+get_random_choice(seq: Sequence[T]) -> T
+```
+
+Elige un elemento al azar de una secuencia usando `secrets` (CSPRNG).
+
+**Parámetros**
+
+- `seq`: Secuencia no vacía de la que elegir.
+
+**Devuelve:** Un elemento de `seq`, elegido de forma segura.
+
+**Lanza**
+
+- `ValueError`: Si la secuencia está vacía.
+
+**Ejemplos**
+
+```pycon
+>>> fruta = get_random_choice(["manzana", "pera", "uva"])
+>>> fruta in ("manzana", "pera", "uva")
+True
+>>> get_random_choice([42])
+42
+```
 
 ### `get_random_password`
 
