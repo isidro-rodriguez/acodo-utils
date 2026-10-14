@@ -1,41 +1,35 @@
-"""Funciones utilitarias compartidas entre proyectos.
+r"""Módulo de funciones utilitarias que pueden reutilizarse en cualquier
+aplicación — CLI, lógica de negocio, scripts de infraestructura, etc.
 
-Módulo con helpers, convertidores, validadores, parseos y getters que
-pueden reutilizarse en cualquier aplicación — CLI, lógica de negocio o
-scripts de infraestructura. Requiere Python >= 3.11 (`datetime.UTC`) y
-no introduce dependencias.
+Requiere **Python >= 3.11** y no introduce dependencias.
+
 
 Convenio de nombrado
 --------------------
 Las funciones se agrupan por categoría: cada categoría empieza por un
 prefijo, y dentro de cada una van en orden alfabético.
 
-- `to_*`     Conversión segura de un valor a otro tipo. Nunca lanza por el
-             dato evaluado: si no puede convertirlo, devuelve `None`. Las
-             excepciones son `to_list` (devuelve `[]`) y `to_dict`
-             (devuelve `{}`).
-- `has_*`    Comprobación de presencia de una clave, campo o estructura.
-             Siempre devuelve un `bool`.
-- `valid_*`  Validación de formato o de dominio de un valor.
-             Siempre devuelve un `bool`.
-- `parse_*`  Conversión a un tipo concreto. En error devuelve `None`,
-             excepto `parse_duration`, que devuelve `timedelta | None`.
-- `get_*`    Obtención de un valor, generalmente del entorno o de una
-             credencial/ID aleatoria. No transforman ni verifican: son
-             "productoras".
+| Categoría    | Prefijo   | Utilidades |
+|--------------|-----------|------------|
+| Getters      | `get_*`   | Obtención de un valor, generalmente del entorno o de una credencial/ID aleatoria. |
+| Comprobación | `has_*`   | Comprobación de presencia de una clave, campo o estructura. <br>Siempre devuelve un `bool`. |
+| Parseo       | `parse_*` | Conversión con reglas. En error devuelve `None`.<br>Excepto `parse_duration`, que devuelve `timedelta \| None`. |
+| Conversión   | `to_*`    | Conversión segura de un valor a otro tipo. Nunca lanza por el dato evaluado: si no puede convertirlo, devuelve `None`.<br>Las excepciones son `to_list` (devuelve `[]`) y `to_dict` (devuelve `{}`). |
+| Validación   | `valid_*` | Validación de formato o de dominio de un valor. <br>Siempre devuelve un `bool`. |
+
 
 Uso rápido
 ----------
 ```python
-from irg_utils import parse_amount, valid_email
+from irg_utils import get_hash, has_required_attrs, parse_slug, to_bytes, valid_email
 
-amount = parse_amount(365346.32)
-print(amount) # 365.346,32
-
-if not valid_email("hola@ejemplo.com"):
-    raise ValueError("Email no válido")
+get_hash("abc") # ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
+has_required_attrs("texto", ["upper", "lower"]) # True
+parse_slug("¡Hola, Mundo! Ñandú") # hola-mundo-nandu
+to_bytes("1,5 GiB") # 1610612736
+valid_email("email_sin_punto@ejemplo-com") # False
 ```
-"""
+"""  # noqa
 
 from .checkers import (
     has_required_attrs,
