@@ -83,6 +83,7 @@ from irg_utils import to_bool, valid_email
 - [`get_env`](#get_env): Lee una variable de entorno y la convierte con un conversor `to_*`.
 - [`get_hash`](#get_hash): Calcula el hash hexadecimal de un texto, bytes o fichero.
 - [`get_hmac`](#get_hmac): Calcula el HMAC hexadecimal de un mensaje con una clave secreta.
+- [`get_now`](#get_now): Devuelve la fecha y hora actual en UTC, con zona horaria.
 - [`get_random_password`](#get_random_password): Genera una contraseña aleatoria que cumple los criterios de `valid_password`.
 - [`get_random_token`](#get_random_token): Genera un token aleatorio criptográficamente seguro con `secrets`.
 
@@ -1441,6 +1442,23 @@ integridad y autenticidad de un mensaje, no solo su huella.
 '25dff5fc3efc225e6d8a520e32dec1c8f671b86f'
 >>> get_hmac("Jefe", "what do ya want for nothing?")
 '5bdcc146bf60754e6a042426089575c75a003f089d2739839dec58b964ec3843'
+```
+
+### `get_now`
+
+```python
+get_now() -> datetime
+```
+
+Devuelve la fecha y hora actual en UTC, con zona horaria.
+
+**Devuelve:** El `datetime` actual, consciente de zona horaria (UTC).
+
+**Ejemplos**
+
+```pycon
+>>> get_now().tzinfo is not None
+True
 ```
 
 ### `get_random_password`

@@ -15,6 +15,7 @@ from .converters import to_int
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+    from datetime import datetime
     from os import PathLike
 
 T = TypeVar("T")
@@ -139,6 +140,21 @@ def get_hmac(key: str | bytes, message: str | bytes, algorithm: str = "sha256") 
     key_bytes = key.encode() if isinstance(key, str) else key
     message_bytes = message.encode() if isinstance(message, str) else message
     return hmac.new(key_bytes, message_bytes, algorithm).hexdigest()
+
+
+def get_now() -> datetime:
+    """Devuelve la fecha y hora actual en UTC, con zona horaria.
+
+    Returns:
+        El `datetime` actual, consciente de zona horaria (UTC).
+
+    Examples:
+        >>> get_now().tzinfo is not None
+        True
+    """
+    from datetime import UTC, datetime  # Import perezoso.
+
+    return datetime.now(UTC)
 
 
 def get_random_password(

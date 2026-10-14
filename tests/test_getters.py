@@ -75,6 +75,23 @@ def test_get_hmac_invalid_algorithm() -> None:
         iu.get_hmac("clave", "mensaje", "algoritmo-inexistente")
 
 
+def test_get_now_is_aware_utc() -> None:
+    from datetime import UTC
+
+    now = iu.get_now()
+    assert now.tzinfo is not None
+    assert now.utcoffset() == UTC.utcoffset(None)
+
+
+def test_get_now_within_call_window() -> None:
+    from datetime import UTC, datetime
+
+    before = datetime.now(UTC)
+    now = iu.get_now()
+    after = datetime.now(UTC)
+    assert before <= now <= after
+
+
 def test_get_random_password_passes_validation() -> None:
     from irg_utils import valid_password
 
