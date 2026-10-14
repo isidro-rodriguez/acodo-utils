@@ -465,6 +465,30 @@ def valid_phone(raw: str) -> bool:
     return 7 <= sum(char.isdigit() for char in text) <= 15
 
 
+def valid_port(raw: str) -> bool:
+    """Comprueba si el string lo aceptaría `to_port`.
+
+    Args:
+        raw: String a validar.
+
+    Returns:
+        `True` si el string representa un puerto en el rango 1-65535.
+
+    Examples:
+        >>> valid_port("8080")
+        True
+        >>> valid_port("0")
+        False
+        >>> valid_port("70000")
+        False
+        >>> valid_port("abc")
+        False
+    """
+    from .converters import to_port
+
+    return to_port(raw) is not None
+
+
 def valid_slug(raw: str) -> bool:
     """Comprueba si el string es un slug: minúsculas, dígitos y guiones simples.
 

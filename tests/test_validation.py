@@ -317,6 +317,24 @@ def test_valid_phone(raw: str, expected: bool) -> None:
 @pytest.mark.parametrize(
     ("raw", "expected"),
     [
+        ("80", True),
+        ("8080", True),
+        ("65535", True),
+        ("0", False),
+        ("65536", False),
+        ("-1", False),
+        ("3.5", False),
+        ("abc", False),
+        ("", False),
+    ],
+)
+def test_valid_port(raw: str, expected: bool) -> None:
+    assert iu.valid_port(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
         ("hola-mundo", True),
         ("a", True),
         ("a1-b2", True),

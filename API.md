@@ -30,6 +30,7 @@ from irg_utils import to_bool, valid_email
 - [`to_int`](#to_int): Convierte strings numéricos a int.
 - [`to_list`](#to_list): Convierte un valor a lista, aplanando las anidadas.
 - [`to_path`](#to_path): Convierte un texto o ruta a Path, expandiendo `~`.
+- [`to_port`](#to_port): Convierte un texto o entero a número de puerto TCP/UDP (1-65535).
 - [`to_str`](#to_str): Devuelve el valor si es un texto con contenido.
 - [`to_timedelta`](#to_timedelta): Convierte una cantidad numérica de segundos a timedelta.
 
@@ -67,6 +68,7 @@ from irg_utils import to_bool, valid_email
 - [`valid_nie`](#valid_nie): Comprueba si el string es un NIE español válido (X/Y/Z, 7 dígitos, letra).
 - [`valid_password`](#valid_password): Comprueba si el string presenta el formato de contraseña requerido.
 - [`valid_phone`](#valid_phone): Comprueba si el string es un teléfono en formato internacional básico.
+- [`valid_port`](#valid_port): Comprueba si el string lo aceptaría `to_port`.
 - [`valid_slug`](#valid_slug): Comprueba si el string es un slug: minúsculas, dígitos y guiones simples.
 - [`valid_url`](#valid_url): Comprueba si el string presenta formato de URL http/https.
 - [`valid_uuid`](#valid_uuid): Comprueba si el string es un UUID en forma canónica (8-4-4-4-12).
@@ -345,6 +347,33 @@ Convierte un texto o ruta a Path, expandiendo `~`.
 >>> to_path("carpeta/fichero.txt").name
 'fichero.txt'
 >>> to_path("   ") is None
+True
+```
+
+### `to_port`
+
+```python
+to_port(raw: str | int | None) -> int | None
+```
+
+Convierte un texto o entero a número de puerto TCP/UDP (1-65535).
+
+**Parámetros**
+
+- `raw`: Valor a convertir (texto numérico o entero).
+
+**Devuelve:** El puerto, o `None` si el valor falta o está fuera del rango 1-65535.
+
+**Ejemplos**
+
+```pycon
+>>> to_port("8080")
+8080
+>>> to_port(80)
+80
+>>> to_port("0") is None
+True
+>>> to_port(70000) is None
 True
 ```
 
@@ -1100,6 +1129,33 @@ True
 >>> valid_phone("(91) 123-4567")
 True
 >>> valid_phone("12345")
+False
+```
+
+### `valid_port`
+
+```python
+valid_port(raw: str) -> bool
+```
+
+Comprueba si el string lo aceptaría `to_port`.
+
+**Parámetros**
+
+- `raw`: String a validar.
+
+**Devuelve:** `True` si el string representa un puerto en el rango 1-65535.
+
+**Ejemplos**
+
+```pycon
+>>> valid_port("8080")
+True
+>>> valid_port("0")
+False
+>>> valid_port("70000")
+False
+>>> valid_port("abc")
 False
 ```
 

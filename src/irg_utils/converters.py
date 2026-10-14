@@ -435,6 +435,29 @@ def to_path(raw: str | PathLike[str] | None) -> Path | None:
         return None
 
 
+def to_port(raw: str | int | None) -> int | None:
+    """Convierte un texto o entero a número de puerto TCP/UDP (1-65535).
+
+    Args:
+        raw: Valor a convertir (texto numérico o entero).
+
+    Returns:
+        El puerto, o `None` si el valor falta o está fuera del rango 1-65535.
+
+    Examples:
+        >>> to_port("8080")
+        8080
+        >>> to_port(80)
+        80
+        >>> to_port("0") is None
+        True
+        >>> to_port(70000) is None
+        True
+    """
+    value = to_int(raw)
+    return value if value is not None and 1 <= value <= 65535 else None
+
+
 def to_str(raw: object) -> str | None:
     """Devuelve el valor si es un texto con contenido.
 

@@ -237,6 +237,29 @@ class TestToPath:
 
 @pytest.mark.parametrize(
     ("raw", "expected"),
+    [
+        ("8080", 8080),
+        (80, 80),
+        (" 443 ", 443),
+        ("1", 1),
+        ("65535", 65535),
+        ("0", None),
+        (0, None),
+        ("65536", None),
+        (70000, None),
+        ("-1", None),
+        ("3.5", None),
+        ("abc", None),
+        (True, None),
+        (None, None),
+    ],
+)
+def test_to_port(raw: object, expected: int | None) -> None:
+    assert iu.to_port(raw) == expected  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
     [("a", "a"), (" a ", " a "), ("", None), ("   ", None), (1, None), (None, None)],
 )
 def test_to_str(raw: object, expected: str | None) -> None:
