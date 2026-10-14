@@ -1,5 +1,4 @@
-r"""Módulo de funciones utilitarias que pueden reutilizarse en cualquier
-aplicación — CLI, lógica de negocio, scripts de infraestructura, etc.
+r"""Módulo de funciones utilitarias que pueden reutilizarse en cualquier aplicación.
 
 Requiere **Python >= 3.11** y no introduce dependencias.
 
