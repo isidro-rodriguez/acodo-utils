@@ -3,6 +3,7 @@
 import pytest
 
 import irg_utils as iu
+from irg_utils.types import SocialPlatform, SocialVariant
 
 
 @pytest.mark.parametrize(
@@ -494,3 +495,35 @@ def test_valid_nif(raw: str, expected: bool) -> None:
 )
 def test_valid_postal_code(raw: str, expected: bool) -> None:
     assert iu.valid_postal_code(raw) is expected
+
+
+@pytest.mark.parametrize(
+    ("raw", "social", "variant", "expected"),
+    [
+        ("https://github.com/isidro-rodriguez", "github", "profile", True),
+        ("github.com/isidro-rodriguez/irg-utils", "github", "page", True),
+        ("https://github.com/-malo", "github", "profile", False),
+        ("https://facebook.com/isidro.rodriguez", "facebook", "profile", True),
+        ("https://www.facebook.com/pages/Mi-Pagina/123456", "facebook", "page", True),
+        ("https://fb.com/reel/123456789", "facebook", "reel", True),
+        ("https://x.com/isidro_rg", "x", "profile", True),
+        ("http://twitter.com/isidro_rg/", "x", "profile", True),
+        ("https://x.com/nombre_demasiado_largo", "x", "profile", False),
+        ("https://instagram.com/isidro.rg?hl=es", "instagram", "profile", True),
+        ("https://www.instagram.com/reel/C1a2B3c/", "instagram", "reel", True),
+        ("https://www.tiktok.com/@isidro", "tiktok", "profile", True),
+        ("https://www.tiktok.com/@isidro/video/123", "tiktok", "reel", True),
+        ("https://tiktok.com/isidro", "tiktok", "profile", False),
+        ("https://linkedin.com/in/isidro-rodriguez", "linkedin", "profile", True),
+        ("https://linkedin.com/company/acme", "linkedin", "page", True),
+        ("  https://github.com/isidro-rodriguez  ", "github", "profile", True),
+        ("ftp://github.com/isidro-rodriguez", "github", "profile", False),
+        ("https://github.com.evil.com/user", "github", "profile", False),
+        ("https://github.com/user", "github", "reel", False),
+        ("https://x.com/user", "x", "page", False),
+        ("", "github", "profile", False),
+    ],
+)
+def test_valid_social_url(raw: str, social: str, variant: str, expected: bool) -> None:
+    result = iu.valid_social_url(raw, SocialPlatform(social), SocialVariant(variant))
+    assert result is expected
