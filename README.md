@@ -1,7 +1,7 @@
 # acodo_utils
 
 Una simple librería de utilidades. Consulta
-la [API web](https://isidro-rodriguez.github.io/irg-utils/).
+la [API web](https://isidro-rodriguez.github.io/acodo-utils/).
 
 > Requiere **Python >= 3.11** y no introduce dependencias.
 
