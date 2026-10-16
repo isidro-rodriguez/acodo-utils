@@ -25,6 +25,13 @@ valid_email("email_sin_punto@ejemplo-com")  # False
 ```
 
 
+Tipos
+-----
+
+`acodo_utils.types` define la enumeración `SocialLink`, usada por
+`valid_social_url`.
+
+
 Convenio de nombrado
 --------------------
 Las funciones se agrupan por categoría, cada categoría empieza por un
@@ -130,6 +137,7 @@ from .validators import (
     valid_port,
     valid_postal_code,
     valid_slug,
+    valid_social_url,
     valid_url,
     valid_uuid,
 )
@@ -194,6 +202,7 @@ __all__ = [
     "valid_port",
     "valid_postal_code",
     "valid_slug",
+    "valid_social_url",
     "valid_url",
     "valid_uuid",
 ]
