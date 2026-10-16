@@ -28,8 +28,8 @@ valid_email("email_sin_punto@ejemplo-com") # False
 Tipos
 -----
 
-`irg_utils.types` define las enumeraciones `SocialPlatform` y
-`SocialVariant`, usadas por `valid_social_url`.
+`irg_utils.types` define la enumeración `SocialLink`, usada por
+`valid_social_url`.
 
 
 Convenio de nombrado

@@ -1,100 +1,107 @@
-"""Tipos compartidos del paquete: enumeraciones de redes sociales."""
+"""Tipos compartidos del paquete: enumeración de enlaces de redes sociales."""
 
 from __future__ import annotations
 
 import re
 from enum import StrEnum, auto
-from functools import cache
+from functools import cached_property
 
 # Usuario de GitHub: 1-39 caracteres, sin guiones al inicio ni al final.
 _GITHUB_USER = r"[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?"
 
-_FACEBOOK_HOSTS = r"facebook\.com|fb\.com"
+_FACEBOOK = r"(?:facebook\.com|fb\.com)"
+
+_X = r"(?:x\.com|twitter\.com)"
 
 
-def _social_pattern(hosts: str, path: str) -> re.Pattern[str]:
-    # Esquema y `www.` opcionales; admite barra final, query y fragmento.
+def _social_pattern(*routes: str) -> re.Pattern[str]:
+    # Cada ruta es `host/ruta`. Esquema y `www.`/`m.` opcionales; admite
+    # barra final, query y fragmento.
+    body = "|".join(routes)
     return re.compile(
-        rf"(?:https?://)?(?:www\.)?(?:{hosts})/{path}/?(?:[?#]\S*)?",
+        rf"(?:https?://)?(?:www\.|m\.)?(?:{body})/?(?:[?#]\S*)?",
         re.IGNORECASE,
     )
 
 
-class SocialVariant(StrEnum):
-    """Tipos de enlace de red social.
+class SocialLink(StrEnum):
+    """Tipos de enlace de red social soportados por `valid_social_url`.
+
+    Cada miembro es una plataforma y el nombre que esa red da al contenido:
+    perfil, página, repositorio, canal, reel, short, vídeo...
 
     Examples:
-        >>> SocialVariant.REEL
-        <SocialVariant.REEL: 'reel'>
-        >>> SocialVariant("page") is SocialVariant.PAGE
+        >>> SocialLink.GITHUB_REPO
+        <SocialLink.GITHUB_REPO: 'github_repo'>
+        >>> SocialLink("tiktok_video") is SocialLink.TIKTOK_VIDEO
+        True
+        >>> bool(SocialLink.X_PROFILE.pattern.fullmatch("https://x.com/isidro_rg"))
         True
     """
 
-    PROFILE = auto()
-    PAGE = auto()
-    REEL = auto()
+    FACEBOOK_PAGE = auto()
+    FACEBOOK_PROFILE = auto()
+    FACEBOOK_REEL = auto()
+    GITHUB_PROFILE = auto()
+    GITHUB_REPO = auto()
+    INSTAGRAM_PROFILE = auto()
+    INSTAGRAM_REEL = auto()
+    LINKEDIN_COMPANY = auto()
+    LINKEDIN_PROFILE = auto()
+    TIKTOK_PROFILE = auto()
+    TIKTOK_VIDEO = auto()
+    X_PROFILE = auto()
+    YOUTUBE_CHANNEL = auto()
+    YOUTUBE_SHORT = auto()
+    YOUTUBE_VIDEO = auto()
 
-
-class SocialPlatform(StrEnum):
-    """Redes sociales soportadas por `valid_social_url`.
-
-    Examples:
-        >>> SocialPlatform.GITHUB
-        <SocialPlatform.GITHUB: 'github'>
-        >>> SocialPlatform("x") is SocialPlatform.X
-        True
-    """
-
-    GITHUB = auto()
-    FACEBOOK = auto()
-    X = auto()
-    INSTAGRAM = auto()
-    TIKTOK = auto()
-    LINKEDIN = auto()
-
-    @cache
-    def pattern(self, variant: SocialVariant) -> re.Pattern[str] | None:
-        """Devuelve la expresión regular de un tipo de enlace de la plataforma.
-
-        Solo existen las combinaciones plataforma/variante que tienen sentido.
-        En GitHub, `PAGE` es un repositorio; en TikTok, `REEL` es un vídeo.
-
-        Args:
-            variant: Tipo de enlace (`SocialVariant`).
-
-        Returns:
-            El patrón compilado, o `None` si la plataforma no tiene esa variante.
+    @cached_property
+    def pattern(self) -> re.Pattern[str]:
+        """Expresión regular compilada que valida este tipo de enlace.
 
         Examples:
-            >>> SocialPlatform.GITHUB.pattern(SocialVariant.PROFILE) is not None
+            >>> SocialLink.YOUTUBE_SHORT.pattern.fullmatch(
+            ...     "https://youtube.com/shorts/dQw4w9WgXcQ"
+            ... ) is not None
             True
-            >>> SocialPlatform.GITHUB.pattern(SocialVariant.REEL) is None
+            >>> SocialLink.GITHUB_PROFILE.pattern.fullmatch("https://x.com/a") is None
             True
         """
-        match self, variant:
-            case SocialPlatform.GITHUB, SocialVariant.PROFILE:
-                return _social_pattern(r"github\.com", _GITHUB_USER)
-            case SocialPlatform.GITHUB, SocialVariant.PAGE:
-                return _social_pattern(r"github\.com", rf"{_GITHUB_USER}/[\w.-]+")
-            case SocialPlatform.FACEBOOK, SocialVariant.PROFILE:
-                return _social_pattern(_FACEBOOK_HOSTS, r"[a-zA-Z0-9.]{5,50}")
-            case SocialPlatform.FACEBOOK, SocialVariant.PAGE:
-                return _social_pattern(_FACEBOOK_HOSTS, r"pages/[\w%-]+/\d+")
-            case SocialPlatform.FACEBOOK, SocialVariant.REEL:
-                return _social_pattern(_FACEBOOK_HOSTS, r"reel/\d+")
-            case SocialPlatform.X, SocialVariant.PROFILE:
-                return _social_pattern(r"x\.com|twitter\.com", r"\w{1,15}")
-            case SocialPlatform.INSTAGRAM, SocialVariant.PROFILE:
-                return _social_pattern(r"instagram\.com", r"[\w.]{1,30}")
-            case SocialPlatform.INSTAGRAM, SocialVariant.REEL:
-                return _social_pattern(r"instagram\.com", r"reels?/[\w-]+")
-            case SocialPlatform.TIKTOK, SocialVariant.PROFILE:
-                return _social_pattern(r"tiktok\.com", r"@[\w.]{2,24}")
-            case SocialPlatform.TIKTOK, SocialVariant.REEL:
-                return _social_pattern(r"tiktok\.com", r"@[\w.]{2,24}/video/\d+")
-            case SocialPlatform.LINKEDIN, SocialVariant.PROFILE:
-                return _social_pattern(r"linkedin\.com", r"in/[\w%-]{3,100}")
-            case SocialPlatform.LINKEDIN, SocialVariant.PAGE:
-                return _social_pattern(r"linkedin\.com", r"company/[\w%-]+")
-            case _:
-                return None
+        match self:
+            case SocialLink.FACEBOOK_PAGE:
+                return _social_pattern(rf"{_FACEBOOK}/pages/[\w%-]+/\d+")
+            case SocialLink.FACEBOOK_PROFILE:
+                return _social_pattern(rf"{_FACEBOOK}/[a-zA-Z0-9.]{{5,50}}")
+            case SocialLink.FACEBOOK_REEL:
+                return _social_pattern(rf"{_FACEBOOK}/reel/\d+")
+            case SocialLink.GITHUB_PROFILE:
+                return _social_pattern(rf"github\.com/{_GITHUB_USER}")
+            case SocialLink.GITHUB_REPO:
+                return _social_pattern(rf"github\.com/{_GITHUB_USER}/[\w.-]+")
+            case SocialLink.INSTAGRAM_PROFILE:
+                return _social_pattern(r"instagram\.com/[\w.]{1,30}")
+            case SocialLink.INSTAGRAM_REEL:
+                return _social_pattern(r"instagram\.com/reels?/[\w-]+")
+            case SocialLink.LINKEDIN_COMPANY:
+                return _social_pattern(r"linkedin\.com/company/[\w%-]+")
+            case SocialLink.LINKEDIN_PROFILE:
+                return _social_pattern(r"linkedin\.com/in/[\w%-]{3,100}")
+            case SocialLink.TIKTOK_PROFILE:
+                return _social_pattern(r"tiktok\.com/@[\w.]{2,24}")
+            case SocialLink.TIKTOK_VIDEO:
+                return _social_pattern(r"tiktok\.com/@[\w.]{2,24}/video/\d+")
+            case SocialLink.X_PROFILE:
+                return _social_pattern(rf"{_X}/\w{{1,15}}")
+            case SocialLink.YOUTUBE_CHANNEL:
+                return _social_pattern(
+                    r"youtube\.com/(?:@[\w.-]{3,30}|channel/UC[\w-]{22}|(?:c|user)/[\w.-]+)"
+                )
+            case SocialLink.YOUTUBE_SHORT:
+                return _social_pattern(r"youtube\.com/shorts/[\w-]{11}")
+            case (
+                _
+            ):  # YOUTUBE_VIDEO: `watch?v=ID` (con otros parámetros) o `youtu.be/ID`.
+                return _social_pattern(
+                    r"youtube\.com/watch\?(?:[\w=%.-]+&)*v=[\w-]{11}(?:&\S*)?",
+                    r"youtu\.be/[\w-]{11}",
+                )

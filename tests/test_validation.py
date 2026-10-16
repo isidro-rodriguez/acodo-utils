@@ -3,7 +3,7 @@
 import pytest
 
 import irg_utils as iu
-from irg_utils.types import SocialPlatform, SocialVariant
+from irg_utils.types import SocialLink
 
 
 @pytest.mark.parametrize(
@@ -498,32 +498,48 @@ def test_valid_postal_code(raw: str, expected: bool) -> None:
 
 
 @pytest.mark.parametrize(
-    ("raw", "social", "variant", "expected"),
+    ("raw", "link", "expected"),
     [
-        ("https://github.com/isidro-rodriguez", "github", "profile", True),
-        ("github.com/isidro-rodriguez/irg-utils", "github", "page", True),
-        ("https://github.com/-malo", "github", "profile", False),
-        ("https://facebook.com/isidro.rodriguez", "facebook", "profile", True),
-        ("https://www.facebook.com/pages/Mi-Pagina/123456", "facebook", "page", True),
-        ("https://fb.com/reel/123456789", "facebook", "reel", True),
-        ("https://x.com/isidro_rg", "x", "profile", True),
-        ("http://twitter.com/isidro_rg/", "x", "profile", True),
-        ("https://x.com/nombre_demasiado_largo", "x", "profile", False),
-        ("https://instagram.com/isidro.rg?hl=es", "instagram", "profile", True),
-        ("https://www.instagram.com/reel/C1a2B3c/", "instagram", "reel", True),
-        ("https://www.tiktok.com/@isidro", "tiktok", "profile", True),
-        ("https://www.tiktok.com/@isidro/video/123", "tiktok", "reel", True),
-        ("https://tiktok.com/isidro", "tiktok", "profile", False),
-        ("https://linkedin.com/in/isidro-rodriguez", "linkedin", "profile", True),
-        ("https://linkedin.com/company/acme", "linkedin", "page", True),
-        ("  https://github.com/isidro-rodriguez  ", "github", "profile", True),
-        ("ftp://github.com/isidro-rodriguez", "github", "profile", False),
-        ("https://github.com.evil.com/user", "github", "profile", False),
-        ("https://github.com/user", "github", "reel", False),
-        ("https://x.com/user", "x", "page", False),
-        ("", "github", "profile", False),
+        ("https://github.com/isidro-rodriguez", "GITHUB_PROFILE", True),
+        ("github.com/isidro-rodriguez/irg-utils", "GITHUB_REPO", True),
+        ("https://github.com/-malo", "GITHUB_PROFILE", False),
+        ("https://github.com/user", "GITHUB_REPO", False),
+        ("https://facebook.com/isidro.rodriguez", "FACEBOOK_PROFILE", True),
+        ("https://m.facebook.com/pages/Mi-Pagina/123456", "FACEBOOK_PAGE", True),
+        ("https://fb.com/reel/123456789", "FACEBOOK_REEL", True),
+        ("https://x.com/isidro_rg", "X_PROFILE", True),
+        ("http://twitter.com/isidro_rg/", "X_PROFILE", True),
+        ("https://x.com/nombre_demasiado_largo", "X_PROFILE", False),
+        ("https://instagram.com/isidro.rg?hl=es", "INSTAGRAM_PROFILE", True),
+        ("https://www.instagram.com/reel/C1a2B3c/", "INSTAGRAM_REEL", True),
+        ("https://www.tiktok.com/@isidro", "TIKTOK_PROFILE", True),
+        ("https://www.tiktok.com/@isidro/video/123", "TIKTOK_VIDEO", True),
+        ("https://tiktok.com/isidro", "TIKTOK_PROFILE", False),
+        ("https://linkedin.com/in/isidro-rodriguez", "LINKEDIN_PROFILE", True),
+        ("https://linkedin.com/company/acme", "LINKEDIN_COMPANY", True),
+        ("https://www.youtube.com/@isidro", "YOUTUBE_CHANNEL", True),
+        (
+            "https://youtube.com/channel/UCabcdefghijklmnopqrstuv",
+            "YOUTUBE_CHANNEL",
+            True,
+        ),
+        ("https://youtube.com/c/isidro", "YOUTUBE_CHANNEL", True),
+        ("https://youtube.com/user/isidro", "YOUTUBE_CHANNEL", True),
+        ("https://youtube.com/shorts/dQw4w9WgXcQ", "YOUTUBE_SHORT", True),
+        ("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "YOUTUBE_VIDEO", True),
+        (
+            "https://youtube.com/watch?list=PL1&v=dQw4w9WgXcQ&t=10",
+            "YOUTUBE_VIDEO",
+            True,
+        ),
+        ("https://youtu.be/dQw4w9WgXcQ?t=10", "YOUTUBE_VIDEO", True),
+        ("https://youtu.be/corto", "YOUTUBE_VIDEO", False),
+        ("  https://github.com/isidro-rodriguez  ", "GITHUB_PROFILE", True),
+        ("ftp://github.com/isidro-rodriguez", "GITHUB_PROFILE", False),
+        ("https://github.com.evil.com/user", "GITHUB_PROFILE", False),
+        ("https://x.com/user", "GITHUB_PROFILE", False),
+        ("", "GITHUB_PROFILE", False),
     ],
 )
-def test_valid_social_url(raw: str, social: str, variant: str, expected: bool) -> None:
-    result = iu.valid_social_url(raw, SocialPlatform(social), SocialVariant(variant))
-    assert result is expected
+def test_valid_social_url(raw: str, link: str, expected: bool) -> None:
+    assert iu.valid_social_url(raw, SocialLink[link]) is expected

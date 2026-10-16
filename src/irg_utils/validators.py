@@ -25,7 +25,7 @@ from .converters import (
     to_port,
     to_timedelta,
 )
-from .types import SocialPlatform, SocialVariant
+from .types import SocialLink
 
 # =============================================================================
 #  Constantes
@@ -701,47 +701,31 @@ def valid_slug(raw: str) -> bool:
     return re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", raw) is not None
 
 
-def valid_social_url(raw: str, social: SocialPlatform, variant: SocialVariant) -> bool:
+def valid_social_url(raw: str, link: SocialLink) -> bool:
     """Comprueba que es un enlace de red social válido.
 
-    Solo comprueba el formato: no verifica que el perfil exista. Las
-    combinaciones de plataforma y variante que no existen (por ejemplo, un
-    reel de GitHub) no son válidas.
+    Solo comprueba el formato: no verifica que el contenido exista.
 
     Args:
         raw: String a validar como enlace de red social.
-        social: Red social esperada (`SocialPlatform`): `GITHUB`, `FACEBOOK`,
-            `X`, `INSTAGRAM`, `TIKTOK` o `LINKEDIN`.
-        variant: Tipo de enlace esperado (`SocialVariant`): `PROFILE`, `PAGE`
-            o `REEL`. En TikTok, `REEL` es el enlace a un vídeo; en GitHub,
-            `PAGE` es un repositorio.
+        link: Tipo de enlace esperado (`SocialLink`), por ejemplo
+            `GITHUB_REPO`, `INSTAGRAM_REEL` o `YOUTUBE_CHANNEL`.
 
     Returns:
-        `True` si `raw` es un enlace válido de esa plataforma y variante.
+        `True` si `raw` es un enlace válido del tipo indicado.
 
     Examples:
-        >>> from irg_utils.types import SocialPlatform, SocialVariant
-        >>> valid_social_url(
-        ...     "https://github.com/isidro-rodriguez",
-        ...     SocialPlatform.GITHUB,
-        ...     SocialVariant.PROFILE,
-        ... )
+        >>> from irg_utils.types import SocialLink
+        >>> valid_social_url("https://github.com/isidro", SocialLink.GITHUB_PROFILE)
         True
-        >>> valid_social_url(
-        ...     "instagram.com/reel/C1a2B3c/",
-        ...     SocialPlatform.INSTAGRAM,
-        ...     SocialVariant.REEL,
-        ... )
+        >>> valid_social_url("instagram.com/reel/C1a2B3c/", SocialLink.INSTAGRAM_REEL)
         True
-        >>> valid_social_url(
-        ...     "https://github.com/user",
-        ...     SocialPlatform.GITHUB,
-        ...     SocialVariant.REEL,
-        ... )
+        >>> valid_social_url("https://youtu.be/dQw4w9WgXcQ", SocialLink.YOUTUBE_VIDEO)
+        True
+        >>> valid_social_url("https://github.com/user", SocialLink.GITHUB_REPO)
         False
     """
-    pattern = social.pattern(variant)
-    return pattern is not None and pattern.fullmatch(raw.strip()) is not None
+    return link.pattern.fullmatch(raw.strip()) is not None
 
 
 def valid_url(raw: str) -> bool:
