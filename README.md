@@ -1,4 +1,4 @@
-# irg_utils
+# acodo_utils
 
 Módulo de funciones utilitarias que pueden reutilizarse en cualquier aplicación.
 
@@ -15,7 +15,7 @@ uv add git+https://github.com/isidro-rodriguez/irg-utils
 ## Uso
 
 ```python
-from irg_utils import to_bool, valid_email
+from acodo_utils import to_bool, valid_email
 
 to_bool("sí")  # True
 valid_email("hola")  # False
@@ -45,7 +45,7 @@ uv run pre-commit run --all-files
 uv run py scripts/gh_token.py
 
 # Consulta offline de la API en <http://localhost:8080>
-uv run pdoc .\src\irg_utils\ -d google 
+uv run pdoc .\src\acodo_utils\ -d google 
 ```
 
 ## Licencia

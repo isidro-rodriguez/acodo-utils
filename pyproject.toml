@@ -1,25 +1,42 @@
 [project]
-name = "irg-utils"
-version = "3.1.0"
+name = "acodo-utils"
+version = "4.0.0"
 description = "Utilidades de uso compartido entre proyectos."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
 
+
+# =============================================================================
+#  Dependencias
+# =============================================================================
+
+
 [dependency-groups]
 dev = [
     "pdoc>=16.0.0",
     "pre-commit>=4.3.0",
-    "pyjwt[crypto]>=2.15.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.17.0",
     "ty>=0.0.86",
 ]
 
+
+# =============================================================================
+#  Configuración básica
+# =============================================================================
+
+
 [build-system]
 requires = ["uv_build>=0.11.7,<0.12.0"]
 build-backend = "uv_build"
+
+
+# =============================================================================
+#  Astral Ruff
+# =============================================================================
+
 
 [tool.ruff]
 line-length = 88
@@ -34,8 +51,27 @@ convention = "google"
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["D"]
 
+
+# =============================================================================
+#  Astral Ty
+# =============================================================================
+
+
 [tool.ty.src]
 include = ["src"]
+
+[tool.ty.analysis]
+strict-equality-semantics = true
+strict-generic-narrowing = true
+
+[tool.ty.rules]
+possibly-unresolved-reference = "error"
+
+
+# =============================================================================
+#  PyTest
+# =============================================================================
+
 
 [tool.pytest.ini_options]
 testpaths = ["src", "tests"]
@@ -49,3 +85,8 @@ addopts = [
 
 [tool.coverage.report]
 exclude_also = ["if TYPE_CHECKING:"]
+
+
+# =============================================================================
+#  Otros
+# =============================================================================
