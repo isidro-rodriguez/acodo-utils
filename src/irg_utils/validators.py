@@ -75,64 +75,6 @@ _WINDOWS_RESERVED_NAMES = frozenset(
     }
 )
 
-
-# Usuario de GitHub: 1-39 caracteres, sin guiones al inicio ni al final.
-_GITHUB_USER = r"[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?"
-
-_FACEBOOK_HOSTS = r"facebook\.com|fb\.com"
-
-
-def _social_pattern(hosts: str, path: str) -> re.Pattern[str]:
-    # Esquema y `www.` opcionales; admite barra final, query y fragmento.
-    return re.compile(
-        rf"(?:https?://)?(?:www\.)?(?:{hosts})/{path}/?(?:[?#]\S*)?",
-        re.IGNORECASE,
-    )
-
-
-# Solo las combinaciones plataforma/variante que existen; el resto no es válido.
-_SOCIAL_PATTERNS = {
-    (SocialPlatform.GITHUB, SocialVariant.PROFILE): _social_pattern(
-        r"github\.com", _GITHUB_USER
-    ),
-    # En GitHub, `page` es un repositorio.
-    (SocialPlatform.GITHUB, SocialVariant.PAGE): _social_pattern(
-        r"github\.com", rf"{_GITHUB_USER}/[\w.-]+"
-    ),
-    (SocialPlatform.FACEBOOK, SocialVariant.PROFILE): _social_pattern(
-        _FACEBOOK_HOSTS, r"[a-zA-Z0-9.]{5,50}"
-    ),
-    (SocialPlatform.FACEBOOK, SocialVariant.PAGE): _social_pattern(
-        _FACEBOOK_HOSTS, r"pages/[\w%-]+/\d+"
-    ),
-    (SocialPlatform.FACEBOOK, SocialVariant.REEL): _social_pattern(
-        _FACEBOOK_HOSTS, r"reel/\d+"
-    ),
-    (SocialPlatform.X, SocialVariant.PROFILE): _social_pattern(
-        r"x\.com|twitter\.com", r"\w{1,15}"
-    ),
-    (SocialPlatform.INSTAGRAM, SocialVariant.PROFILE): _social_pattern(
-        r"instagram\.com", r"[\w.]{1,30}"
-    ),
-    (SocialPlatform.INSTAGRAM, SocialVariant.REEL): _social_pattern(
-        r"instagram\.com", r"reels?/[\w-]+"
-    ),
-    (SocialPlatform.TIKTOK, SocialVariant.PROFILE): _social_pattern(
-        r"tiktok\.com", r"@[\w.]{2,24}"
-    ),
-    # TikTok no tiene reels: el equivalente es el vídeo.
-    (SocialPlatform.TIKTOK, SocialVariant.REEL): _social_pattern(
-        r"tiktok\.com", r"@[\w.]{2,24}/video/\d+"
-    ),
-    (SocialPlatform.LINKEDIN, SocialVariant.PROFILE): _social_pattern(
-        r"linkedin\.com", r"in/[\w%-]{3,100}"
-    ),
-    (SocialPlatform.LINKEDIN, SocialVariant.PAGE): _social_pattern(
-        r"linkedin\.com", r"company/[\w%-]+"
-    ),
-}
-
-
 # =============================================================================
 #  Validaciones
 # =============================================================================
@@ -798,7 +740,7 @@ def valid_social_url(raw: str, social: SocialPlatform, variant: SocialVariant) -
         ... )
         False
     """
-    pattern = _SOCIAL_PATTERNS.get((social, variant))
+    pattern = social.pattern(variant)
     return pattern is not None and pattern.fullmatch(raw.strip()) is not None
 
 
