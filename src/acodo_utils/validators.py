@@ -25,6 +25,7 @@ from .converters import (
     to_port,
     to_timedelta,
 )
+from .types import SocialLink
 
 # =============================================================================
 #  Constantes
@@ -73,7 +74,6 @@ _WINDOWS_RESERVED_NAMES = frozenset(
         *(f"lpt{n}" for n in range(1, 10)),
     }
 )
-
 
 # =============================================================================
 #  Validaciones
@@ -699,6 +699,33 @@ def valid_slug(raw: str) -> bool:
         False
     """
     return re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", raw) is not None
+
+
+def valid_social_url(raw: str, link: SocialLink) -> bool:
+    """Comprueba que es un enlace de red social válido.
+
+    Solo comprueba el formato: no verifica que el contenido exista.
+
+    Args:
+        raw: String a validar como enlace de red social.
+        link: Tipo de enlace esperado (`SocialLink`), por ejemplo
+            `GITHUB_REPO`, `INSTAGRAM_REEL` o `YOUTUBE_CHANNEL`.
+
+    Returns:
+        `True` si `raw` es un enlace válido del tipo indicado.
+
+    Examples:
+        >>> from acodo_utils.types import SocialLink
+        >>> valid_social_url("https://github.com/isidro", SocialLink.GITHUB_PROFILE)
+        True
+        >>> valid_social_url("instagram.com/reel/C1a2B3c/", SocialLink.INSTAGRAM_REEL)
+        True
+        >>> valid_social_url("https://youtu.be/dQw4w9WgXcQ", SocialLink.YOUTUBE_VIDEO)
+        True
+        >>> valid_social_url("https://github.com/user", SocialLink.GITHUB_REPO)
+        False
+    """
+    return link.pattern.fullmatch(raw.strip()) is not None
 
 
 def valid_url(raw: str) -> bool:
