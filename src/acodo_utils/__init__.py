@@ -9,7 +9,7 @@ Uso rápido
 Para instalar o actualizar el paquete:
 
 ```bash
-uv add git+https://github.com/isidro-rodriguez/irg-utils
+uv add git+https://github.com/isidro-rodriguez/acodo-utils
 ```
 
 Uso:
@@ -59,7 +59,7 @@ Solo se lanza `ValueError` ante argumentos ambiguos o inválidos:
 
 Enlaces de interés
 ------------------
-- [Repositorio del proyecto](https://github.com/isidro-rodriguez/irg-utils)
+- [Repositorio del proyecto](https://github.com/isidro-rodriguez/acodo-utils)
 - [Documentación de Python](https://docs.python.org/3/)
 - [PEP 8: guía de estilo](https://peps.python.org/pep-0008/)
 - [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html)
@@ -104,6 +104,7 @@ from .getters import (
     get_random_token,
     get_uuid,
 )
+from .logger import get_logger
 from .parsers import (
     parse_amount,
     parse_bool,
@@ -147,6 +148,7 @@ __all__ = [
     "get_file_hash",
     "get_hash",
     "get_hmac",
+    "get_logger",
     "get_now",
     "get_otp",
     "get_password_hash",
