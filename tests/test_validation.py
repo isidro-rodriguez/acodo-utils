@@ -501,7 +501,7 @@ def test_valid_postal_code(raw: str, expected: bool) -> None:
     ("raw", "link", "expected"),
     [
         ("https://github.com/isidro-rodriguez", "GITHUB_PROFILE", True),
-        ("github.com/isidro-rodriguez/irg-utils", "GITHUB_REPO", True),
+        ("github.com/isidro-rodriguez/acodo-utils", "GITHUB_REPO", True),
         ("https://github.com/-malo", "GITHUB_PROFILE", False),
         ("https://github.com/user", "GITHUB_REPO", False),
         ("https://facebook.com/isidro.rodriguez", "FACEBOOK_PROFILE", True),

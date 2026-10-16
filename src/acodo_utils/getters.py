@@ -40,16 +40,16 @@ def get_env(
     required: Literal[False] = False,
 ) -> str | None: ...
 @overload
-def get_env(
+def get_env[T](
     name: str,
     cast: Callable[[str], T | None],
     *,
     required: Literal[True],
 ) -> T: ...
 @overload
-def get_env(name: str, cast: Callable[[str], T | None], default: T) -> T: ...
+def get_env[T](name: str, cast: Callable[[str], T | None], default: T) -> T: ...
 @overload
-def get_env(
+def get_env[T](
     name: str,
     cast: Callable[[str], T | None],
     default: None = None,
@@ -308,7 +308,7 @@ def get_password_hash(
         raise ValueError(f"Algoritmo de hash no soportado: {algorithm!r}.") from exc
 
 
-def get_random_choice(seq: Sequence[T]) -> T:
+def get_random_choice[T](seq: Sequence[T]) -> T:
     """Elige un elemento al azar de una secuencia usando `secrets` (CSPRNG).
 
     Args:

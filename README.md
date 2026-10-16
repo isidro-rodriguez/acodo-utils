@@ -3,14 +3,14 @@
 Una simple librería de utilidades. Consulta
 la [API web](https://isidro-rodriguez.github.io/acodo-utils/).
 
-> Requiere **Python >= 3.11** y no introduce dependencias.
+> Requiere **Python >= 3.13** y no introduce dependencias.
 
 ## Instalación
 
 Para instalar o actualizar el paquete.
 
 ```bash
-uv add git+https://github.com/isidro-rodriguez/irg-utils
+uv add git+https://github.com/isidro-rodriguez/acodo-utils
 ```
 
 ## Uso

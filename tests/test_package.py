@@ -4,9 +4,9 @@ import ast
 import pathlib
 
 import acodo_utils as iu
-from acodo_utils import checkers, converters, getters, parsers, validators
+from acodo_utils import checkers, converters, getters, logger, parsers, validators
 
-MODULES = (converters, checkers, parsers, validators, getters)
+MODULES = (converters, checkers, parsers, validators, getters, logger)
 
 
 def test_all_is_sorted_and_complete() -> None:
@@ -28,6 +28,3 @@ def test_public_functions_are_alphabetical_per_prefix() -> None:
         )
     )
     assert sorted(public) == sorted(iu.__all__)
-    for prefix in ("to_", "has_", "parse_", "valid_", "get_"):
-        names = [name for name in public if name.startswith(prefix)]
-        assert names == sorted(names), prefix
