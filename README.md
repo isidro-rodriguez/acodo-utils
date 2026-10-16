@@ -1,8 +1,9 @@
 # acodo_utils
 
-Módulo de funciones utilitarias que pueden reutilizarse en cualquier aplicación.
+Una simple librería de utilidades. Consulta
+la [API web](https://isidro-rodriguez.github.io/irg-utils/)
 
-Requiere **Python >= 3.11** y no introduce dependencias.
+> Requiere **Python >= 3.11** y no introduce dependencias.
 
 ## Instalación
 
@@ -21,8 +22,6 @@ to_bool("sí")  # True
 valid_email("hola")  # False
 ```
 
-[API web](https://isidro-rodriguez.github.io/irg-utils/)
-
 ## Desarrollo
 
 ```bash
@@ -33,16 +32,7 @@ uv sync
 uv run ruff format
 uv run ruff check
 uv run ty check
-uv run pytest
-
-# Instalación de los hooks en .git
-uv run pre-commit install
-
-# Verificación manual de todos los hooks
-uv run pre-commit run --all-files
-
-# Generador de tokens para commits de agente
-uv run py scripts/gh_token.py
+uv run pytest --cov=src --cov-report=term-missing
 
 # Consulta offline de la API en <http://localhost:8080>
 uv run pdoc .\src\acodo_utils\ -d google 
