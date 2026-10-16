@@ -86,7 +86,7 @@ def get_env(
 
     Examples:
         >>> import os
-        >>> from irg_utils import to_int
+        >>> from acodo_utils import to_int
         >>> os.environ["IRG_PORT"] = "8080"
         >>> get_env("IRG_PORT")
         '8080'
@@ -386,7 +386,7 @@ def get_random_password(
         12
         >>> get_random_password(length=(6, 6), only_digits=True).isdigit()
         True
-        >>> from irg_utils import valid_password
+        >>> from acodo_utils import valid_password
         >>> password = get_random_password(special_characters="!?")
         >>> valid_password(password, length=(8, 16), special_characters="!?")
         True
@@ -435,7 +435,7 @@ def get_uuid() -> UUID:
         Un objeto `UUID` v4.
 
     Examples:
-        >>> from irg_utils import valid_uuid
+        >>> from acodo_utils import valid_uuid
         >>> valid_uuid(str(get_uuid()))
         True
     """

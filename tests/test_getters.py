@@ -5,8 +5,8 @@ from typing import assert_type
 
 import pytest
 
-import irg_utils as iu
-from irg_utils import to_bool, to_float, to_int
+import acodo_utils as iu
+from acodo_utils import to_bool, to_float, to_int
 
 
 def test_get_env_returns_str_by_default(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -229,7 +229,7 @@ def test_get_uuid_is_version_4() -> None:
 
 
 def test_get_uuid_is_valid_canonical() -> None:
-    from irg_utils import valid_uuid
+    from acodo_utils import valid_uuid
 
     assert valid_uuid(str(iu.get_uuid()))
 
@@ -239,7 +239,7 @@ def test_get_uuid_is_unique() -> None:
 
 
 def test_get_random_password_passes_validation() -> None:
-    from irg_utils import valid_password
+    from acodo_utils import valid_password
 
     for _ in range(50):
         password = iu.get_random_password()

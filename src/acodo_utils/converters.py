@@ -16,12 +16,12 @@ from email.utils import parsedate_to_datetime
 from json import loads
 from os import fspath
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, NoReturn, cast
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from os import PathLike
-    from typing import Any, NoReturn
+    from typing import Any, NoReturn, cast
 
 
 # =============================================================================
@@ -301,6 +301,8 @@ def to_dict(raw: object) -> dict[Any, Any] | None:
     """
 
     def _convert(value: object) -> object:
+        # `asdict` solo se llama en instancias de dataclass, nunca en la
+        # clase en sí, por eso se comprueba `not isinstance(value, type)`.
         if is_dataclass(value) and not isinstance(value, type):
             return asdict(value)
         if isinstance(value, Mapping):
@@ -308,12 +310,19 @@ def to_dict(raw: object) -> dict[Any, Any] | None:
         return value
 
     if is_dataclass(raw) and not isinstance(raw, type):
+        # `asdict` solo se llama en instancias de dataclass, nunca en la
+        # clase en sí, por eso se comprueba `not isinstance(raw, type)`.
         result = asdict(raw)
     elif isinstance(raw, Mapping):
         result = {key: _convert(value) for key, value in raw.items()}
     elif isinstance(raw, Iterable):
+        # `isinstance(raw, Iterable)` no estreña el tipo en ty; se aplica
+        # `cast` para indicar explícitamente que `raw` es un iterable de pares.
         try:
-            result = {key: _convert(value) for key, value in raw}
+            result = {
+                key: _convert(value)
+                for key, value in cast(Iterable[tuple[Any, Any]], raw)
+            }
         except (TypeError, ValueError):
             return None
     else:

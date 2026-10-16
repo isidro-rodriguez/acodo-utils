@@ -7,7 +7,7 @@ from decimal import Decimal
 
 import pytest
 
-import irg_utils as iu
+import acodo_utils as iu
 
 
 @pytest.mark.parametrize(

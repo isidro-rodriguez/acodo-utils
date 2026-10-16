@@ -1,6 +1,6 @@
 """Tests de las comprobaciones (`has_*`)."""
 
-import irg_utils as iu
+import acodo_utils as iu
 
 
 def test_has_required_attrs() -> None:

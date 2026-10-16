@@ -20,7 +20,6 @@
 ├── tests/                  # Pytest checks
 ├── .gitattributes          # Git attributes (line endings, binary handling)
 ├── .gitignore              # Git ignore rules
-├── .pre-commit-config.yaml # Pre-commit hooks configuration
 ├── pyproject.toml          # Project metadata, dependencies, and tool config
 ├── README.md               # Minimal informative project overview
 └── AGENTS.md               # Instructions for the agent
@@ -42,7 +41,6 @@ uv run ruff format .
 uv run ruff check .
 uv run ty check
 uv run pytest --cov=src --cov-report=term-missing
-uv run pre-commit run --all-files
 uv run pdoc -o docs/api src/<package>
 ```
 
@@ -132,7 +130,6 @@ A task is done when:
 - `uv run ruff check .` passes without errors.
 - `uv run ty check` passes without errors.
 - `uv run pytest --cov=src --cov-report=term-missing` passes.
-- `uv run pre-commit run --all-files` passes.
 - Documentation and README are updated if the API or usage changes.
 - The commit is atomic and in Spanish.
 

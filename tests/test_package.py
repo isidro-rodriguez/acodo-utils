@@ -1,10 +1,10 @@
-"""Tests estructurales del paquete irg_utils."""
+"""Tests estructurales del paquete acodo_utils."""
 
 import ast
 import pathlib
 
-import irg_utils as iu
-from irg_utils import checkers, converters, getters, parsers, validators
+import acodo_utils as iu
+from acodo_utils import checkers, converters, getters, parsers, validators
 
 MODULES = (converters, checkers, parsers, validators, getters)
 
