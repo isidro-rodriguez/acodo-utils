@@ -3,7 +3,7 @@
 Una simple librería de utilidades. Consulta
 la [API web](https://isidro-rodriguez.github.io/acodo-utils/).
 
-> Requiere **Python >= 3.13** y no introduce dependencias.
+> Requiere **Python >= 3.12** y no introduce dependencias.
 
 ## Instalación
 

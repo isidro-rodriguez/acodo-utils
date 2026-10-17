@@ -1,6 +1,6 @@
 r"""Módulo de funciones utilitarias que pueden reutilizarse en cualquier aplicación.
 
-Requiere **Python >= 3.11** y no introduce dependencias.
+Requiere **Python >= 3.12** y no introduce dependencias.
 
 
 Uso rápido
