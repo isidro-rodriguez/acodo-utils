@@ -5,9 +5,9 @@ import pathlib
 from types import ModuleType
 
 import acodo_utils as iu
-from acodo_utils import checkers, converters, getters, logger, parsers, validators
+from acodo_utils import checkers, converters, getters, parsers, validators
 
-MODULES = (converters, checkers, parsers, validators, getters, logger)
+MODULES = (converters, checkers, parsers, validators, getters)
 PREFIXES = ("to_", "has_", "parse_", "valid_", "get_")
 
 

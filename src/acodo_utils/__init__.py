@@ -96,6 +96,7 @@ from .getters import (
     get_file_hash,
     get_hash,
     get_hmac,
+    get_logger,
     get_now,
     get_otp,
     get_password_hash,
@@ -105,7 +106,6 @@ from .getters import (
     get_random_token,
     get_uuid,
 )
-from .logger import get_logger
 from .parsers import (
     parse_amount,
     parse_bool,
