@@ -153,6 +153,7 @@ class _Parent:
         (42, None),
         ([1, 2], None),
         ([("a", 1, 2)], None),
+        (["ab", "cd"], None),
     ],
 )
 def test_to_dict(raw: object, expected: dict | None) -> None:
@@ -277,6 +278,7 @@ def test_to_str(raw: object, expected: str | None) -> None:
         (-5, timedelta(seconds=-5)),
         (1.5, timedelta(seconds=1.5)),
         (None, None),
+        (True, None),
         (float("nan"), None),
         (float("inf"), None),
         (1e13, None),

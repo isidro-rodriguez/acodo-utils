@@ -21,7 +21,6 @@ from typing import TYPE_CHECKING, Any, NoReturn, cast
 if TYPE_CHECKING:
     from collections.abc import Iterator
     from os import PathLike
-    from typing import Any, NoReturn, cast
 
 
 # =============================================================================
@@ -317,12 +316,15 @@ def to_dict(raw: object) -> dict[Any, Any] | None:
         result = {key: _convert(value) for key, value in raw.items()}
     elif isinstance(raw, Iterable):
         # `isinstance(raw, Iterable)` no estreña el tipo en ty; se aplica
-        # `cast` para indicar explícitamente que `raw` es un iterable de pares.
+        # `cast` para indicar explícitamente que `raw` es un iterable.
+        result = {}
         try:
-            result = {
-                key: _convert(value)
-                for key, value in cast(Iterable[tuple[Any, Any]], raw)
-            }
+            for item in cast(Iterable[Any], raw):
+                # Un texto de dos caracteres se desempaquetaría como un par.
+                if isinstance(item, (str, bytes)):
+                    return None
+                key, value = item
+                result[key] = _convert(value)
         except (TypeError, ValueError):
             return None
     else:
@@ -564,6 +566,8 @@ def to_timedelta(raw: str | float | None) -> timedelta | None:
             float(number.replace(",", ".")) * _DURATION_UNITS[unit]
             for number, unit in tokens
         )
+    elif isinstance(raw, bool):
+        return None
     else:
         seconds = raw
     if (

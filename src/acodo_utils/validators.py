@@ -32,8 +32,12 @@ from .types import SocialLink
 # =============================================================================
 
 
+# Parte local: átomos separados por un único punto, sin puntos al inicio, al
+# final ni consecutivos (RFC 5322).
+_EMAIL_ATOM = r"[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+"
+
 _EMAIL_RE = re.compile(
-    r"[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+"
+    rf"{_EMAIL_ATOM}(?:\.{_EMAIL_ATOM})*"
     r"@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
     r"(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+"
 )
@@ -49,9 +53,10 @@ _TLD_RE = re.compile(r"[a-zA-Z]{2,}")
 # BIC/SWIFT (ISO 9362): 6 letras + 2 alfanuméricos + 3 opcionales.
 _BIC_RE = re.compile(r"[A-Z]{6}[A-Z0-9]{2}(?:[A-Z0-9]{3})?")
 
-# MAC de 48 bits: separada por `:`/`-`, por `.` (grupos de 4) o sin separar.
+# MAC de 48 bits: separada por `:` o `-` (siempre el mismo), por `.` (grupos de
+# 4) o sin separar.
 _MAC_RE = re.compile(
-    r"(?:[0-9A-F]{2}[:-]){5}[0-9A-F]{2}"
+    r"[0-9A-F]{2}(?P<sep>[:-])(?:[0-9A-F]{2}(?P=sep)){4}[0-9A-F]{2}"
     r"|[0-9A-F]{4}(?:\.[0-9A-F]{4}){2}"
     r"|[0-9A-F]{12}"
 )
