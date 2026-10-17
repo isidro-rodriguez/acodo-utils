@@ -1,8 +1,9 @@
-"""Servicio de registro de mensajes de pyMedia.
+"""Servicio de registro de mensajes.
 
-Envuelve el módulo estándar ``logging`` y lo configura con un handler de consola
-y, opcionalmente, un handler de fichero en el directorio de configuración del
-usuario o en una ruta explícita.
+Envuelve el módulo estándar ``logging`` con un logger con nombre que escribe
+por consola y, opcionalmente, en un fichero con rotación diaria. No modifica el
+logger raíz, así que no interfiere con los registros de otras bibliotecas ni de
+la propia aplicación.
 
 Este módulo no introduce dependencias externas: solo utiliza la biblioteca
 estándar de Python.
@@ -11,51 +12,22 @@ estándar de Python.
 from __future__ import annotations
 
 import logging
-import os
 import pprint
 import sys
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-# valid_filename only used inside get_logger; local import avoids circular import.
-# (import moved inside get_logger to avoid circular import)
+from .validators import valid_filename
 
-# =============================================================================
-# Estado global
-# =============================================================================
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
-_configured = False
-_logger_name = "acodo"
+_DEFAULT_NAME = "acodo"
 
 # =============================================================================
 # Helpers
 # =============================================================================
-
-
-def _get_config_dir(app_name: str) -> Path:
-    r"""Devuelve el directorio de configuración del usuario para una aplicación.
-
-    La ubicación depende del sistema operativo:
-
-    - **Linux/BSD**: ``~/.config/<app_name>``
-    - **macOS**: ``~/Library/Application Support/<app_name>``
-    - **Windows**: ``%APPDATA%\\<app_name>``
-
-    Args:
-        app_name: Nombre de la aplicación.
-
-    Returns:
-        Ruta al directorio de configuración (puede no existir todavía).
-    """
-    if sys.platform == "win32":
-        base = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
-        return base / app_name
-    if sys.platform == "darwin":
-        return Path.home() / "Library" / "Application Support" / app_name
-    # Linux y otros sistemas tipo Unix
-    base = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
-    return base / app_name
 
 
 def _prettify(value: Any) -> str:
@@ -81,8 +53,9 @@ class _DestinationFilter(logging.Filter):
         self._key = key
 
     def filter(self, record: logging.LogRecord) -> bool:
-        # Si el registro no lleva el flag, se deja pasar por defecto.
-        return getattr(record, self._key, True)
+        # Un registro sin la marca (emitido directamente con `logging`) se
+        # deja pasar a todos los destinos.
+        return bool(getattr(record, self._key, True))
 
 
 # =============================================================================
@@ -91,13 +64,17 @@ class _DestinationFilter(logging.Filter):
 
 
 class Logger:
-    """Wrapper sobre ``logging`` estándar con plantillas de locales."""
+    """Wrapper sobre ``logging`` que permite elegir el destino de cada mensaje.
+
+    Los valores con nombre se interpolan con ``%(nombre)s``; un ``%`` literal en
+    ``msg`` debe escribirse ``%%`` cuando se pasan valores.
+    """
 
     def __init__(self, logger: logging.Logger) -> None:
         """Inicializa el wrapper sobre un logger estándar.
 
         Args:
-            logger: Interfaz principal de la aplicación para generar mensajes.
+            logger: Logger estándar sobre el que se escribe.
         """
         self._logger = logger
 
@@ -109,23 +86,16 @@ class Logger:
         file: bool = True,
         **kwargs: object,
     ) -> None:
-        """Muestra log de nivel error.
+        """Registra un mensaje de nivel error.
 
         Args:
-            msg: Mensaje ya traducido a mostrar.
-            exc_info: Si ``True``, añade la traza de la excepción activa.
-            console: Si ``True``, se muestra por consola.
-            file: Si ``True``, se escribe en el fichero de log.
-            **kwargs: Valores para interpolar en ``msg`` vía ``%``.
+            msg: Mensaje a registrar.
+            exc_info: Si `True`, añade la traza de la excepción activa.
+            console: Si `True`, se muestra por consola.
+            file: Si `True`, se escribe en el fichero de log.
+            **kwargs: Valores para interpolar en `msg` con `%(nombre)s`.
         """
-        self._log(
-            level=logging.ERROR,
-            msg=msg,
-            console=console,
-            file=file,
-            exc_info=exc_info,
-            values=kwargs,
-        )
+        self._log(logging.ERROR, msg, console, file, kwargs, exc_info=exc_info)
 
     def warning(
         self,
@@ -134,21 +104,15 @@ class Logger:
         file: bool = True,
         **kwargs: object,
     ) -> None:
-        """Muestra log de nivel aviso (mensaje ya traducido).
+        """Registra un mensaje de nivel aviso.
 
         Args:
-            msg: Mensaje ya traducido a mostrar.
-            console: Si ``True``, se muestra por consola.
-            file: Si ``True``, se escribe en el fichero de log.
-            **kwargs: Valores para interpolar en ``msg`` vía ``%``.
+            msg: Mensaje a registrar.
+            console: Si `True`, se muestra por consola.
+            file: Si `True`, se escribe en el fichero de log.
+            **kwargs: Valores para interpolar en `msg` con `%(nombre)s`.
         """
-        self._log(
-            level=logging.WARNING,
-            msg=msg,
-            console=console,
-            file=file,
-            values=kwargs,
-        )
+        self._log(logging.WARNING, msg, console, file, kwargs)
 
     def info(
         self,
@@ -157,21 +121,15 @@ class Logger:
         file: bool = True,
         **kwargs: object,
     ) -> None:
-        """Muestra log de nivel información (mensaje ya traducido).
+        """Registra un mensaje de nivel información.
 
         Args:
-            msg: Mensaje ya traducido a mostrar.
-            console: Si ``True``, se muestra por consola.
-            file: Si ``True``, se escribe en el fichero de log.
-            **kwargs: Valores para interpolar en ``msg`` vía ``%``.
+            msg: Mensaje a registrar.
+            console: Si `True`, se muestra por consola.
+            file: Si `True`, se escribe en el fichero de log.
+            **kwargs: Valores para interpolar en `msg` con `%(nombre)s`.
         """
-        self._log(
-            level=logging.INFO,
-            msg=msg,
-            console=console,
-            file=file,
-            values=kwargs,
-        )
+        self._log(logging.INFO, msg, console, file, kwargs)
 
     def debug(
         self,
@@ -180,58 +138,40 @@ class Logger:
         file: bool = True,
         **kwargs: object,
     ) -> None:
-        """Muestra log de nivel depuración (mensaje ya traducido).
+        """Registra un mensaje de nivel depuración.
+
+        Los contenedores (`dict`, `list`, `tuple`, `set`) pasados como valores
+        se formatean en varias líneas para facilitar su lectura.
 
         Args:
-            msg: Mensaje ya traducido a mostrar.
-            console: Si ``True``, se muestra por consola.
-            file: Si ``True``, se escribe en el fichero de log.
-            **kwargs: Valores para interpolar en ``msg`` vía ``%``.
+            msg: Mensaje a registrar.
+            console: Si `True`, se muestra por consola.
+            file: Si `True`, se escribe en el fichero de log.
+            **kwargs: Valores para interpolar en `msg` con `%(nombre)s`.
         """
-        kwargs = {name: _prettify(value) for name, value in kwargs.items()}
-        self._log(
-            level=logging.DEBUG,
-            msg=msg,
-            console=console,
-            file=file,
-            values=kwargs,
-        )
+        values = {name: _prettify(value) for name, value in kwargs.items()}
+        self._log(logging.DEBUG, msg, console, file, values)
 
-    @staticmethod
-    def print(*args: Any, **kwargs: Any) -> None:
-        """Imprime un objeto por consola (equivalente a ``print``).
-
-        Args:
-            *args: Argumentos posicionales para ``print``.
-            **kwargs: Argumentos adicionales para ``print``.
-        """
-        print(*args, **kwargs)
-
-    # Implementación interna
     def _log(
         self,
         level: int,
         msg: str,
         console: bool,
         file: bool,
+        values: Mapping[str, object],
         *,
         exc_info: bool = False,
-        values: dict[str, object] | None = None,
     ) -> None:
-        """Envía el registro al logger interno filtrado por destino."""
+        # `logging` interpola de forma perezosa: solo si el nivel está activo.
+        # `stacklevel=3` apunta al código que llamó a `info`, `error`...
         self._logger.log(
-            level=level,
-            msg=self._render(msg=msg, kwargs=values or {}),
+            level,
+            msg,
+            *([values] if values else []),
             exc_info=exc_info,
             extra={"to_console": console, "to_file": file},
+            stacklevel=3,
         )
-
-    @staticmethod
-    def _render(msg: str, kwargs: dict[str, object]) -> str:
-        """Aplica ``%(name)s`` a ``msg`` si hay valores que sustituir."""
-        if kwargs:
-            return msg % kwargs
-        return msg
 
 
 # =============================================================================
@@ -240,76 +180,69 @@ class Logger:
 
 
 def get_logger(
+    name: str = _DEFAULT_NAME,
+    *,
     debug: bool = False,
-    app_name: str | None = None,
     file: Path | None = None,
-) -> Logger | None:
-    """Configura y devuelve un :class:`Logger`.
+) -> Logger:
+    """Configura y devuelve un :class:`Logger` con nombre.
 
-    La configuración es idempotente: solo se realiza la primera vez que se
-    invoca. En llamadas posteriores se devuelve el logger ya configurado.
+    La configuración es idempotente por nombre: solo se realiza la primera vez.
+    En llamadas posteriores con el mismo nombre se devuelve el logger ya
+    configurado y se ignoran `debug` y `file`. No se modifica el logger raíz.
 
     Args:
-        debug: Si ``True``, activa el nivel ``DEBUG``.
-        app_name: Si no es ``None``, crea el directorio de configuración del
-            sistema para esa aplicación y aloja el fichero de log allí.
-        file: Si no es ``None``, crea el fichero de log en la ruta indicada.
-            Tiene precedencia sobre ``app_name``.
+        name: Nombre del logger.
+        debug: Si `True`, activa el nivel `DEBUG` (por defecto, `INFO`).
+        file: Ruta del fichero de log, con rotación diaria y 7 copias. Si es
+            `None`, solo se escribe por consola. Se crean los directorios que
+            falten.
 
     Returns:
-        Instancia de :class:`Logger` lista para usar.
+        Instancia de `Logger` lista para usar.
+
+    Raises:
+        ValueError: Si `name` está vacío o `file` no tiene un nombre de
+            fichero válido.
+
+    Examples:
+        >>> log = get_logger("ejemplo")
+        >>> log.info("Procesando %(n)s ficheros", n=3)
+        Procesando 3 ficheros
     """
-    from acodo_utils.validators import valid_filename
+    if not name.strip():
+        raise ValueError("El nombre del logger no puede estar vacío.")
+    if file is not None and not valid_filename(file.name):
+        raise ValueError(f"Nombre de fichero de log no válido: {file.name!r}.")
 
-    if (app_name is not None and not valid_filename(app_name)) or (
-        file is not None and not valid_filename(str(file.name))
-    ):
-        return None
+    logger = logging.getLogger(name)
+    if logger.handlers:
+        return Logger(logger)
 
-    global _configured
-    global _logger_name
+    logger.setLevel(logging.DEBUG if debug else logging.INFO)
+    logger.propagate = False
 
-    if _configured:
-        return Logger(logging.getLogger(_logger_name))
-
-    if app_name is not None:
-        _logger_name = app_name
-
-    level = logging.DEBUG if debug else logging.INFO
-    root = logging.getLogger()
-    root.setLevel(level)
-
-    # Handler de consola
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(logging.Formatter("%(msg)s"))
+    console_handler.setFormatter(logging.Formatter("%(message)s"))
     console_handler.addFilter(_DestinationFilter("to_console"))
-    root.addHandler(console_handler)
+    logger.addHandler(console_handler)
 
-    # Handler de fichero (opcional)
-    log_path: Path | None = None
     if file is not None:
-        log_path = file
-    elif app_name is not None:
-        log_path = _get_config_dir(app_name) / f"{app_name}.log"
-
-    if log_path is not None:
-        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file.parent.mkdir(parents=True, exist_ok=True)
         file_handler = TimedRotatingFileHandler(
-            filename=log_path,
+            filename=file,
             when="midnight",
-            interval=1,
             backupCount=7,
             encoding="utf-8",
         )
         file_handler.suffix = "%Y-%m-%d"
         file_handler.setFormatter(
             logging.Formatter(
-                fmt="%(asctime)s %(levelname)-8s %(msg)s",
+                fmt="%(asctime)s %(levelname)-8s %(message)s",
                 datefmt="%Y-%m-%d %H:%M:%S",
             )
         )
         file_handler.addFilter(_DestinationFilter("to_file"))
-        root.addHandler(file_handler)
+        logger.addHandler(file_handler)
 
-    _configured = True
-    return Logger(logging.getLogger(_logger_name))
+    return Logger(logger)

@@ -1,162 +1,129 @@
 """Tests de logger."""
 
 import logging
-import os
+from collections.abc import Iterator
 from pathlib import Path
-from unittest.mock import patch
 
-import acodo_utils.logger as logger_mod
-from acodo_utils.logger import (
-    _DestinationFilter,
-    _prettify,
-    get_logger,
-)
+import pytest
+
+from acodo_utils import get_logger
 
 
-def reset_logger_state() -> None:
-    """Reset logger module state for testing."""
-    logger_mod._configured = False
-    logger_mod._logger_name = "acodo"
+@pytest.fixture
+def name(tmp_path: Path) -> Iterator[str]:
+    """Nombre de logger único por test; cierra sus handlers al terminar."""
+    logger_name = f"test-{tmp_path.name}"
+    yield logger_name
+    logger = logging.getLogger(logger_name)
+    for handler in logger.handlers[:]:
+        handler.close()
+        logger.removeHandler(handler)
 
 
-def test_get_logger_initial_and_repeated(tmp_path: Path) -> None:
-    """Test logger creation and idempotency."""
-    reset_logger_state()
-    log1 = get_logger(file=tmp_path / "a.log")
-    assert log1 is not None
-    log2 = get_logger()
-    assert log2 is not None
+def test_get_logger_is_idempotent(name: str) -> None:
+    get_logger(name)
+    handlers = list(logging.getLogger(name).handlers)
+    get_logger(name, debug=True)
+    assert logging.getLogger(name).handlers == handlers
+    assert logging.getLogger(name).level == logging.INFO
 
 
-def test_get_logger_creates_file(tmp_path: Path) -> None:
-    """Test that get_logger creates a log file when file is specified."""
-    reset_logger_state()
+def test_get_logger_does_not_touch_root(
+    name: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root = logging.getLogger()
+    handlers, level = list(root.handlers), root.level
+    get_logger(name, file=tmp_path / "a.log")
+    logging.getLogger("tercero").warning("ruido ajeno")
+    assert (list(root.handlers), root.level) == (handlers, level)
+    assert capsys.readouterr().out == ""
+    assert (tmp_path / "a.log").read_text(encoding="utf-8") == ""
+
+
+def test_get_logger_without_file_only_has_console(name: str) -> None:
+    get_logger(name)
+    assert len(logging.getLogger(name).handlers) == 1
+
+
+@pytest.mark.parametrize("bad_name", ["", "   "])
+def test_get_logger_rejects_blank_name(bad_name: str) -> None:
+    with pytest.raises(ValueError, match="nombre del logger"):
+        get_logger(bad_name)
+
+
+def test_get_logger_rejects_invalid_file(name: str, tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="no válido"):
+        get_logger(name, file=tmp_path / "bad?.log")
+    assert logging.getLogger(name).handlers == []
+
+
+def test_writes_to_console_and_file(
+    name: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = tmp_path / "sub" / "out.log"
+    get_logger(name, file=path).info("hola")
+    assert capsys.readouterr().out == "hola\n"
+    content = path.read_text(encoding="utf-8")
+    assert "INFO" in content
+    assert content.endswith("hola\n")
+
+
+def test_destination_flags(
+    name: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
     path = tmp_path / "out.log"
-    log = get_logger(file=path)
-    assert log is not None
-    assert path.parent.exists()
+    log = get_logger(name, file=path)
+    log.info("solo fichero", console=False)
+    log.info("solo consola", file=False)
+    assert capsys.readouterr().out == "solo consola\n"
+    content = path.read_text(encoding="utf-8")
+    assert "solo fichero" in content
+    assert "solo consola" not in content
 
 
-def test_get_logger_invalid_app_name(tmp_path: Path) -> None:
-    """Test that invalid app names return None."""
-    reset_logger_state()
-    assert get_logger(app_name="bad/name") is None
+def test_record_without_flags_reaches_all_destinations(
+    name: str, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = tmp_path / "out.log"
+    get_logger(name, file=path)
+    logging.getLogger(name).info("directo")
+    assert capsys.readouterr().out == "directo\n"
+    assert "directo" in path.read_text(encoding="utf-8")
 
 
-def test_get_logger_invalid_file(tmp_path: Path) -> None:
-    """Test that invalid file paths return None."""
-    reset_logger_state()
-    bad_path = tmp_path / "x.log"
-    bad_path.parent.mkdir(exist_ok=True)
-    assert get_logger(file=Path("..").with_name("bad?.log")) is None
+def test_levels(name: str, capsys: pytest.CaptureFixture[str]) -> None:
+    log = get_logger(name)
+    log.debug("depuración")
+    log.warning("aviso")
+    assert capsys.readouterr().out == "aviso\n"
 
 
-def test_get_logger_app_name_only(tmp_path: Path) -> None:
-    """Test get_logger with only app_name (not file)."""
-    reset_logger_state()
-    # Use a valid app name
-    log = get_logger(app_name="testapp")
-    assert log is not None
+def test_debug_level_and_prettified_values(
+    name: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    log = get_logger(name, debug=True)
+    log.debug("datos %(d)s y %(t)s", d={"a": 1}, t="texto")
+    assert capsys.readouterr().out == "datos {'a': 1} y texto\n"
 
 
-def test_get_logger_debug_mode(tmp_path: Path) -> None:
-    """Test that debug mode is handled correctly."""
-    reset_logger_state()
-    log = get_logger(debug=True, file=tmp_path / "debug.log")
-    assert log is not None
+def test_interpolation_and_literal_percent(
+    name: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    log = get_logger(name)
+    log.info("procesados %(n)s", n=3)
+    log.info("100% listo")
+    log.info("100%% de %(n)s", n=3)
+    assert capsys.readouterr().out == "procesados 3\n100% listo\n100% de 3\n"
 
 
-def test_get_logger_print() -> None:
-    """Test the print method of Logger class."""
-    logger_mod.Logger.print("print test")
-
-
-def test_prettify_dict() -> None:
-    """Test _prettify with a dictionary."""
-    result = _prettify({"a": 1, "b": 2})
-    assert "a" in result
-
-
-def test_prettify_list() -> None:
-    """Test _prettify with a list."""
-    result = _prettify([1, 2, 3])
-    assert "1" in result
-
-
-def test_prettify_string() -> None:
-    """Test _prettify with a string."""
-    assert _prettify("hello") == "hello"
-
-
-def test_destination_filter_allows() -> None:
-    """Test that _DestinationFilter allows records with to_console."""
-    filt = _DestinationFilter("to_console")
-    record = logging.LogRecord("test", logging.INFO, "", 0, "msg", (), None)
-    record.to_console = True
-    assert filt.filter(record) is True
-
-
-def test_destination_filter_missing_attr() -> None:
-    """Test that _DestinationFilter defaults to True when attr is missing."""
-    filt = _DestinationFilter("to_console")
-    record = logging.LogRecord("test", logging.INFO, "", 0, "msg", (), None)
-    assert filt.filter(record) is True
-
-
-def test_logger_error(tmp_path: Path) -> None:
-    """Test Logger.error method."""
-    reset_logger_state()
-    log = get_logger(file=tmp_path / "err.log")
-    log.error("error message", console=False, file=False)
-
-
-def test_logger_warning(tmp_path: Path) -> None:
-    """Test Logger.warning method."""
-    reset_logger_state()
-    log = get_logger(file=tmp_path / "warn.log")
-    log.warning("warning message", console=False, file=False)
-
-
-def test_logger_info(tmp_path: Path) -> None:
-    """Test Logger.info method."""
-    reset_logger_state()
-    log = get_logger(file=tmp_path / "info.log")
-    log.info("info message", console=False, file=False)
-
-
-def test_logger_debug(tmp_path: Path) -> None:
-    """Test Logger.debug method."""
-    reset_logger_state()
-    log = get_logger(debug=True, file=tmp_path / "debug.log")
-    log.debug("debug message", console=False, file=False)
-
-
-def test_logger_info_with_kwargs(tmp_path: Path) -> None:
-    """Test Logger.info with format kwargs."""
-    reset_logger_state()
-    log = get_logger(file=tmp_path / "info2.log")
-    log.info("value: %s", value="test", console=False, file=False)
-
-
-def test_get_config_dir_linux() -> None:
-    """Test _get_config_dir on Linux."""
-    with patch("acodo_utils.logger.sys.platform", "linux"):
-        with patch.dict(os.environ, {"XDG_CONFIG_HOME": "/test/config"}):
-            result = logger_mod._get_config_dir("myapp")
-            assert result == Path("/test/config/myapp")
-
-
-def test_get_config_dir_darwin() -> None:
-    """Test _get_config_dir on macOS."""
-    with patch("acodo_utils.logger.sys.platform", "darwin"):
-        with patch("pathlib.Path.home", return_value=Path("/home/user")):
-            result = logger_mod._get_config_dir("myapp")
-            assert "myapp" in str(result)
-
-
-def test_get_config_dir_win32() -> None:
-    """Test _get_config_dir on Windows."""
-    with patch("acodo_utils.logger.sys.platform", "win32"):
-        with patch.dict(os.environ, {"APPDATA": "C:/Users/test/AppData/Roaming"}):
-            result = logger_mod._get_config_dir("myapp")
-            assert result == Path("C:/Users/test/AppData/Roaming/myapp")
+def test_error_with_exc_info(name: str, tmp_path: Path) -> None:
+    path = tmp_path / "err.log"
+    log = get_logger(name, file=path)
+    try:
+        raise ValueError("boom")
+    except ValueError:
+        log.error("fallo", exc_info=True)
+    content = path.read_text(encoding="utf-8")
+    assert "ERROR" in content
+    assert "Traceback" in content
+    assert "ValueError: boom" in content

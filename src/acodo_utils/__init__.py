@@ -39,7 +39,7 @@ prefijo y dentro de cada una van en orden alfabético.
 
 | Prefijo   | Returns       | Categoría |
 |-----------|---------------|-----------|
-| `get_*`   | `Any`         | Obtenedores de valores del entorno, credencial, ID, ... |
+| `get_*`   | `Any`         | Obtenedores de valores del entorno, credencial, ID, logger, ... |
 | `has_*`   | `bool`        | Comprobación de presencia de claves, campos o estructura. |
 | `parse_*` | `str`         | Formateado a texto legible (importes, fechas, tamaños, ...). |
 | `to_*`    | `Any \| None` | Conversión de tipo o `None` si no puede. |
