@@ -28,8 +28,9 @@ valid_email("email_sin_punto@ejemplo-com")  # False
 Tipos
 -----
 
-`acodo_utils.types` define la enumeración `SocialLink`, usada por
-`valid_social_url`.
+`SocialLink` (definida en `acodo_utils.types`) enumera los tipos de enlace de
+red social que reconoce `valid_social_url`. `Logger` es lo que devuelve
+`get_logger`.
 
 
 Convenio de nombrado
@@ -91,6 +92,7 @@ from .converters import (
     to_timedelta,
 )
 from .getters import (
+    Logger,
     get_config_dir,
     get_env,
     get_file_hash,
@@ -115,6 +117,7 @@ from .parsers import (
     parse_slug,
     parse_timedelta,
 )
+from .types import SocialLink
 from .validators import (
     valid_bic,
     valid_bool,
@@ -145,6 +148,8 @@ from .validators import (
 )
 
 __all__ = [
+    "Logger",
+    "SocialLink",
     "get_config_dir",
     "get_env",
     "get_file_hash",
