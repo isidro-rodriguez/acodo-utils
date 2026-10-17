@@ -11,9 +11,10 @@ MODULES = (converters, checkers, parsers, validators, getters, types)
 PREFIXES = ("to_", "has_", "parse_", "valid_", "get_")
 
 
-def test_all_is_sorted_and_complete() -> None:
-    assert iu.__all__ == sorted(iu.__all__)
-    assert all(callable(getattr(iu, name)) for name in iu.__all__)
+def test_all_lists_the_modules() -> None:
+    modules = [module.__name__.rpartition(".")[2] for module in MODULES]
+    assert iu.__all__ == sorted(modules)
+    assert all(isinstance(getattr(iu, name), ModuleType) for name in iu.__all__)
 
 
 def _public_names(module: ModuleType) -> list[str]:
@@ -30,9 +31,19 @@ def _public_names(module: ModuleType) -> list[str]:
     )
 
 
-def test_public_names_match_all() -> None:
-    public = [name for module in MODULES for name in _public_names(module)]
-    assert sorted(public) == sorted(iu.__all__)
+def test_public_names_are_reexported() -> None:
+    for module in MODULES:
+        for name in _public_names(module):
+            assert getattr(iu, name) is getattr(module, name), name
+
+
+def test_reexports_use_redundant_alias() -> None:
+    # `from .x import f as f` declara la reexportación para los verificadores de
+    # tipos (el paquete lleva `py.typed`).
+    tree = ast.parse(pathlib.Path(str(iu.__file__)).read_text(encoding="utf-8"))
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom) and node.level == 1:
+            assert all(a.asname == a.name for a in node.names), node.module
 
 
 def test_public_functions_are_alphabetical_per_prefix() -> None:

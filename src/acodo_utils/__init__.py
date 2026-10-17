@@ -71,147 +71,211 @@ Enlaces de interés
 """  # noqa
 
 from .checkers import (
-    has_required_attrs,
-    has_required_fields,
-    has_required_keys,
+    has_required_attrs as has_required_attrs,
+)
+from .checkers import (
+    has_required_fields as has_required_fields,
+)
+from .checkers import (
+    has_required_keys as has_required_keys,
 )
 from .converters import (
-    to_bool,
-    to_bytes,
-    to_date,
-    to_datetime,
-    to_decimal,
-    to_dict,
-    to_float,
-    to_int,
-    to_json,
-    to_list,
-    to_path,
-    to_port,
-    to_str,
-    to_timedelta,
+    to_bool as to_bool,
+)
+from .converters import (
+    to_bytes as to_bytes,
+)
+from .converters import (
+    to_date as to_date,
+)
+from .converters import (
+    to_datetime as to_datetime,
+)
+from .converters import (
+    to_decimal as to_decimal,
+)
+from .converters import (
+    to_dict as to_dict,
+)
+from .converters import (
+    to_float as to_float,
+)
+from .converters import (
+    to_int as to_int,
+)
+from .converters import (
+    to_json as to_json,
+)
+from .converters import (
+    to_list as to_list,
+)
+from .converters import (
+    to_path as to_path,
+)
+from .converters import (
+    to_port as to_port,
+)
+from .converters import (
+    to_str as to_str,
+)
+from .converters import (
+    to_timedelta as to_timedelta,
 )
 from .getters import (
-    Logger,
-    get_config_dir,
-    get_env,
-    get_file_hash,
-    get_hash,
-    get_hmac,
-    get_logger,
-    get_now,
-    get_otp,
-    get_password_hash,
-    get_random_choice,
-    get_random_int,
-    get_random_password,
-    get_random_token,
-    get_uuid,
+    Logger as Logger,
+)
+from .getters import (
+    get_config_dir as get_config_dir,
+)
+from .getters import (
+    get_env as get_env,
+)
+from .getters import (
+    get_file_hash as get_file_hash,
+)
+from .getters import (
+    get_hash as get_hash,
+)
+from .getters import (
+    get_hmac as get_hmac,
+)
+from .getters import (
+    get_logger as get_logger,
+)
+from .getters import (
+    get_now as get_now,
+)
+from .getters import (
+    get_otp as get_otp,
+)
+from .getters import (
+    get_password_hash as get_password_hash,
+)
+from .getters import (
+    get_random_choice as get_random_choice,
+)
+from .getters import (
+    get_random_int as get_random_int,
+)
+from .getters import (
+    get_random_password as get_random_password,
+)
+from .getters import (
+    get_random_token as get_random_token,
+)
+from .getters import (
+    get_uuid as get_uuid,
 )
 from .parsers import (
-    parse_amount,
-    parse_bool,
-    parse_datetime,
-    parse_percent,
-    parse_size,
-    parse_slug,
-    parse_timedelta,
+    parse_amount as parse_amount,
 )
-from .types import SocialLink
+from .parsers import (
+    parse_bool as parse_bool,
+)
+from .parsers import (
+    parse_datetime as parse_datetime,
+)
+from .parsers import (
+    parse_percent as parse_percent,
+)
+from .parsers import (
+    parse_size as parse_size,
+)
+from .parsers import (
+    parse_slug as parse_slug,
+)
+from .parsers import (
+    parse_timedelta as parse_timedelta,
+)
+from .types import SocialLink as SocialLink
 from .validators import (
-    valid_bic,
-    valid_bool,
-    valid_cif,
-    valid_date,
-    valid_datetime,
-    valid_dni,
-    valid_domain,
-    valid_duration,
-    valid_email,
-    valid_filename,
-    valid_hex_color,
-    valid_iban,
-    valid_ip,
-    valid_json,
-    valid_mac,
-    valid_nie,
-    valid_nif,
-    valid_passport,
-    valid_password,
-    valid_phone,
-    valid_port,
-    valid_postal_code,
-    valid_slug,
-    valid_social_url,
-    valid_url,
-    valid_uuid,
+    valid_bic as valid_bic,
+)
+from .validators import (
+    valid_bool as valid_bool,
+)
+from .validators import (
+    valid_cif as valid_cif,
+)
+from .validators import (
+    valid_date as valid_date,
+)
+from .validators import (
+    valid_datetime as valid_datetime,
+)
+from .validators import (
+    valid_dni as valid_dni,
+)
+from .validators import (
+    valid_domain as valid_domain,
+)
+from .validators import (
+    valid_duration as valid_duration,
+)
+from .validators import (
+    valid_email as valid_email,
+)
+from .validators import (
+    valid_filename as valid_filename,
+)
+from .validators import (
+    valid_hex_color as valid_hex_color,
+)
+from .validators import (
+    valid_iban as valid_iban,
+)
+from .validators import (
+    valid_ip as valid_ip,
+)
+from .validators import (
+    valid_json as valid_json,
+)
+from .validators import (
+    valid_mac as valid_mac,
+)
+from .validators import (
+    valid_nie as valid_nie,
+)
+from .validators import (
+    valid_nif as valid_nif,
+)
+from .validators import (
+    valid_passport as valid_passport,
+)
+from .validators import (
+    valid_password as valid_password,
+)
+from .validators import (
+    valid_phone as valid_phone,
+)
+from .validators import (
+    valid_port as valid_port,
+)
+from .validators import (
+    valid_postal_code as valid_postal_code,
+)
+from .validators import (
+    valid_slug as valid_slug,
+)
+from .validators import (
+    valid_social_url as valid_social_url,
+)
+from .validators import (
+    valid_url as valid_url,
+)
+from .validators import (
+    valid_uuid as valid_uuid,
 )
 
+# pdoc documenta cada módulo en su propia página, y la del paquete solo lista los
+# módulos. Las funciones y clases se reexportan con alias redundante
+# (`from .x import f as f`), que es como los verificadores de tipos reconocen una
+# reexportación en un paquete con `py.typed`, sin necesidad de `__all__`.
 __all__ = [
-    "Logger",
-    "SocialLink",
-    "get_config_dir",
-    "get_env",
-    "get_file_hash",
-    "get_hash",
-    "get_hmac",
-    "get_logger",
-    "get_now",
-    "get_otp",
-    "get_password_hash",
-    "get_random_choice",
-    "get_random_int",
-    "get_random_password",
-    "get_random_token",
-    "get_uuid",
-    "has_required_attrs",
-    "has_required_fields",
-    "has_required_keys",
-    "parse_amount",
-    "parse_bool",
-    "parse_datetime",
-    "parse_percent",
-    "parse_size",
-    "parse_slug",
-    "parse_timedelta",
-    "to_bool",
-    "to_bytes",
-    "to_date",
-    "to_datetime",
-    "to_decimal",
-    "to_dict",
-    "to_float",
-    "to_int",
-    "to_json",
-    "to_list",
-    "to_path",
-    "to_port",
-    "to_str",
-    "to_timedelta",
-    "valid_bic",
-    "valid_bool",
-    "valid_cif",
-    "valid_date",
-    "valid_datetime",
-    "valid_dni",
-    "valid_domain",
-    "valid_duration",
-    "valid_email",
-    "valid_filename",
-    "valid_hex_color",
-    "valid_iban",
-    "valid_ip",
-    "valid_json",
-    "valid_mac",
-    "valid_nie",
-    "valid_nif",
-    "valid_passport",
-    "valid_password",
-    "valid_phone",
-    "valid_port",
-    "valid_postal_code",
-    "valid_slug",
-    "valid_social_url",
-    "valid_url",
-    "valid_uuid",
+    "checkers",
+    "converters",
+    "getters",
+    "parsers",
+    "types",
+    "validators",
 ]
