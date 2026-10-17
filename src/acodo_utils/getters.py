@@ -12,13 +12,14 @@ import hashlib
 import hmac
 import os
 import secrets
+import sys
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, overload
 from uuid import uuid4
 
 from .converters import to_str
-from .validators import _allowed_chars, _check_password_args
+from .validators import _allowed_chars, _check_password_args, valid_filename
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
@@ -26,6 +27,41 @@ if TYPE_CHECKING:
     from uuid import UUID
 
 T = TypeVar("T")
+
+
+def get_config_dir(app_name: str) -> Path:
+    r"""Devuelve el directorio de configuración del usuario para una aplicación.
+
+    La ubicación depende del sistema operativo:
+
+    - **Linux/BSD**: `$XDG_CONFIG_HOME/<app_name>` o `~/.config/<app_name>`.
+    - **macOS**: `~/Library/Application Support/<app_name>`.
+    - **Windows**: `%APPDATA%\\<app_name>`.
+
+    No crea el directorio.
+
+    Args:
+        app_name: Nombre de la aplicación; debe ser un nombre de fichero válido.
+
+    Returns:
+        Ruta al directorio de configuración (puede no existir todavía).
+
+    Raises:
+        ValueError: Si `app_name` no es un nombre de fichero válido.
+
+    Examples:
+        >>> get_config_dir("miapp").name
+        'miapp'
+    """
+    if not valid_filename(app_name):
+        raise ValueError(f"Nombre de aplicación no válido: {app_name!r}.")
+    if sys.platform == "win32":
+        base = Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming"))
+    elif sys.platform == "darwin":
+        base = Path.home() / "Library" / "Application Support"
+    else:
+        base = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
+    return base / app_name
 
 
 @overload

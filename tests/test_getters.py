@@ -1,6 +1,7 @@
 """Tests de los getters (`get_*`)."""
 
 import pathlib
+import sys
 from typing import assert_type
 
 import pytest
@@ -293,3 +294,52 @@ def test_get_random_token_invalid_nbytes() -> None:
         iu.get_random_token(-5)
     with pytest.raises(ValueError, match="nbytes"):
         iu.get_random_token(True)
+
+
+def test_get_config_dir_linux(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
+) -> None:
+    monkeypatch.setattr(sys, "platform", "linux")
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
+    assert iu.get_config_dir("miapp") == tmp_path / "miapp"
+
+
+def test_get_config_dir_linux_default(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
+) -> None:
+    monkeypatch.setattr(sys, "platform", "linux")
+    monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
+    monkeypatch.setattr(pathlib.Path, "home", lambda: tmp_path)
+    assert iu.get_config_dir("miapp") == tmp_path / ".config" / "miapp"
+
+
+def test_get_config_dir_macos(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
+) -> None:
+    monkeypatch.setattr(sys, "platform", "darwin")
+    monkeypatch.setattr(pathlib.Path, "home", lambda: tmp_path)
+    expected = tmp_path / "Library" / "Application Support" / "miapp"
+    assert iu.get_config_dir("miapp") == expected
+
+
+def test_get_config_dir_windows(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
+) -> None:
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.setenv("APPDATA", str(tmp_path))
+    assert iu.get_config_dir("miapp") == tmp_path / "miapp"
+
+
+def test_get_config_dir_windows_default(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: pathlib.Path
+) -> None:
+    monkeypatch.setattr(sys, "platform", "win32")
+    monkeypatch.delenv("APPDATA", raising=False)
+    monkeypatch.setattr(pathlib.Path, "home", lambda: tmp_path)
+    assert iu.get_config_dir("miapp") == tmp_path / "AppData" / "Roaming" / "miapp"
+
+
+@pytest.mark.parametrize("app_name", ["", "bad/name", "bad?"])
+def test_get_config_dir_rejects_invalid_name(app_name: str) -> None:
+    with pytest.raises(ValueError, match="no válido"):
+        iu.get_config_dir(app_name)

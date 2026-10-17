@@ -91,6 +91,7 @@ from .converters import (
     to_timedelta,
 )
 from .getters import (
+    get_config_dir,
     get_env,
     get_file_hash,
     get_hash,
@@ -144,6 +145,7 @@ from .validators import (
 )
 
 __all__ = [
+    "get_config_dir",
     "get_env",
     "get_file_hash",
     "get_hash",
