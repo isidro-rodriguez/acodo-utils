@@ -31,21 +31,11 @@ _TRUE_STRINGS = frozenset({"1", "on", "si", "sí", "t", "true", "verdadero", "y"
 
 _FALSE_STRINGS = frozenset({"0", "f", "false", "falso", "n", "no", "off"})
 
-_BYTE_UNITS = {
-    "": 1,
-    "b": 1,
-    "byte": 1,
-    "bytes": 1,
-    "kib": 1024,
-    "mib": 1024**2,
-    "gib": 1024**3,
-    "tib": 1024**4,
-    "pib": 1024**5,
-    "kb": 1000,
-    "mb": 1000**2,
-    "gb": 1000**3,
-    "tb": 1000**4,
-    "pb": 1000**5,
+# `kb` y `kib` (y análogos) significan lo mismo: base 1024, como `parse_size`.
+_BYTE_UNITS = {"": 1, "b": 1, "byte": 1, "bytes": 1} | {
+    f"{prefix}{suffix}": 1024**power
+    for power, prefix in enumerate("kmgtp", start=1)
+    for suffix in ("b", "ib")
 }
 
 _MAX_TIMESTAMP = 4_133_980_799  # 2100-12-31T23:59:59Z
@@ -122,9 +112,9 @@ def to_bool(raw: str | int | None) -> bool | None:
 def to_bytes(raw: str | None) -> int | None:
     """Convierte un texto de tamaño (`"1,5 GiB"`) a bytes.
 
-    Unidades binarias (KiB, MiB...) en base 1024 y decimales (kB, MB...) en
-    base 1000. Admite coma o punto decimal. Sin unidad se asumen bytes. Es el
-    camino inverso, aproximado, de `parse_size`.
+    Todas las unidades usan base 1024: `KB` y `KiB` valen lo mismo, y así
+    `MB`/`MiB`, `GB`/`GiB`... Admite coma o punto decimal. Sin unidad se asumen
+    bytes. Es el camino inverso, aproximado, de `parse_size`.
 
     Args:
         raw: Texto a convertir.
@@ -135,8 +125,8 @@ def to_bytes(raw: str | None) -> int | None:
     Examples:
         >>> to_bytes("1,5 GiB")
         1610612736
-        >>> to_bytes("2 kB")
-        2000
+        >>> to_bytes("2 MB")
+        2097152
         >>> to_bytes("512")
         512
         >>> to_bytes("1 furlong") is None
